@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using DevFlow.Domain.Enum;
 
 namespace DevFlow.Domain.Entities
 {
@@ -12,12 +13,13 @@ namespace DevFlow.Domain.Entities
     {
         
         public int Id { get; set; }
-        [Required]
+        
         public string Name { get; set; }
-        [EmailAddress]
+        
         public string Email {  get; set; }
-        public string HashPassword {  get; set; }
+        public string PasswordHash {  get; set; }
         public DateTime CreatedAt { get; set; }
+        public UserRole Role { get; set; }
 
     }
 }
