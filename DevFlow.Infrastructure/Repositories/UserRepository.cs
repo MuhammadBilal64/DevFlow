@@ -1,4 +1,4 @@
-﻿using DevFlow.Application.Users;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Domain.Entities;
 using DevFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +22,10 @@ namespace DevFlow.Infrastructure.Repositories
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+        }
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
     }
