@@ -7,9 +7,8 @@ namespace DevFlow.Application.Users.LoginUser
 {
     public class LoginUserResult
     {
-        public int UserId {  get; set; }
-        public string Name { get; set; } = null!;
-        public string Email { get; set; } = null!;
-        public UserRole Role { get; set; }
+       
+        public string AccessToken { get; set; } = null!;
+      
     }
 }

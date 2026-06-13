@@ -9,10 +9,12 @@ namespace DevFlow.Application.Users.LoginUser
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
-        public LoginUserHandle(IUserRepository userRepository, IPasswordHasher passwordHasher)
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        public LoginUserHandle(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtTokenGenerator jwtTokenGenerator)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
         public async Task<LoginUserResult> Handle(LoginUserCommand command)
         {
@@ -21,18 +23,16 @@ namespace DevFlow.Application.Users.LoginUser
             {
                 throw new Exception("User not Registered");
             }
-           var hashed = _passwordHasher.Hash(command.Password);
-            bool verify = _passwordHasher.verify(user., hashed);
+            bool verify = _passwordHasher.verify(command.Password,user.PasswordHash );
             if (verify == false)
             {
                 throw new Exception("Password Not Matched");
             }
+            var AccessToken_ = _jwtTokenGenerator.GenerateToken(user);
+
             return new LoginUserResult
             {
-                UserId = user.Id,
-                Email = user.Email,
-                Role = user.Role,
-                Name = user.Name,
+                AccessToken= AccessToken_
             };
 
         }
