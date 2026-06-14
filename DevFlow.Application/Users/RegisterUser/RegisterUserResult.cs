@@ -7,8 +7,8 @@ namespace DevFlow.Application.Users.RegisterUser
     public  class RegisterUserResult
     {
         public int UserId { get; set; }
-        public string Email {  get; set; }
-        public string Name {  get; set; }
+        public string Email { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
     }
 }

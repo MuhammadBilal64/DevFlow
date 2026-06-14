@@ -3,6 +3,7 @@ using DevFlow.Application.Abstractions;
 using DevFlow.Application.Users.LoginUser;
 using DevFlow.Application.Users.LogoutUser;
 using DevFlow.Application.Users.RefreshToken;
+using DevFlow.Application.Users.RegisterUser;
 using DevFlow.Infrastructure.Persistence;
 using DevFlow.Infrastructure.Repositories;
 using DevFlow.Infrastructure.Security;
@@ -20,8 +21,12 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+// Program.cs
+builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<LoginUserHandle>();
+builder.Services.AddScoped<RegisterUserHandler>();
 builder.Services.AddScoped<RefreshTokenHandle>();
 builder.Services.AddScoped<LogoutHandle>();
 builder.Services.AddAuthentication(options =>

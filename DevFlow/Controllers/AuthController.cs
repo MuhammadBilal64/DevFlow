@@ -2,6 +2,7 @@
 using DevFlow.Application.Users.LogoutUser;
 using DevFlow.Application.Users.RefreshToken;
 using DevFlow.Application.Users.RegisterUser;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,7 +52,12 @@ namespace DevFlow.Api.Controllers
             await _logoutHandler.Handle(command);
             return Ok("Logged out");
         }
-
+        [HttpGet("test")]
+        [Authorize]
+        public IActionResult TestProtected()
+        {
+            return Ok("You are authorized");
+        }
 
 
     }
