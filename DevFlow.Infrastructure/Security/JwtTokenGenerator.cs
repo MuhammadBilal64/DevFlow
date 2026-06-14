@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Domain.Entities;
@@ -18,7 +19,14 @@ namespace DevFlow.Infrastructure.Security
             _settings = settings.Value;
         }
 
-        public string GenerateToken(User user)
+        public string GenerateRefreshToken()
+        {
+            byte[] randomBytes = new byte[32];
+            RandomNumberGenerator.Fill(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
+
+        public string GenerateAccessToken(User user)
         {
             var claims = new List<Claim>
            {

@@ -10,5 +10,6 @@ namespace DevFlow.Application.Abstractions
         Task <bool>ExistByEmailAsync(string email);
         Task AddAsync(User user);
         Task<User?> GetByEmailAsync(string Email);
+        Task<User?>GetByUserIdAsync(int userId);
     }
 }

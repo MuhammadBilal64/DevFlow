@@ -7,6 +7,7 @@ namespace DevFlow.Application.Abstractions
 {
     public interface IJwtTokenGenerator
     {
-    string GenerateToken(User user);
+    string GenerateAccessToken(User user);
+    string GenerateRefreshToken();
     }
 }

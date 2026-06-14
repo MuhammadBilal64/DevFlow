@@ -25,13 +25,15 @@ namespace DevFlow.Application.Users.RegisterUser
                 throw new Exception("Email Already Exist");
                
             }
+            var Password = _passwordHasher.Hash(command.Password);
             var user = new User
             {
                 Name = command.Name,
                 Email = command.Email,
-                PasswordHash =_passwordHasher.Hash(command.Password),
                 Role = UserRole.Member,
                 CreatedAt = DateTime.UtcNow,
+                PasswordHash=Password
+
 
             };
            await  _userRepository.AddAsync(user);
