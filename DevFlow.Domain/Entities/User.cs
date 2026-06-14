@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using DevFlow.Domain.Enum;
 
 namespace DevFlow.Domain.Entities
 {
@@ -12,12 +13,14 @@ namespace DevFlow.Domain.Entities
     {
         
         public int Id { get; set; }
-        [Required]
-        public string Name { get; set; }
-        [EmailAddress]
-        public string Email {  get; set; }
-        public string HashPassword {  get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public string Email { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+        public UserRole Role { get; set; }
+        public ICollection<RefreshToken> RefreshTokens {  get; set; }=new List<RefreshToken>();
 
     }
 }

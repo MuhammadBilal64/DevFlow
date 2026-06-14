@@ -1,6 +1,6 @@
 <Solution>
-  <Project Path="DevFlow.Application/DevFlow.Application.csproj" Id="7c8688eb-40b6-4f0a-b3ac-203e4316e25d" />
-  <Project Path="DevFlow.Domain/DevFlow.Domain.csproj" Id="e3f72789-7a75-4e5a-ad35-7c17b3071a8d" />
-  <Project Path="DevFlow.Infrastructure/DevFlow.Infrastructure.csproj" Id="7c8339a8-f0dc-4114-821c-bb14e6867450" />
+  <Project Path="DevFlow.Application/DevFlow.Application.csproj" Id="bec4ae08-b50e-422d-9680-59911c551413" />
+  <Project Path="DevFlow.Domain/DevFlow.Domain.csproj" Id="217e26a4-f5d0-4cae-bf3f-6757fb0e5b71" />
+  <Project Path="DevFlow.Infrastructure/DevFlow.Infrastructure.csproj" Id="d4292045-97dc-4265-88f5-ec199668d5a8" />
   <Project Path="DevFlow/DevFlow.Api.csproj" />
 </Solution>
