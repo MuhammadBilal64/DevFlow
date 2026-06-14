@@ -1,5 +1,8 @@
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Users.LoginUser;
+using DevFlow.Application.Users.LogoutUser;
+using DevFlow.Application.Users.RefreshToken;
 using DevFlow.Infrastructure.Persistence;
 using DevFlow.Infrastructure.Repositories;
 using DevFlow.Infrastructure.Security;
@@ -18,6 +21,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<LoginUserHandle>();
+builder.Services.AddScoped<RefreshTokenHandle>();
+builder.Services.AddScoped<LogoutHandle>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -45,7 +51,6 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<DevFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevFlowDb")));
-builder.Services.AddAuthentication();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

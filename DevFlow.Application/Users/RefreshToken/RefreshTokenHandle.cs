@@ -6,12 +6,12 @@ using DevFlow.Domain.Entities;
 
 namespace DevFlow.Application.Users.RefreshToken
 {
-    public class RefreshTokenHandler
+    public class RefreshTokenHandle
     {
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
-        public RefreshTokenHandler(IRefreshTokenRepository refreshTokenRepository, IJwtTokenGenerator jwtTokenGenerator,IUserRepository userRepository)
+        public RefreshTokenHandle(IRefreshTokenRepository refreshTokenRepository, IJwtTokenGenerator jwtTokenGenerator,IUserRepository userRepository)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
