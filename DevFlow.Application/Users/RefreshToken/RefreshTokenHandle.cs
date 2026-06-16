@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
 
 namespace DevFlow.Application.Users.RefreshToken
@@ -23,21 +24,21 @@ namespace DevFlow.Application.Users.RefreshToken
             var existingToken = await _refreshTokenRepository.GetByTokenAsync(command.RefreshToken);
             if (existingToken == null)
             {
-                throw new Exception("Token Doesnot Exist");
+                throw new UnAuthorizedException("Invalid refresh token");
             }
             if (existingToken.IsRevoked)
             {
-                throw new Exception("Refresh Token Revoked");
+                throw new UnAuthorizedException("Refresh token revoked");
             }
             if (existingToken.ExpiresAt < DateTime.UtcNow)
             {
-                throw new Exception("Refresh Token Expired");
+                throw new UnAuthorizedException("Refresh Token Expired");
             }
             int  userId=existingToken.UserId;
             var user=await _userRepository.GetByUserIdAsync(userId);
             if (user == null)
             {
-                throw new Exception("User not exist");
+                throw new UnAuthorizedException("User not exist");
             }
             string newAccessToken=_jwtTokenGenerator.GenerateAccessToken(user);
             string newRefreshToken = _jwtTokenGenerator.GenerateRefreshToken();

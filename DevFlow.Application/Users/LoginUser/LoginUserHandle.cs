@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
 
 namespace DevFlow.Application.Users.LoginUser
@@ -25,12 +26,12 @@ namespace DevFlow.Application.Users.LoginUser
             var user =  await _userRepository.GetByEmailAsync(command.Email);
             if (user == null)
             {
-                throw new Exception("User not Registered");
+                throw new NotFoundException("User not Registered");
             }
             bool verify = _passwordHasher.verify(command.Password,user.PasswordHash );
             if (verify == false)
             {
-                throw new Exception("Password Not Matched");
+                throw new UnAuthorizedException("Invalid email or password");
             }
             var AccessToken_ = _jwtTokenGenerator.GenerateAccessToken(user);
             var RefreshToken_ = _jwtTokenGenerator.GenerateRefreshToken();

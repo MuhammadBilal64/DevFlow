@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
-
+using DevFlow.Application.Exceptions;
 namespace DevFlow.Api.Middleware
 {
     public class ExceptionMiddleware
@@ -26,8 +26,20 @@ namespace DevFlow.Api.Middleware
         }
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
+            int statusCode;
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode=(int)HttpStatusCode.InternalServerError;
+            if(ex is NotFoundException)
+            {
+                statusCode = StatusCodes.Status404NotFound;
+            }else if (ex is UnAuthorizedException)
+            {
+                statusCode = StatusCodes.Status401Unauthorized;
+            }
+            else
+            {
+                statusCode = StatusCodes.Status500InternalServerError;
+            }
+            context.Response.StatusCode = statusCode;
 
             var response = new
             {

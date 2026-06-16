@@ -1,4 +1,5 @@
 using System.Text;
+using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Users.LoginUser;
 using DevFlow.Application.Users.LogoutUser;
@@ -63,7 +64,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

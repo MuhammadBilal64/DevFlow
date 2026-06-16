@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
 
@@ -22,7 +23,7 @@ namespace DevFlow.Application.Users.RegisterUser
             var exists = await _userRepository.ExistByEmailAsync(command.Email);
             if (exists)
             {
-                throw new Exception("Email Already Exist");
+                throw new UnAuthorizedException("Email Already Exist");
                
             }
             var Password = _passwordHasher.Hash(command.Password);

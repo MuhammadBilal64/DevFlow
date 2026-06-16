@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 
 namespace DevFlow.Application.Users.LogoutUser
 {
@@ -17,11 +18,11 @@ namespace DevFlow.Application.Users.LogoutUser
             var existingToken = await _refreshTokenRepository.GetByTokenAsync(command.RefreshToken);
             if (existingToken == null)
             {
-                throw new Exception("Token Doesnot Exist");
+                throw new UnAuthorizedException("Invalid refresh token");
             }
             if (existingToken.IsRevoked)
             {
-                throw new Exception("Token Revoked");
+                throw new UnAuthorizedException("Refresh token revoked");
             }
             existingToken.IsRevoked = true;
             existingToken.RevokedAt = DateTime.UtcNow;
