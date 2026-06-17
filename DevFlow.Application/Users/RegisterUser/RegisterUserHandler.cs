@@ -23,7 +23,7 @@ namespace DevFlow.Application.Users.RegisterUser
             var exists = await _userRepository.ExistByEmailAsync(command.Email);
             if (exists)
             {
-                throw new UnAuthorizedException("Email Already Exist");
+                throw new ConflictException("Email Already Exist");
                
             }
             var Password = _passwordHasher.Hash(command.Password);

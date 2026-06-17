@@ -24,21 +24,21 @@ namespace DevFlow.Application.Users.RefreshToken
             var existingToken = await _refreshTokenRepository.GetByTokenAsync(command.RefreshToken);
             if (existingToken == null)
             {
-                throw new UnAuthorizedException("Invalid refresh token");
+                throw new UnauthorizedException("Invalid refresh token");
             }
             if (existingToken.IsRevoked)
             {
-                throw new UnAuthorizedException("Refresh token revoked");
+                throw new UnauthorizedException("Refresh token revoked");
             }
             if (existingToken.ExpiresAt < DateTime.UtcNow)
             {
-                throw new UnAuthorizedException("Refresh Token Expired");
+                throw new UnauthorizedException("Refresh Token Expired");
             }
             int  userId=existingToken.UserId;
             var user=await _userRepository.GetByUserIdAsync(userId);
             if (user == null)
             {
-                throw new UnAuthorizedException("User not exist");
+                throw new UnauthorizedException("User not exist");
             }
             string newAccessToken=_jwtTokenGenerator.GenerateAccessToken(user);
             string newRefreshToken = _jwtTokenGenerator.GenerateRefreshToken();

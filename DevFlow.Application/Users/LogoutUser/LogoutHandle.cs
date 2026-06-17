@@ -18,11 +18,11 @@ namespace DevFlow.Application.Users.LogoutUser
             var existingToken = await _refreshTokenRepository.GetByTokenAsync(command.RefreshToken);
             if (existingToken == null)
             {
-                throw new UnAuthorizedException("Invalid refresh token");
+                throw new UnauthorizedException("Invalid refresh token");
             }
             if (existingToken.IsRevoked)
             {
-                throw new UnAuthorizedException("Refresh token revoked");
+                throw new UnauthorizedException("Refresh token revoked");
             }
             existingToken.IsRevoked = true;
             existingToken.RevokedAt = DateTime.UtcNow;

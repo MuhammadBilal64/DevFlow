@@ -4,10 +4,9 @@ using System.Text;
 
 namespace DevFlow.Application.Exceptions
 {
-    public class UnauthorizedException:Exception
+    public class ConflictException:Exception
     {
-        public UnauthorizedException(string message) : base(message) { }
-
+        public ConflictException( string message):base(message) { }
 
     }
 }

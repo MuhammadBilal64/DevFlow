@@ -31,7 +31,7 @@ namespace DevFlow.Application.Users.LoginUser
             bool verify = _passwordHasher.verify(command.Password,user.PasswordHash );
             if (verify == false)
             {
-                throw new UnAuthorizedException("Invalid email or password");
+                throw new UnauthorizedException("Invalid email or password");
             }
             var AccessToken_ = _jwtTokenGenerator.GenerateAccessToken(user);
             var RefreshToken_ = _jwtTokenGenerator.GenerateRefreshToken();

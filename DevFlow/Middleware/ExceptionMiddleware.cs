@@ -31,9 +31,23 @@ namespace DevFlow.Api.Middleware
             if(ex is NotFoundException)
             {
                 statusCode = StatusCodes.Status404NotFound;
-            }else if (ex is UnAuthorizedException)
+            }else if (ex is UnauthorizedException)
             {
                 statusCode = StatusCodes.Status401Unauthorized;
+            }
+            else if (ex is ConflictException)
+            {
+                statusCode = StatusCodes.Status409Conflict;
+            }else if(ex is ValidationException validationException){
+                statusCode = StatusCodes.Status400BadRequest;
+                var response_ = new
+                {
+                    message = validationException.Message,
+                    errors = validationException.Errors
+                };
+                context.Response.StatusCode = statusCode;
+                return context.Response.WriteAsync(JsonSerializer.Serialize(response_));
+
             }
             else
             {
