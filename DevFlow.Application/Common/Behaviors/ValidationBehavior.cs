@@ -27,7 +27,7 @@ namespace DevFlow.Application.Common.Behaviors
                                          .ToList();
                 if (failures.Any())
                 {
-                    throw new ValidationException(failures);
+                    throw new DevFlow.Application.Exceptions.ValidationException(failures);
                 }
             }
             return await next();
