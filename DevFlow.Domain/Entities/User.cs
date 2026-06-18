@@ -21,6 +21,8 @@ namespace DevFlow.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public UserRole Role { get; set; }
         public ICollection<RefreshToken> RefreshTokens {  get; set; }=new List<RefreshToken>();
+        public ICollection<Workspace> CreatedWorkspaces { get; set; } = new List<Workspace>();
+        public ICollection<WorkspaceMember> WorkspaceMemberships {  get; set; }=new List<WorkspaceMember>();
 
     }
 }
