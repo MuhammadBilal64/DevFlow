@@ -1,5 +1,7 @@
 using System.Text;
+using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Common.Behaviors;
 using DevFlow.Application.Users.LoginUser;
 using DevFlow.Application.Users.LogoutUser;
 using DevFlow.Application.Users.RefreshToken;
@@ -7,6 +9,8 @@ using DevFlow.Application.Users.RegisterUser;
 using DevFlow.Infrastructure.Persistence;
 using DevFlow.Infrastructure.Repositories;
 using DevFlow.Infrastructure.Security;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,10 +29,12 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-builder.Services.AddScoped<LoginUserHandle>();
-builder.Services.AddScoped<RegisterUserHandler>();
-builder.Services.AddScoped<RefreshTokenHandle>();
-builder.Services.AddScoped<LogoutHandle>();
+builder.Services.AddValidatorsFromAssembly(typeof(LoginUserValidator).Assembly);
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(LoginUserCommand).Assembly));
+
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,7 +69,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

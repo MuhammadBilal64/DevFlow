@@ -2,42 +2,44 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
+using MediatR;
 
 namespace DevFlow.Application.Users.RefreshToken
 {
-    public class RefreshTokenHandle
+    public class RefreshTokenHandler:IRequestHandler<RefreshTokenCommand,RefreshTokenResult>
     {
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
-        public RefreshTokenHandle(IRefreshTokenRepository refreshTokenRepository, IJwtTokenGenerator jwtTokenGenerator,IUserRepository userRepository)
+        public RefreshTokenHandler(IRefreshTokenRepository refreshTokenRepository, IJwtTokenGenerator jwtTokenGenerator,IUserRepository userRepository)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
             _userRepository= userRepository;
             
         }
-        public async Task<RefreshTokenResult> Handle(RefreshTokenCommand command)
+        public async Task<RefreshTokenResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
         {
-            var existingToken = await _refreshTokenRepository.GetByTokenAsync(command.RefreshToken);
+            var existingToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken);
             if (existingToken == null)
             {
-                throw new Exception("Token Doesnot Exist");
+                throw new UnauthorizedException("Invalid refresh token");
             }
             if (existingToken.IsRevoked)
             {
-                throw new Exception("Refresh Token Revoked");
+                throw new UnauthorizedException("Refresh token revoked");
             }
             if (existingToken.ExpiresAt < DateTime.UtcNow)
             {
-                throw new Exception("Refresh Token Expired");
+                throw new UnauthorizedException("Refresh Token Expired");
             }
             int  userId=existingToken.UserId;
             var user=await _userRepository.GetByUserIdAsync(userId);
             if (user == null)
             {
-                throw new Exception("User not exist");
+                throw new UnauthorizedException("User not exist");
             }
             string newAccessToken=_jwtTokenGenerator.GenerateAccessToken(user);
             string newRefreshToken = _jwtTokenGenerator.GenerateRefreshToken();
@@ -63,6 +65,7 @@ namespace DevFlow.Application.Users.RefreshToken
             };
 
         }
+
 
     }
 }

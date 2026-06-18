@@ -2,6 +2,7 @@
 using DevFlow.Application.Users.LogoutUser;
 using DevFlow.Application.Users.RefreshToken;
 using DevFlow.Application.Users.RegisterUser;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,10 @@ namespace DevFlow.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly LoginUserHandle _loginHandler;
-        private readonly RefreshTokenHandle _refreshHandler;
-        private readonly LogoutHandle _logoutHandler;
-        private readonly RegisterUserHandler _registerUserHandler;
-        public AuthController(LoginUserHandle loginHandler, RefreshTokenHandle refreshHandler, LogoutHandle logoutHandler,RegisterUserHandler registerhandler)
+        private readonly IMediator _mediator;
+        public AuthController(IMediator mediator)
         {
-            _loginHandler = loginHandler;
-            _refreshHandler = refreshHandler;
-            _logoutHandler = logoutHandler;
-            _registerUserHandler= registerhandler;
+            _mediator = mediator;
 
         }
        
@@ -30,26 +25,26 @@ namespace DevFlow.Api.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginUserCommand command)
         {
-            var result = await _loginHandler.Handle(command);
+            var result = await _mediator.Send(command);
             return Ok(result);
         }
         [HttpPost("Register")]
         public async Task<IActionResult>Register(RegisterUserCommand command)
         {
-            var result= await _registerUserHandler.Handle(command);
+            var result= await _mediator.Send(command);
             return Ok(result);
 
         }
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh(RefreshTokenCommand command)
         {
-            var result = await _refreshHandler.Handle(command);
+            var result = await _mediator.Send(command);
             return Ok(result);
         }
         [HttpPost("logout")]
         public async Task<IActionResult> Logout(LogoutCommand command)
         {
-            await _logoutHandler.Handle(command);
+            await _mediator.Send(command);
             return Ok("Logged out");
         }
         [HttpGet("test")]

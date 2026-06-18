@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
+using MediatR;
 
 namespace DevFlow.Application.Users.LoginUser
 {
-    public class LoginUserHandle
+    public class LoginUserHandler:IRequestHandler<LoginUserCommand,LoginUserResult>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
-        public LoginUserHandle(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtTokenGenerator jwtTokenGenerator,IRefreshTokenRepository refreshTokenRepository)
+        public LoginUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtTokenGenerator jwtTokenGenerator,IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
@@ -20,17 +22,18 @@ namespace DevFlow.Application.Users.LoginUser
             _refreshTokenRepository= refreshTokenRepository;
 
         }
-        public async Task<LoginUserResult> Handle(LoginUserCommand command)
+        public async Task<LoginUserResult> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+
         {
-            var user =  await _userRepository.GetByEmailAsync(command.Email);
+            var user =  await _userRepository.GetByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new Exception("User not Registered");
+                throw new NotFoundException("User not Registered");
             }
-            bool verify = _passwordHasher.verify(command.Password,user.PasswordHash );
+            bool verify = _passwordHasher.verify(request.Password,user.PasswordHash );
             if (verify == false)
             {
-                throw new Exception("Password Not Matched");
+                throw new UnauthorizedException("Invalid email or password");
             }
             var AccessToken_ = _jwtTokenGenerator.GenerateAccessToken(user);
             var RefreshToken_ = _jwtTokenGenerator.GenerateRefreshToken();
@@ -52,5 +55,7 @@ namespace DevFlow.Application.Users.LoginUser
             };
 
         }
+
+       
     }
 }
