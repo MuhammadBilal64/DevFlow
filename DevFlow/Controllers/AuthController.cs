@@ -51,8 +51,8 @@ namespace DevFlow.Api.Controllers
         public async Task<IActionResult> Logout(LogoutCommand command)
         {
             await _mediator.Send(command);
-            return Ok(ApiResponse.Ok(
-       
+            return Ok(ApiResponse<object>.Ok(
+       null,
               "Log out Successfully"
                 
             ));
