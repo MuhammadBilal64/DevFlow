@@ -5,10 +5,11 @@ using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
+using MediatR;
 
 namespace DevFlow.Application.Users.RegisterUser
 {
-    public class RegisterUserHandler
+    public class RegisterUserHandler:IRequestHandler<RegisterUserCommand,RegisterUserResult>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
@@ -18,19 +19,19 @@ namespace DevFlow.Application.Users.RegisterUser
             _passwordHasher = passwordHasher;
         }
       
-        public async Task<RegisterUserResult>Handle(RegisterUserCommand command)
+        public async Task<RegisterUserResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            var exists = await _userRepository.ExistByEmailAsync(command.Email);
+            var exists = await _userRepository.ExistByEmailAsync(request.Email);
             if (exists)
             {
                 throw new ConflictException("Email Already Exist");
                
             }
-            var Password = _passwordHasher.Hash(command.Password);
+            var Password = _passwordHasher.Hash(request.Password);
             var user = new User
             {
-                Name = command.Name,
-                Email = command.Email,
+                Name = request.Name,
+                Email = request.Email,
                 Role = UserRole.Member,
                 CreatedAt = DateTime.UtcNow,
                 PasswordHash=Password
@@ -47,5 +48,7 @@ namespace DevFlow.Application.Users.RegisterUser
             };
 
         }
+
+       
     }
 }
