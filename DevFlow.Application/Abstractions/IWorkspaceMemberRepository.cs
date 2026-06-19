@@ -8,5 +8,6 @@ namespace DevFlow.Application.Abstractions
     public interface IWorkspaceMemberRepository
     {
         Task AddAsync(WorkspaceMember member);
+        Task<List<WorkspaceMember>> GetByUserIdAsync(int userId);
     }
 }
