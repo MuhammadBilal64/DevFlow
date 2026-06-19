@@ -2,6 +2,7 @@ using System.Text;
 using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Behaviors;
+using DevFlow.Application.Common.Interfaces;
 using DevFlow.Application.Users.LoginUser;
 using DevFlow.Application.Users.LogoutUser;
 using DevFlow.Application.Users.RefreshToken;
@@ -25,6 +26,10 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+builder.Services.AddScoped<IWorkspaceMemberRepository, WorkspaceMemberRepository>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 // Program.cs
 builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
