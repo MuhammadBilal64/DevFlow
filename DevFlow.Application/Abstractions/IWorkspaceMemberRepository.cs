@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Domain.Entities;
+using DevFlow.Domain.Enum;
 
 namespace DevFlow.Application.Abstractions
 {
@@ -9,5 +10,6 @@ namespace DevFlow.Application.Abstractions
     {
         Task AddAsync(WorkspaceMember member);
         Task<List<WorkspaceMember>> GetByUserIdAsync(int userId);
+        Task<WorkspaceMember> GetMemberAsync(int userId,int workspaceId);
     }
 }

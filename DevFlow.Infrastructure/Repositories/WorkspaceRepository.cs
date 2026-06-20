@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
 using DevFlow.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevFlow.Infrastructure.Repositories
 {
@@ -18,6 +20,16 @@ namespace DevFlow.Infrastructure.Repositories
         {
              await _context.Workspaces.AddAsync(workspace);
            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Workspace> GetByIdAsync(int workspaceId)
+        {
+           var workspace= await _context.Workspaces.FirstOrDefaultAsync(u=>u.Id == workspaceId);
+            if (workspace == null)
+            {
+                throw new NotFoundException("Workspace does not exist");
+            }
+            return workspace;
         }
     }
 }
