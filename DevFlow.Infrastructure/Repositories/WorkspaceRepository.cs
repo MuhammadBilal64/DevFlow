@@ -22,13 +22,10 @@ namespace DevFlow.Infrastructure.Repositories
            await _context.SaveChangesAsync();
         }
 
-        public async Task<Workspace> GetByIdAsync(int workspaceId)
+        public async Task<Workspace?> GetByIdAsync(int workspaceId)
         {
            var workspace= await _context.Workspaces.FirstOrDefaultAsync(u=>u.Id == workspaceId);
-            if (workspace == null)
-            {
-                throw new NotFoundException("Workspace does not exist");
-            }
+            
             return workspace;
         }
     }

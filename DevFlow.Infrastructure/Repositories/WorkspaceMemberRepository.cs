@@ -22,20 +22,23 @@ namespace DevFlow.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<WorkspaceMember>> GetAllMembersAsync(int workspaceId)
+        {
+            return await _context.WorkspacesMembers.Include(u=>u.User).Where(u=>u.WorkspaceId==workspaceId) .ToListAsync();
+        }
+
         public Task<List<WorkspaceMember>> GetByUserIdAsync(int userId)
         {
             var result =  _context.WorkspacesMembers.Include(u => u.Workspace).Where(u => u.UserId == userId).ToListAsync();
             return result;
         }
 
-        public async Task<WorkspaceMember> GetMemberAsync(int userId, int workspaceId)
+        public async Task<WorkspaceMember?> GetMemberAsync(int userId, int workspaceId)
         {
-           var member=await _context.WorkspacesMembers.FindAsync(userId, workspaceId);
-            if (member == null)
-            {
-                throw new NotFoundException("Member does not exist");
-            }
-            return member;
+            return await _context.WorkspacesMembers
+                .FirstOrDefaultAsync(x =>
+                    x.UserId == userId &&
+                    x.WorkspaceId == workspaceId);
         }
     }
 }

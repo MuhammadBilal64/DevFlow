@@ -10,6 +10,8 @@ namespace DevFlow.Application.Abstractions
     {
         Task AddAsync(WorkspaceMember member);
         Task<List<WorkspaceMember>> GetByUserIdAsync(int userId);
-        Task<WorkspaceMember> GetMemberAsync(int userId,int workspaceId);
+        Task<WorkspaceMember?> GetMemberAsync(int userId,int workspaceId);
+         Task<List<WorkspaceMember>> GetAllMembersAsync(int workspaceId);
+
     }
 }
