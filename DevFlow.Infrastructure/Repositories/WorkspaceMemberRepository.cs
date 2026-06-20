@@ -43,7 +43,13 @@ namespace DevFlow.Infrastructure.Repositories
 
         public async Task RemoveAsync(int userId, int WorkspaceId)
         {
-             await _context.WorkspacesMembers.FirstOrDefaultAsync(x => x.UserId == userId && x.WorkspaceId == WorkspaceId);
+            var member= await _context.WorkspacesMembers.FirstOrDefaultAsync(x => x.UserId == userId && x.WorkspaceId == WorkspaceId);
+            if (member == null)
+            {
+                return;
+            }
+          _context.WorkspacesMembers.Remove(member);
+
             await _context.SaveChangesAsync();
         }
     }
