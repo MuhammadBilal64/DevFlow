@@ -6,6 +6,7 @@ using DevFlow.Application.Workspaces.GetWorkspaceMembers;
 using DevFlow.Application.Workspaces.GetWorkspaces;
 using DevFlow.Application.Workspaces.RemoveWorkspaceMember;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace DevFlow.Api.Controllers
             _mediator = mediator;
         }
         [HttpPost("CreateWorkspace")]
+        [Authorize]
         public async Task<IActionResult> CreateWorkspace(CreateWorkspaceCommand command)
         {
             var result = await _mediator.Send(command);
@@ -29,6 +31,7 @@ namespace DevFlow.Api.Controllers
 
         }
         [HttpGet("my")]
+        [Authorize]
         public async Task<IActionResult> GetMyWorkspaces()
         {
             var result = await _mediator.Send(new GetMyWorkspacesQuery());
@@ -37,6 +40,7 @@ namespace DevFlow.Api.Controllers
         }
 
         [HttpGet("{workspaceId}")]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int workspaceId)
         {
             var result = await _mediator.Send(new GetWorkspaceByIdQuery { WorkspaceId = workspaceId });
@@ -44,6 +48,7 @@ namespace DevFlow.Api.Controllers
         }
 
         [HttpGet("{workspaceId}/members")]
+        [Authorize]
         public async Task<IActionResult> GetWorkspaceMembers([FromRoute] int workspaceId)
         {
 
@@ -51,12 +56,14 @@ namespace DevFlow.Api.Controllers
             return Ok(ApiResponse<List<GetWorkspaceMembersResult>>.Ok(result, "Retrieved Successfully"));
         }
         [HttpDelete("{workspaceId}/members/{userId}")]
+        [Authorize]
         public async Task<IActionResult> RemoveWorkspaceMember([FromRoute]RemoveWorkspaceMemberCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<RemoveWorkspaceMemberResult>.Ok(result, "Removed Successfully"));
         }
         [HttpPost("AddWorkspaceMember")]
+        [Authorize]
         public async Task<IActionResult>AddWorkspaceMember(AddWorkspaceMemberCommand Command)
         {
             var result = await _mediator.Send(Command);
