@@ -40,5 +40,11 @@ namespace DevFlow.Infrastructure.Repositories
                     x.UserId == userId &&
                     x.WorkspaceId == workspaceId);
         }
+
+        public async Task RemoveAsync(int userId, int WorkspaceId)
+        {
+             await _context.WorkspacesMembers.FirstOrDefaultAsync(x => x.UserId == userId && x.WorkspaceId == WorkspaceId);
+            await _context.SaveChangesAsync();
+        }
     }
 }
