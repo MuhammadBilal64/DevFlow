@@ -48,6 +48,9 @@ namespace DevFlow.Api.Middleware
                 context.Response.StatusCode = statusCode;
                 return context.Response.WriteAsync(JsonSerializer.Serialize(response_));
 
+            } else if(ex is ForbiddenException)
+            {
+                statusCode = StatusCodes.Status403Forbidden;
             }
             else
             {

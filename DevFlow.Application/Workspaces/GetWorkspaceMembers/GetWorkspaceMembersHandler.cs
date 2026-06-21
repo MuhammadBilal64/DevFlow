@@ -31,7 +31,7 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
             }
             if (membership.Role != WorkspaceRole.Owner && membership.Role != WorkspaceRole.Admin)
             {
-                throw new UnauthorizedException("User dont have permission");
+                throw new ForbiddenException("User does not have permission");
             }
             var members=await _workspaceMemberRepository.GetAllMembersAsync(request.WorkspaceId);
             var result = members.Select(x => new GetWorkspaceMembersResult
