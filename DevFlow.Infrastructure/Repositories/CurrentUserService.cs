@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using DevFlow.Application.Common.Interfaces;
+using DevFlow.Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace DevFlow.Infrastructure.Repositories
@@ -19,14 +20,11 @@ namespace DevFlow.Infrastructure.Repositories
             {
                 var user = _contextAccessor.HttpContext?.User;
                 var userIdClaim = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userIdClaim != null)
+                if (!string.IsNullOrWhiteSpace(userIdClaim) && int.TryParse(userIdClaim, out var userId))
                 {
-                    return int.Parse(userIdClaim);
+                    return userId;
                 }
-                else
-                {
-                    throw new UnauthorizedAccessException("User is not authenticated");
-                }
+                throw new UnauthorizedException("User is not authenticated");
 
 
             }
