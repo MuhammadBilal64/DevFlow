@@ -27,7 +27,7 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
             var membership = await _workspaceMemberRepository.GetMemberAsync(userId, request.WorkspaceId);
             if (membership == null)
             {
-                throw new NotFoundException("User does not have membership");
+                throw new UnauthorizedException("Not a workspace member");
             }
             if (membership.Role != WorkspaceRole.Owner && membership.Role != WorkspaceRole.Admin)
             {

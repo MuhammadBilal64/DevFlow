@@ -12,7 +12,7 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
         {
             RuleFor(u => u.UserId).GreaterThan(0);
             RuleFor(u => u.WorkspaceId).GreaterThan(0);
-            RuleFor(U => U.Role).NotEmpty().NotNull();
+            RuleFor(U => U.Role).NotEmpty().IsInEnum();
         }
     }
 }

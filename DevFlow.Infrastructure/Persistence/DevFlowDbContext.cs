@@ -59,6 +59,9 @@ namespace DevFlow.Infrastructure.Persistence
                 .HasForeignKey(u => u.WorkspaceId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Workspace>()
+                            .Property(x => x.Name)
+                            .HasMaxLength(100);
             modelBuilder.Entity<Workspace>().HasIndex(ws => ws.CreatedBy);
 
         }

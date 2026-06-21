@@ -32,12 +32,6 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
         }
         public async Task<AddWorkspaceMemberResult> Handle(AddWorkspaceMemberCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByUserIdAsync(request.UserId);
-
-            if (user == null)
-            {
-                throw new NotFoundException("User does not exist");
-            }
             var userId = _currentUserService.UserId;
             var membership = await _workspaceMemberRepository.GetMemberAsync(userId, request.WorkspaceId);
             if (membership == null)
@@ -49,11 +43,13 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
             {
                 throw new UnauthorizedException("Not allowed to add");
             }
-            var existingMember = await _workspaceMemberRepository.GetMemberAsync(request.UserId, request.WorkspaceId);
-            if (existingMember != null)
+            var user = await _userRepository.GetByUserIdAsync(request.UserId);
+
+            if (user == null)
             {
-                throw new ConflictException("Already member");
+                throw new NotFoundException("User does not exist");
             }
+           
            
             var workspace = await _workspaceRepository.GetByIdAsync(request.WorkspaceId);
             if (workspace == null)

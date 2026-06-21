@@ -18,8 +18,15 @@ namespace DevFlow.Infrastructure.Repositories
         }
         public async Task AddAsync(WorkspaceMember member)
         {
-            await _context.WorkspacesMembers.AddAsync(member);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.WorkspacesMembers.AddAsync(member);
+                await _context.SaveChangesAsync();
+
+            }catch(DbUpdateException)
+            {
+                throw new ConflictException("Already member of workspace");
+            }
         }
 
         public async Task<List<WorkspaceMember>> GetAllMembersAsync(int workspaceId)

@@ -8,7 +8,7 @@ namespace DevFlow.Application.Abstractions
     public interface IWorkspaceRepository
     {
         Task AddAsync(Workspace workspace );
-        Task <Workspace>GetByIdAsync(int workspaceId);
+        Task <Workspace?>GetByIdAsync(int workspaceId);
 
     }
 }
