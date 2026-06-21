@@ -14,11 +14,13 @@ namespace DevFlow.Application.Workspaces.RemoveWorkspaceMember
     {
     private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
     private readonly ICurrentUserService _currentUserService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RemoveWorkspaceMemberHandler(IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
+        public RemoveWorkspaceMemberHandler(IUnitOfWork unitOfWork,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
         {
           _currentUserService= currentUserService;
-          _workspaceMemberRepository = workspaceMemberRepository;  
+          _workspaceMemberRepository = workspaceMemberRepository; 
+          _unitOfWork= unitOfWork;  
         }
         public async Task<RemoveWorkspaceMemberResult> Handle(RemoveWorkspaceMemberCommand request, CancellationToken cancellationToken)
         {
@@ -46,6 +48,7 @@ namespace DevFlow.Application.Workspaces.RemoveWorkspaceMember
                 throw new ConflictException("You cannot remove yourself");
             }
             await _workspaceMemberRepository.RemoveAsync(request.UserId, request.WorkspaceId);
+            await _unitOfWork.SaveChangesAsync();
             return new RemoveWorkspaceMemberResult
             {
                 Success = true

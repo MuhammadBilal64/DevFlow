@@ -14,12 +14,14 @@ namespace DevFlow.Application.Users.LoginUser
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
-        public LoginUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtTokenGenerator jwtTokenGenerator,IRefreshTokenRepository refreshTokenRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public LoginUserHandler(IUnitOfWork unitOfWork,IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtTokenGenerator jwtTokenGenerator,IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtTokenGenerator = jwtTokenGenerator;
             _refreshTokenRepository= refreshTokenRepository;
+            _unitOfWork = unitOfWork;
 
         }
         public async Task<LoginUserResult> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -47,6 +49,7 @@ namespace DevFlow.Application.Users.LoginUser
                 IsRevoked = false
             };
             await _refreshTokenRepository.AddAsync(refreshToken);
+            await _unitOfWork.SaveChangesAsync();
 
             return new LoginUserResult
             {

@@ -15,12 +15,14 @@ namespace DevFlow.Application.Workspaces.CreateWorkspace
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
-        public CreateWorkspaceHandler(IUserRepository userRepository,IWorkspaceRepository workSpaceRepository,ICurrentUserService currentUserService,IWorkspaceMemberRepository workspaceMemberRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public CreateWorkspaceHandler(IUnitOfWork unitOfWork,IUserRepository userRepository,IWorkspaceRepository workSpaceRepository,ICurrentUserService currentUserService,IWorkspaceMemberRepository workspaceMemberRepository)
         {
             _userRepository = userRepository;
             _workspaceRepository= workSpaceRepository;
             _currentUserService = currentUserService;
             _workspaceMemberRepository = workspaceMemberRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<CreateWorkspaceResult> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
         {
@@ -41,6 +43,7 @@ namespace DevFlow.Application.Workspaces.CreateWorkspace
                 JoinedAt=DateTime.UtcNow,
             };
             await _workspaceMemberRepository.AddAsync(member);
+            await _unitOfWork.SaveChangesAsync();
             var result = new CreateWorkspaceResult
             {
                 Name= workspace.Name,

@@ -19,7 +19,6 @@ namespace DevFlow.Infrastructure.Repositories
         public async Task AddAsync(Workspace workspace)
         {
              await _context.Workspaces.AddAsync(workspace);
-           await _context.SaveChangesAsync();
         }
 
         public async Task<Workspace?> GetByIdAsync(int workspaceId)

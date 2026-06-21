@@ -13,10 +13,12 @@ namespace DevFlow.Application.Users.RegisterUser
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
-        public RegisterUserHandler(IUserRepository userRepository,IPasswordHasher passwordHasher)
+        private readonly IUnitOfWork _unitOfWork;
+        public RegisterUserHandler(IUnitOfWork unitOfWork,IUserRepository userRepository,IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _unitOfWork= unitOfWork;
         }
       
         public async Task<RegisterUserResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -39,6 +41,7 @@ namespace DevFlow.Application.Users.RegisterUser
 
             };
            await  _userRepository.AddAsync(user);
+           await _unitOfWork.SaveChangesAsync();
             return new RegisterUserResult
             {
                 UserId = user.Id,
