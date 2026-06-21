@@ -13,11 +13,13 @@ namespace DevFlow.Application.Users.RefreshToken
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
-        public RefreshTokenHandler(IRefreshTokenRepository refreshTokenRepository, IJwtTokenGenerator jwtTokenGenerator,IUserRepository userRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public RefreshTokenHandler(IUnitOfWork unitOfWork,IRefreshTokenRepository refreshTokenRepository, IJwtTokenGenerator jwtTokenGenerator,IUserRepository userRepository)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
             _userRepository= userRepository;
+            _unitOfWork = unitOfWork;
             
         }
         public async Task<RefreshTokenResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -58,6 +60,7 @@ namespace DevFlow.Application.Users.RefreshToken
 
             };
             await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            await _unitOfWork.SaveChangesAsync();
             return new RefreshTokenResult
             {
                 AccessToken = newAccessToken,

@@ -19,7 +19,6 @@ namespace DevFlow.Infrastructure.Repositories
         public async Task AddAsync(RefreshToken refreshToken)
         {
             await _context.RefreshTokens.AddAsync(refreshToken);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<RefreshToken?> GetByTokenAsync(string token)
@@ -31,7 +30,6 @@ namespace DevFlow.Infrastructure.Repositories
         public async Task UpdateAsync(RefreshToken Token)
         {
              _context.RefreshTokens.Update(Token);
-            await _context.SaveChangesAsync();
 
 
         }

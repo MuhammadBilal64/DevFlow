@@ -4,6 +4,7 @@ using DevFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(DevFlowDbContext))]
-    partial class DevFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260618141828_InitWorkspaceModule")]
+    partial class InitWorkspaceModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,8 +114,7 @@ namespace DevFlow.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -145,8 +147,7 @@ namespace DevFlow.Infrastructure.Migrations
 
                     b.HasIndex("WorkspaceId");
 
-                    b.HasIndex("UserId", "WorkspaceId")
-                        .IsUnique();
+                    b.HasIndex("UserId", "WorkspaceId");
 
                     b.ToTable("WorkspacesMembers");
                 });
