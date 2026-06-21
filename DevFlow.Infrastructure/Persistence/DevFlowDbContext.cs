@@ -70,7 +70,7 @@ namespace DevFlow.Infrastructure.Persistence
                 .HasForeignKey(um => um.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<WorkspaceMember>().HasIndex(wsp => new { wsp.UserId, wsp.WorkspaceId });
+            modelBuilder.Entity<WorkspaceMember>().HasIndex(wsp => new { wsp.UserId, wsp.WorkspaceId }).IsUnique();
         }
     }
 }
