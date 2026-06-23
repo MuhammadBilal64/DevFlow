@@ -32,5 +32,16 @@ namespace DevFlow.Infrastructure.Repositories
         {
             return await _context.Projects.FirstOrDefaultAsync(u => u.Id == Id);
         }
+
+        public async Task<List<Project>> GetProjectsByWorkspaceAsync(int workspaceId)
+        {
+            var result = await _context.Projects.Where(u => u.WorkspaceId == workspaceId).ToListAsync();
+            return result;
+        }
+
+        public async Task UpdateAsync(Project project)
+        {
+             _context.Projects.Update(project);
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace DevFlow.Application.Abstractions
         Task<Project?> GetByIdAsync(int Id);
         Task<bool> ExistsInWorkspaceAsync(int workspaceId, string projectName);
 
-
+        Task<List<Project>>GetProjectsByWorkspaceAsync(int workspaceId);
+        Task UpdateAsync(Project project);
     }
 }
