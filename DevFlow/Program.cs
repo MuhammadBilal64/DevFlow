@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(options =>
     };   
 
 });
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddDbContext<DevFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevFlowDb")));

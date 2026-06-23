@@ -10,7 +10,8 @@ namespace DevFlow.Domain.Entities
         public string Name { get; set; } = null!;
         public int CreatedBy {  get; set; }
         public DateTime CreatedAt {  get; set; }
-        public User? Creator {  get; set; }
+        public User Creator { get; set; } = null!;
+        public ICollection<Project> Projects { get; set; }=new List<Project>();
         public ICollection<WorkspaceMember> Members { get; set; } =new List<WorkspaceMember>();
 
 
