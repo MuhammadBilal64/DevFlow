@@ -29,6 +29,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
 builder.Services.AddScoped<IWorkspaceMemberRepository, WorkspaceMemberRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 // Program.cs
 builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
@@ -63,7 +64,7 @@ builder.Services.AddAuthentication(options =>
     };   
 
 });
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddDbContext<DevFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevFlowDb")));

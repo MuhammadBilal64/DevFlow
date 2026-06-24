@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DevFlow.Domain.Entities;
+using System.Security.Cryptography;
 
 namespace DevFlow.Infrastructure.Persistence
 {
@@ -14,6 +15,7 @@ namespace DevFlow.Infrastructure.Persistence
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Workspace> Workspaces { get; set; }
         public DbSet<WorkspaceMember> WorkspacesMembers { get; set; }
+        public DbSet<Project> Projects { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -23,6 +25,7 @@ namespace DevFlow.Infrastructure.Persistence
             ConfigureRefreshToken(modelBuilder);
             ConfigureWorkspace(modelBuilder);
             ConfigureWorkspaceMember(modelBuilder);
+            ConfigureProject(modelBuilder);
 
         }
         protected  void ConfigureUser(ModelBuilder modelBuilder)
@@ -41,7 +44,7 @@ namespace DevFlow.Infrastructure.Persistence
                 .HasOne(u => u.User)
                 .WithMany(um => um.RefreshTokens)
                 .HasForeignKey(u => u.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Token);
 
         }
@@ -51,13 +54,13 @@ namespace DevFlow.Infrastructure.Persistence
                 .HasOne(w => w.Creator)
                 .WithMany(u => u.CreatedWorkspaces)
                 .HasForeignKey(w=>w.CreatedBy)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Workspace>()
                 .HasMany(u => u.Members)
                 .WithOne(ws => ws.Workspace)
                 .HasForeignKey(u => u.WorkspaceId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Workspace>()
                             .Property(x => x.Name)
@@ -71,9 +74,27 @@ namespace DevFlow.Infrastructure.Persistence
                 .HasOne(um => um.User)
                 .WithMany(u => u.WorkspaceMemberships)
                 .HasForeignKey(um => um.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<WorkspaceMember>().HasIndex(wsp => new { wsp.UserId, wsp.WorkspaceId }).IsUnique();
+            modelBuilder.Entity<WorkspaceMember>()
+                .HasIndex(wsp => new { wsp.UserId, wsp.WorkspaceId }).IsUnique();
+        }
+        protected void ConfigureProject(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Project>()
+                .HasOne(u => u.Workspace)
+                .WithMany(t => t.Projects)
+                .HasForeignKey(p => p.WorkspaceId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Project>()
+                    .HasOne(p => p.Creator)
+                    .WithMany(t => t.CreatedProjects)
+                    .HasForeignKey(p => p.CreatedBy).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Project>()
+                .HasIndex(p => new { p.WorkspaceId, p.Name });
+            modelBuilder.Entity<Project>()
+                            .Property(p => p.Name)
+                            .HasMaxLength(100);
         }
     }
 }

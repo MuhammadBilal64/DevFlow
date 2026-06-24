@@ -23,6 +23,7 @@ namespace DevFlow.Domain.Entities
         public ICollection<RefreshToken> RefreshTokens {  get; set; }=new List<RefreshToken>();
         public ICollection<Workspace> CreatedWorkspaces { get; set; } = new List<Workspace>();
         public ICollection<WorkspaceMember> WorkspaceMemberships {  get; set; }=new List<WorkspaceMember>();
+        public ICollection<Project> CreatedProjects { get; set; } = new List<Project>();
 
     }
 }
