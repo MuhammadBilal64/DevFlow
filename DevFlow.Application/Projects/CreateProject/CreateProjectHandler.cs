@@ -17,33 +17,23 @@ namespace DevFlow.Application.Projects.CreateProject
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkspaceRepository _workspaceRepository;
-        public CreateProjectHandler(IWorkspaceRepository workspaceRepository,IUnitOfWork unitOfWork,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService, IProjectRepository projectRepository)
+        private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
+        public CreateProjectHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceRepository workspaceRepository,IUnitOfWork unitOfWork,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService, IProjectRepository projectRepository)
         {
             _currentUserService = currentUserService;
             _projectRepository = projectRepository;
             _workspaceMemberRepository = workspaceMemberRepository;
             _unitOfWork = unitOfWork;
             _workspaceRepository = workspaceRepository;
+            _workspaceAuthorizationService = workspaceAuthorizationService;
         }
 
         public async Task<CreateProjectResult> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
         {
             var userId = _currentUserService.UserId;
             var workspace = await _workspaceRepository.GetByIdAsync(request.WorkspaceId);
-            if (workspace == null)
-            {
-                throw new NotFoundException("Workspace Doesnot Exist");
-            }
-            var membership =await _workspaceMemberRepository.GetMemberAsync(userId, request.WorkspaceId);
-            if (membership == null)
-            {
-                throw new UnauthorizedException("Not a workspace member");
-            }
-
-            if (membership.Role != WorkspaceRole.Admin && membership.Role != WorkspaceRole.Owner)
-            {
-                throw new UnauthorizedException("Not allowed to Create Project");
-            }
+            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
+           
             var exist = await _projectRepository.ExistsInWorkspaceAsync(request.WorkspaceId, request.ProjectName);
             if (exist)
             {

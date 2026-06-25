@@ -14,25 +14,19 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
         public readonly IWorkspaceRepository _workspaceRepository;
         public readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         public readonly ICurrentUserService _currentUserService;
-        public GetWorkspaceMembersHandler(IWorkspaceMemberRepository workspaceMemberRepository,IWorkspaceRepository workspaceRepository, ICurrentUserService currentUserService)
+        public readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
+        public GetWorkspaceMembersHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceMemberRepository workspaceMemberRepository,IWorkspaceRepository workspaceRepository, ICurrentUserService currentUserService)
         {
             _workspaceRepository = workspaceRepository;
             _currentUserService = currentUserService;
             _workspaceMemberRepository = workspaceMemberRepository;
+            _workspaceAuthorizationService = workspaceAuthorizationService;
         }
 
         public async Task<List<GetWorkspaceMembersResult>> Handle(GetWorkspaceMembersQuery request, CancellationToken cancellationToken)
         {
             var userId = _currentUserService.UserId;
-            var membership = await _workspaceMemberRepository.GetMemberAsync(userId, request.WorkspaceId);
-            if (membership == null)
-            {
-                throw new UnauthorizedException("Not a workspace member");
-            }
-            if (membership.Role != WorkspaceRole.Owner && membership.Role != WorkspaceRole.Admin)
-            {
-                throw new ForbiddenException("User does not have permission");
-            }
+            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
             var members=await _workspaceMemberRepository.GetAllMembersAsync(request.WorkspaceId);
             var result = members.Select(x => new GetWorkspaceMembersResult
             {

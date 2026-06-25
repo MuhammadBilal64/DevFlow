@@ -40,12 +40,8 @@ namespace DevFlow.Infrastructure.Persistence
         }
         protected  void ConfigureRefreshToken(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RefreshToken>()
-                .HasOne(u => u.User)
-                .WithMany(um => um.RefreshTokens)
-                .HasForeignKey(u => u.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Token);
+           
+            modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Token).IsUnique();
 
         }
         protected  void ConfigureWorkspace(ModelBuilder modelBuilder)

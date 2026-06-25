@@ -20,29 +20,22 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
         private readonly ICurrentUserService _currentUserService;
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
 
 
-        public AddWorkspaceMemberHandler(IUserRepository userRepository,IWorkspaceMemberRepository workspaceMemberRepository, IWorkspaceRepository workspaceRepository, ICurrentUserService currentUserService)
+        public AddWorkspaceMemberHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IUserRepository userRepository,IWorkspaceMemberRepository workspaceMemberRepository, IWorkspaceRepository workspaceRepository, ICurrentUserService currentUserService)
         {
 
             _workspaceRepository = workspaceRepository;
             _currentUserService = currentUserService;
             _workspaceMemberRepository = workspaceMemberRepository;
             _userRepository=userRepository;
+            _workspaceAuthorizationService = workspaceAuthorizationService;
         }
         public async Task<AddWorkspaceMemberResult> Handle(AddWorkspaceMemberCommand request, CancellationToken cancellationToken)
         {
             var userId = _currentUserService.UserId;
-            var membership = await _workspaceMemberRepository.GetMemberAsync(userId, request.WorkspaceId);
-            if (membership == null)
-            {
-                throw new UnauthorizedException("Not a workspace member");
-            }
-
-            if (membership.Role !=WorkspaceRole.Admin && membership.Role !=WorkspaceRole.Owner)
-            {
-                throw new UnauthorizedException("Not allowed to add");
-            }
+            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
             var user = await _userRepository.GetByUserIdAsync(request.UserId);
 
             if (user == null)

@@ -14,26 +14,23 @@ namespace DevFlow.Application.Workspaces.RemoveWorkspaceMember
     {
     private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
     private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
 
-        public RemoveWorkspaceMemberHandler(IUnitOfWork unitOfWork,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
+        public RemoveWorkspaceMemberHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IUnitOfWork unitOfWork,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
         {
           _currentUserService= currentUserService;
           _workspaceMemberRepository = workspaceMemberRepository; 
-          _unitOfWork= unitOfWork;  
+          _unitOfWork= unitOfWork; 
+           _workspaceAuthorizationService= workspaceAuthorizationService; 
+
         }
         public async Task<RemoveWorkspaceMemberResult> Handle(RemoveWorkspaceMemberCommand request, CancellationToken cancellationToken)
         {
             var userId = _currentUserService.UserId;
-            var membership = await _workspaceMemberRepository.GetMemberAsync(userId,request.WorkspaceId);
-            if (membership == null)
-            {
-                throw new UnauthorizedException("Not a workspace member");
-            }
-            if (membership.Role != WorkspaceRole.Owner && membership.Role != WorkspaceRole.Admin)
-            {
-                throw new UnauthorizedException("You dont have authority");
-            }
+            
+
+            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
             var member=await _workspaceMemberRepository.GetMemberAsync(request.UserId, request.WorkspaceId);
             if (member == null)
             {

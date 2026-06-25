@@ -11,14 +11,13 @@ namespace DevFlow.Application.Workspaces.CreateWorkspace
 {
     public class CreateWorkspaceHandler : IRequestHandler<CreateWorkspaceCommand, CreateWorkspaceResult>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public CreateWorkspaceHandler(IUnitOfWork unitOfWork,IUserRepository userRepository,IWorkspaceRepository workSpaceRepository,ICurrentUserService currentUserService,IWorkspaceMemberRepository workspaceMemberRepository)
+        public CreateWorkspaceHandler(IUnitOfWork unitOfWork,IWorkspaceRepository workSpaceRepository,ICurrentUserService currentUserService,IWorkspaceMemberRepository workspaceMemberRepository)
         {
-            _userRepository = userRepository;
+           
             _workspaceRepository= workSpaceRepository;
             _currentUserService = currentUserService;
             _workspaceMemberRepository = workspaceMemberRepository;
@@ -37,10 +36,11 @@ namespace DevFlow.Application.Workspaces.CreateWorkspace
 
             var member = new WorkspaceMember
             {
-                WorkspaceId=workspace.Id,
-                UserId=workspace.CreatedBy,
+                Workspace = workspace,
+                UserId=userId,
                 Role=WorkspaceRole.Owner,
                 JoinedAt=DateTime.UtcNow,
+
             };
             await _workspaceMemberRepository.AddAsync(member);
             await _unitOfWork.SaveChangesAsync();

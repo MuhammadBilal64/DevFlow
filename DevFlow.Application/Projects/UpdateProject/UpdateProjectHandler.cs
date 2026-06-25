@@ -15,12 +15,14 @@ namespace DevFlow.Application.Projects.UpdateProject
         private readonly IProjectRepository _projectRepository;
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
         private readonly IUnitOfWork _unitOfWork;
-        public UpdateProjectHandler(IUnitOfWork unitOfWork ,IProjectRepository projectRepository,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
+        public UpdateProjectHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IUnitOfWork unitOfWork ,IProjectRepository projectRepository,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
         {
             _projectRepository = projectRepository;
             _workspaceMemberRepository=workspaceMemberRepository;
             _currentUserService=currentUserService;
+            _workspaceAuthorizationService=workspaceAuthorizationService;
             _unitOfWork=unitOfWork;
 
         }
@@ -32,17 +34,7 @@ namespace DevFlow.Application.Projects.UpdateProject
             {
                 throw new NotFoundException("No such Project Exist");
             }
-            var membership = await _workspaceMemberRepository.GetMemberAsync(
-                userId,
-                project.WorkspaceId);
-            if (membership == null)
-            {
-                throw new UnauthorizedException("Not a workspace member");
-            }
-            if (membership.Role != WorkspaceRole.Owner && membership.Role != WorkspaceRole.Admin)
-            {
-                throw new ForbiddenException("User does not have permission");
-            }
+            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(project.WorkspaceId);
             project.Name = request.Name;
             project.Description = request.Description;
 
