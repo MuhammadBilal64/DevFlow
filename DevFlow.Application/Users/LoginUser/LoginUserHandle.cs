@@ -30,7 +30,7 @@ namespace DevFlow.Application.Users.LoginUser
             var user =  await _userRepository.GetByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new NotFoundException("User not Registered");
+                throw new UnauthorizedException("Invalid email or password");
             }
             bool verify = _passwordHasher.verify(request.Password,user.PasswordHash );
             if (verify == false)
