@@ -120,7 +120,7 @@ sequenceDiagram
     participant Repo as Repository
     participant DB as SQL Server
     
-    Client->>API: POST /api/Workspace
+    Client->>API: POST /api/Workspaces
     API->>MediatR: Send(CreateWorkspaceCommand)
     MediatR->>Handler: Handle(Command)
     Handler->>Repo: AddAsync(Workspace)
