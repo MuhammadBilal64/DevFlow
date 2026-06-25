@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DevFlow.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/workspaces")]
     [ApiController]
     public class WorkspaceController : ControllerBase
     {
@@ -22,7 +22,7 @@ namespace DevFlow.Api.Controllers
         {
             _mediator = mediator;
         }
-        [HttpPost("CreateWorkspace")]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateWorkspace(CreateWorkspaceCommand command)
         {
@@ -57,16 +57,23 @@ namespace DevFlow.Api.Controllers
         }
         [HttpDelete("{workspaceId}/members/{userId}")]
         [Authorize]
-        public async Task<IActionResult> RemoveWorkspaceMember([FromRoute]RemoveWorkspaceMemberCommand command)
+        public async Task<IActionResult> RemoveWorkspaceMember([FromRoute] int userId,[FromRoute]int workspaceId)
         {
+            var command = new RemoveWorkspaceMemberCommand
+            {
+                UserId=userId,
+                WorkspaceId=workspaceId
+            };
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<RemoveWorkspaceMemberResult>.Ok(result, "Removed Successfully"));
         }
-        [HttpPost("AddWorkspaceMember")]
+        [HttpPost("{workspaceId}/members")]
         [Authorize]
-        public async Task<IActionResult>AddWorkspaceMember(AddWorkspaceMemberCommand Command)
+        public async Task<IActionResult>AddWorkspaceMember([FromRoute]int workspaceId,AddWorkspaceMemberCommand Command)
         {
+            Command.WorkspaceId=workspaceId;
             var result = await _mediator.Send(Command);
+
             return Ok(ApiResponse<AddWorkspaceMemberResult>.Ok(result, "Member Added Successfully"));
         }
         

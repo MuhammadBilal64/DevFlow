@@ -48,6 +48,7 @@ namespace DevFlow.Api.Controllers
                           ));
         }
         [HttpPost("logout")]
+        [Authorize]
         public async Task<IActionResult> Logout(LogoutCommand command)
         {
             await _mediator.Send(command);

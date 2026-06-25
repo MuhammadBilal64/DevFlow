@@ -96,24 +96,40 @@ DevFlow.Infrastructure
 ├── Security
 ```
 
-## High-Level Flow
+## High-Level Architecture
 
-```text
-Client
-   │
-   ▼
-API Layer
-   │
-   ▼
-Application Layer
-(CQRS + MediatR)
-   │
-   ▼
-Domain Layer
-   │
-   ▼
-Infrastructure Layer
-(EF Core + SQL Server)
+```mermaid
+graph TD
+    Client[Client App / Postman] -->|HTTP Requests| API[API Layer]
+    API -->|Commands & Queries| App[Application Layer]
+    App -->|Defines Interfaces| Domain[Domain Layer]
+    App -->|Implemented By| Infra[Infrastructure Layer]
+    Infra -->|Data Access| DB[(SQL Server Database)]
+    
+    classDef default fill:#f9f6f7,stroke:#333,stroke-width:2px;
+```
+
+## CQRS Workflow Example
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API as Controller
+    participant MediatR
+    participant Handler as CQRS Handler
+    participant Repo as Repository
+    participant DB as SQL Server
+    
+    Client->>API: POST /api/Workspaces
+    API->>MediatR: Send(CreateWorkspaceCommand)
+    MediatR->>Handler: Handle(Command)
+    Handler->>Repo: AddAsync(Workspace)
+    Repo->>DB: SaveChangesAsync()
+    DB-->>Repo: Success
+    Repo-->>Handler: Entity ID
+    Handler-->>MediatR: Return Result
+    MediatR-->>API: Return Result
+    API-->>Client: 200 OK (ApiResponse)
 ```
 
 ## Architectural Patterns

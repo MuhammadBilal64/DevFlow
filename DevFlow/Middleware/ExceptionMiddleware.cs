@@ -20,7 +20,7 @@ namespace DevFlow.Api.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "unhandled exception occured");
+                _logger.LogError(ex, "Unhandled exception occurred");
                 await HandleExceptionAsync(context, ex);
             }
         }
@@ -56,11 +56,20 @@ namespace DevFlow.Api.Middleware
             {
                 statusCode = StatusCodes.Status500InternalServerError;
             }
+            string message;
+            if (statusCode == StatusCodes.Status500InternalServerError)
+            {
+                message = "An unexpected error occurred";
+            }
+            else
+            {
+                message = ex.Message;
+            }
             context.Response.StatusCode = statusCode;
 
             var response = new
             {
-                message = ex.Message,
+                message=message
             };
             return context.Response.WriteAsync(JsonSerializer.Serialize(response));
 

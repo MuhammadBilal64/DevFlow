@@ -17,32 +17,30 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
     public class AddWorkspaceMemberHandler : IRequestHandler<AddWorkspaceMemberCommand, AddWorkspaceMemberResult>
     {
         public readonly IWorkspaceRepository _workspaceRepository;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
+        private readonly IUnitOfWork _unitOfWork;
 
 
-        public AddWorkspaceMemberHandler(IUserRepository userRepository,IWorkspaceMemberRepository workspaceMemberRepository, IWorkspaceRepository workspaceRepository, ICurrentUserService currentUserService)
+        public AddWorkspaceMemberHandler(IUnitOfWork unitOfWork,IWorkspaceAuthorizationService workspaceAuthorizationService,IUserRepository userRepository,IWorkspaceMemberRepository workspaceMemberRepository, IWorkspaceRepository workspaceRepository)
         {
 
             _workspaceRepository = workspaceRepository;
-            _currentUserService = currentUserService;
             _workspaceMemberRepository = workspaceMemberRepository;
             _userRepository=userRepository;
+            _workspaceAuthorizationService = workspaceAuthorizationService;
+            _unitOfWork = unitOfWork;
         }
         public async Task<AddWorkspaceMemberResult> Handle(AddWorkspaceMemberCommand request, CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
-            var membership = await _workspaceMemberRepository.GetMemberAsync(userId, request.WorkspaceId);
-            if (membership == null)
+            
+            var workspace = await _workspaceRepository.GetByIdAsync(request.WorkspaceId);
+            if (workspace == null)
             {
-                throw new UnauthorizedException("Not a workspace member");
+                throw new NotFoundException("No such Workspace Exist");
             }
-
-            if (membership.Role !=WorkspaceRole.Admin && membership.Role !=WorkspaceRole.Owner)
-            {
-                throw new UnauthorizedException("Not allowed to add");
-            }
+            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
             var user = await _userRepository.GetByUserIdAsync(request.UserId);
 
             if (user == null)
@@ -50,13 +48,16 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
                 throw new NotFoundException("User does not exist");
             }
            
-           
-            var workspace = await _workspaceRepository.GetByIdAsync(request.WorkspaceId);
-            if (workspace == null)
-            {
-                throw new NotFoundException("No such Workspace Exist");
-            }
+            var existingMember =
+             await _workspaceMemberRepository.GetMemberAsync(
+       request.UserId,
+       request.WorkspaceId);
 
+            if (existingMember != null)
+            {
+                throw new ConflictException(
+                    "User is already a workspace member");
+            }
             var member = new WorkspaceMember
             {
                 UserId = request.UserId,
@@ -66,6 +67,7 @@ namespace DevFlow.Application.Workspaces.AddWorkspaceMember
 
             };
             await _workspaceMemberRepository.AddAsync(member);
+            await _unitOfWork.SaveChangesAsync();
             var result = new AddWorkspaceMemberResult
             {
                 UserId = member.UserId,
