@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DevFlow.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/projects")]
     [ApiController]
     public class ProjectController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace DevFlow.Api.Controllers
         {
             _mediator = mediator;
         }
-        [HttpPost("CreateProject")]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateProject(CreateProjectCommand command)
         {
@@ -43,10 +43,11 @@ namespace DevFlow.Api.Controllers
             return Ok(ApiResponse<List<GetProjectsByWorkspaceResult>>.Ok(result, "Retrieved Successfully"));
 
         }
-        [HttpPut("UpdateProject")]
+        [HttpPut("{ProjectId}")]
         [Authorize]
-        public async Task<IActionResult>UpdateProject(UpdateProjectCommand command)
+        public async Task<IActionResult>UpdateProject([FromRoute]int ProjectId,UpdateProjectCommand command)
         {
+            command.ProjectId = ProjectId;
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<UpdateProjectResult>.Ok(result,"Updated Successfully"));
         }
