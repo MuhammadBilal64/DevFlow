@@ -87,7 +87,7 @@ namespace DevFlow.Infrastructure.Persistence
                     .WithMany(t => t.CreatedProjects)
                     .HasForeignKey(p => p.CreatedBy).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Project>()
-                .HasIndex(p => new { p.WorkspaceId, p.Name });
+                .HasIndex(p => new { p.WorkspaceId, p.Name }).IsUnique();
             modelBuilder.Entity<Project>()
                             .Property(p => p.Name)
                             .HasMaxLength(100);

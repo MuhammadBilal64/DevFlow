@@ -35,6 +35,12 @@ namespace DevFlow.Application.Projects.UpdateProject
                 throw new NotFoundException("No such Project Exist");
             }
             await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(project.WorkspaceId);
+            var exist =await _projectRepository.ExistsInWorkspaceAsync(project.WorkspaceId, request.Name);
+            if (exist&&request.Name!=project.Name)
+            {
+                throw new ConflictException(
+        "Project already exists in workspace");
+            }
             project.Name = request.Name;
             project.Description = request.Description;
 

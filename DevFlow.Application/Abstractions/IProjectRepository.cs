@@ -13,5 +13,6 @@ namespace DevFlow.Application.Abstractions
 
         Task<List<Project>>GetProjectsByWorkspaceAsync(int workspaceId);
         Task UpdateAsync(Project project);
+
     }
 }
