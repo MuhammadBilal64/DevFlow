@@ -32,6 +32,10 @@ namespace DevFlow.Application.Projects.CreateProject
         {
             var userId = _currentUserService.UserId;
             var workspace = await _workspaceRepository.GetByIdAsync(request.WorkspaceId);
+            if (workspace == null)
+{
+    throw new NotFoundException("Workspace does not exist");
+}
             await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
            
             var exist = await _projectRepository.ExistsInWorkspaceAsync(request.WorkspaceId, request.ProjectName);

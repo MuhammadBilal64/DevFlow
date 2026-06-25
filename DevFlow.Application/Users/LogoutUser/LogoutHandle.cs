@@ -22,17 +22,9 @@ namespace DevFlow.Application.Users.LogoutUser
         public async  Task Handle(LogoutCommand request, CancellationToken cancellationToken)
         {
             var existingToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken);
-            if (existingToken == null)
+            if (existingToken == null|| existingToken.IsRevoked|| existingToken.UserId != _currentUserService.UserId)
             {
                 throw new UnauthorizedException("Invalid refresh token");
-            }
-            if (existingToken.IsRevoked)
-            {
-                throw new UnauthorizedException("Refresh token revoked");
-            }
-            if(existingToken.UserId!=_currentUserService.UserId)
-            {
-                throw new ForbiddenException("You are not allowed to do that");
             }
             existingToken.IsRevoked = true;
             existingToken.RevokedAt = DateTime.UtcNow;

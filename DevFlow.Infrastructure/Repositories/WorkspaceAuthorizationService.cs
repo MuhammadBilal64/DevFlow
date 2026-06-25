@@ -31,8 +31,9 @@ namespace DevFlow.Infrastructure.Repositories
                     workspaceId);
 
             if (membership == null)
-                throw new UnauthorizedException("Not a workspace member");
-
+            {
+                throw new ForbiddenException("Not a workspace member");
+            }
             if (membership.Role != WorkspaceRole.Owner &&
                 membership.Role != WorkspaceRole.Admin)
             {
