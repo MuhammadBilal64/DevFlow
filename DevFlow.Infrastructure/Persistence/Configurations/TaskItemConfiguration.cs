@@ -11,6 +11,23 @@ namespace DevFlow.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<TaskItem> builder)
         {
+            builder.Property(t => t.Title)
+       .IsRequired()
+       .HasMaxLength(50);
+
+            builder.Property(t => t.Description)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            builder.Property(t => t.Priority)
+                .IsRequired();
+
+            builder.Property(t => t.Status)
+                .IsRequired();
+
+            builder.Property(t => t.CreatedAt)
+                .IsRequired();
+
             builder
                 .HasOne(p => p.Project)
                 .WithMany(t => t.Tasks)
