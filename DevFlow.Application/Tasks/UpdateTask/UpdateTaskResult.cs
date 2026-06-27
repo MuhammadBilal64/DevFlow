@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DevFlow.Application.Tasks.GetTaskById
+namespace DevFlow.Application.Tasks.UpdateTask
 {
-    public class GetTaskByIdResult
+    public class UpdateTaskResult
     {
-        public int TaskId {  get; set; }
+        public int Id { get; set; }
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
     }

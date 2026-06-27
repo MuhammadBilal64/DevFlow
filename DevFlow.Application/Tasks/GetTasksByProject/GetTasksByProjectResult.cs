@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DevFlow.Application.Tasks.GetTaskById
+namespace DevFlow.Application.Tasks.GetTasksByProject
 {
-    public class GetTaskByIdResult
+    public class GetTasksByProjectResult
     {
         public int TaskId {  get; set; }
         public string Title { get; set; } = null!;
-        public string Description { get; set; } = null!;
+
     }
 }
