@@ -9,7 +9,7 @@ namespace DevFlow.Application.Abstractions
     public interface ITaskRepository
     {
         Task AddAsync(TaskItem task);
-        Task<TaskItem?> GetByIdAsync(int projectId);
+        Task<TaskItem?> GetByIdAsync(int TaskId);
         Task<List<TaskItem>> GetTasksByProjectAsync(int Id);
         Task UpdateAsync(TaskItem task);
         Task DeleteAsync(TaskItem task);

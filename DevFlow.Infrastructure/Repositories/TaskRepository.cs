@@ -4,6 +4,7 @@ using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Domain.Entities;
 using DevFlow.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevFlow.Infrastructure.Repositories
 {
@@ -15,29 +16,31 @@ namespace DevFlow.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task AddAsync(TaskItem task)
+        public async Task AddAsync(TaskItem task)
         {
-            throw new NotImplementedException();
+            await _context.Tasks.AddAsync(task);
         }
 
-        public Task DeleteAsync(TaskItem task)
+        public  Task DeleteAsync(TaskItem task)
         {
-            throw new NotImplementedException();
+            _context.Tasks.Remove(task);
+            return Task.CompletedTask;
         }
 
-        public Task<TaskItem?> GetByIdAsync(int projectId)
+        public async Task<TaskItem?> GetByIdAsync(int TaskId)
         {
-            throw new NotImplementedException();
+            return await _context.Tasks.Include(p => p.Project).FirstOrDefaultAsync(i=>i.Id==TaskId);
+                }
+
+        public async Task<List<TaskItem>> GetTasksByProjectAsync(int Id)
+        {
+            return await _context.Tasks.Where(t=>t.ProjectId==Id).ToListAsync();
         }
 
-        public Task<List<TaskItem>> GetTasksByProjectAsync(int Id)
+        public async Task UpdateAsync(TaskItem task)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(TaskItem task)
-        {
-            throw new NotImplementedException();
+            _context.Tasks.Update(task);
+              
         }
     }
 }
