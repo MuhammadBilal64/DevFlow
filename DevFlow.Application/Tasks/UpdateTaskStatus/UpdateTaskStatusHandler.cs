@@ -49,7 +49,7 @@ namespace DevFlow.Application.Tasks.UpdateTaskStatus
             var result = new UpdateTaskStatusResult
             {
                 Id=task.Id,
-                Status= (TaskStatus)task.Status
+                Status=task.Status
             };
             return result;
         }
