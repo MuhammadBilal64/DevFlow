@@ -42,6 +42,21 @@ namespace DevFlow.Infrastructure.Repositories
             }
         }
 
+        public async Task EnsureWorkspaceMemberAsync(int workspaceId,int userId)
+        {
+            var membership =
+                await _workspaceMemberRepository.GetMemberAsync(
+                   userId,
+                    workspaceId);
 
+            if (membership == null)
+            {
+                throw new ForbiddenException("Not a workspace member");
+            }
+        }
+        public async Task EnsureWorkspaceMemberAsync(int workspaceId)
+        {
+            await EnsureWorkspaceMemberAsync( workspaceId, _currentUserService.UserId);
+        }
     }
 }

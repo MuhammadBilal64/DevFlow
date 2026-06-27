@@ -14,6 +14,7 @@ namespace DevFlow.Domain.Entities
         public int WorkspaceId {  get; set; }
         public Workspace Workspace { get; set; } = null!;
         public User Creator { get; set; } = null!;
+        public ICollection<TaskItem> Tasks { get; set; }= new List<TaskItem>();
 
 
 

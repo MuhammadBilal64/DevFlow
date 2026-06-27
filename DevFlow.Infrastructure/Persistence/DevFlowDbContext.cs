@@ -16,6 +16,8 @@ namespace DevFlow.Infrastructure.Persistence
         public DbSet<Workspace> Workspaces { get; set; }
         public DbSet<WorkspaceMember> WorkspacesMembers { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<TaskItem> Tasks {  get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
