@@ -51,7 +51,7 @@ namespace DevFlow.Infrastructure.Repositories
 
             if (membership == null)
             {
-                throw new ValidationException("Selected user is not a workspace member.");
+                throw new NotFoundException("Selected user is not workspace member");
             }
         }
         public async Task EnsureWorkspaceMemberAsync(int workspaceId)
