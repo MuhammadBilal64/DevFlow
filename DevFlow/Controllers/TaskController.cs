@@ -79,9 +79,12 @@ namespace DevFlow.Api.Controllers
         }
         [HttpDelete("{taskId}")]
         [Authorize]
-        public async Task<IActionResult>DeleteTask([FromRoute]int taskId,DeleteTaskCommand command)
+        public async Task<IActionResult>DeleteTask([FromRoute]int taskId)
         {
-            command.TaskId = taskId;
+            var command = new DeleteTaskCommand
+            {
+               TaskId = taskId
+            };
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<DeleteTaskResult>.Ok(result, "Task Deleted Successfully"));
         }
