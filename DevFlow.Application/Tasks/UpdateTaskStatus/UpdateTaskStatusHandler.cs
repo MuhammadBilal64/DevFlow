@@ -24,24 +24,24 @@ namespace DevFlow.Application.Tasks.UpdateTaskStatus
 
         public  async Task<UpdateTaskStatusResult> Handle(UpdateTaskStatusCommand request, CancellationToken cancellationToken)
         {
-            var task = await _taskRepository.GetByIdAsync(request.TaskId);
+            var task = await _taskRepository.GetByIdForStatusUpdateAsync(request.TaskId,_currentUserService.UserId);
             if (task == null)
             {
                 throw new NotFoundException("Task Doesnot Exist");
             }
-            if (task.AssignedToUserId != _currentUserService.UserId)
+            if (task.Status != request.TaskStatus)
             {
-                await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(task.Project.WorkspaceId);
-
-            }
-           
-            if (request.TaskStatus==DevFlow.Domain.Enum.TaskStatus.Completed)
-            {
-                task.CompletedAt = DateTime.UtcNow;
-            }
-            else
-            {
-                task.CompletedAt = null;
+                if (request.TaskStatus == DevFlow.Domain.Enum.TaskStatus.Completed)
+                {
+                    if (task.CompletedAt == null)
+                    {
+                        task.CompletedAt = DateTime.UtcNow;
+                    }
+                }
+                else
+                {
+                    task.CompletedAt = null;
+                }
             }
             task.Status = (Domain.Enum.TaskStatus)request.TaskStatus;
             await _taskRepository.UpdateAsync(task);

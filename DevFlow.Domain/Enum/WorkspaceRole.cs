@@ -6,8 +6,8 @@ namespace DevFlow.Domain.Enum
 {
     public enum WorkspaceRole
     {
-        Owner,
-        Admin,
-        Member
+        Owner=0,
+        Admin=1,
+        Member=2
     }
 }

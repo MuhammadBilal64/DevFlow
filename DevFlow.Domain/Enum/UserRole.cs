@@ -8,8 +8,8 @@ namespace DevFlow.Domain.Enum
 {
     public enum UserRole
     {
-        Admin,
-        Manager,
-        Member
+        Admin = 0,
+        Manager = 1,
+        Member=2
     }
 }

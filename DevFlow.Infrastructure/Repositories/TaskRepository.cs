@@ -27,9 +27,15 @@ namespace DevFlow.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
-        public Task<TaskItem?> GetByIdForAdminAsync(int taskId, int currentUserId)
+        public async Task<TaskItem?> GetByIdForAdminAsync(int taskId, int currentUserId)
         {
-            throw new NotImplementedException();
+            return await _context.Tasks
+                 .Include(i => i.Project)
+                 .ThenInclude(i => i.Workspace)
+                 .ThenInclude(i => i.Members)
+                 .Where(i => i.Id == taskId)
+                 .Where(t => t.Project.Workspace.Members
+                 .Any(m => m.UserId == currentUserId && (m.Role == Domain.Enum.WorkspaceRole.Admin || (m.Role == Domain.Enum.WorkspaceRole.Owner)))).FirstOrDefaultAsync();
         }
 
         public async Task<TaskItem?> GetByIdAsync(int TaskId)
@@ -46,6 +52,24 @@ namespace DevFlow.Infrastructure.Repositories
         {
             _context.Tasks.Update(task);
               
+        }
+
+        public async Task<TaskItem?> GetByIdForStatusUpdateAsync(int taskId, int currentUserId)
+        {
+            return await _context.Tasks
+                .Include(t => t.Project)
+                    .ThenInclude(p => p.Workspace)
+                        .ThenInclude(w => w.Members)
+                .Where(t =>
+                    t.Id == taskId &&
+                    (
+                        t.AssignedToUserId == currentUserId ||
+                        t.Project.Workspace.Members.Any(m =>
+                            m.UserId == currentUserId &&
+                            (m.Role == Domain.Enum.WorkspaceRole.Admin ||
+                             m.Role == Domain.Enum.WorkspaceRole.Owner))
+                    ))
+                .FirstOrDefaultAsync();
         }
     }
 }

@@ -6,9 +6,9 @@ namespace DevFlow.Domain.Enum
 {
     public enum TaskStatus
     {
-        Todo,
-        InProgress,
-        Completed
+        Todo=0,
+        InProgress=1,
+        Completed=2
 
     }
 }
