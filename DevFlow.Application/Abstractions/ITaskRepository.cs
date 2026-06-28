@@ -13,5 +13,6 @@ namespace DevFlow.Application.Abstractions
         Task<List<TaskItem>> GetTasksByProjectAsync(int Id);
         Task UpdateAsync(TaskItem task);
         Task DeleteAsync(TaskItem task);
+        Task<TaskItem?> GetAuthorizedForAdminAsync(int taskId,int currentUserId);
     }
 }

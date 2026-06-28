@@ -13,7 +13,8 @@ namespace DevFlow.Application.Tasks.UpdateTaskAssignee
                 .GreaterThan(0);
 
             RuleFor(x => x.NewAssigneeId)
-                .GreaterThan(0);
+     .GreaterThan(0)
+     .When(x => x.NewAssigneeId.HasValue);
         }
     }
 }

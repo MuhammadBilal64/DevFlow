@@ -27,6 +27,11 @@ namespace DevFlow.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
+        public Task<TaskItem?> GetByIdForAdminAsync(int taskId, int currentUserId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<TaskItem?> GetByIdAsync(int TaskId)
         {
             return await _context.Tasks.Include(p => p.Project).FirstOrDefaultAsync(i=>i.Id==TaskId);
