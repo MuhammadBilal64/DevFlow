@@ -24,6 +24,8 @@ namespace DevFlow.Domain.Entities
         public ICollection<Workspace> CreatedWorkspaces { get; set; } = new List<Workspace>();
         public ICollection<WorkspaceMember> WorkspaceMemberships {  get; set; }=new List<WorkspaceMember>();
         public ICollection<Project> CreatedProjects { get; set; } = new List<Project>();
+        public ICollection<TaskItem> CreatedTasks { get; set; } = new List<TaskItem>();
+        public ICollection<TaskItem>AssignedTasks { get; set; }= new List<TaskItem>();
 
     }
 }

@@ -4,10 +4,11 @@ using System.Text;
 
 namespace DevFlow.Domain.Enum
 {
-    public enum WorkspaceRole
+    public enum TaskStatus
     {
-        Owner=0,
-        Admin=1,
-        Member=2
+        Todo=0,
+        InProgress=1,
+        Completed=2
+
     }
 }
