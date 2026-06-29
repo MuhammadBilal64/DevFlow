@@ -9,5 +9,6 @@ namespace DevFlow.Application.Projects.GetProjectsByWorkspace
     public class GetProjectsByWorkspaceQuery:PaginationRequest,IRequest<PagedResult<GetProjectsByWorkspaceResult>>
     {
         public int WorkspaceId { get; set; }
+      public  string ?SearchTerm {  get; set; }
     }
 }

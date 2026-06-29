@@ -31,6 +31,7 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
 
             var paginatedData = await _taskRepository.GetTasksByProjectAsync(
      request.ProjectId,
+     request.SearchTerm,
      request.PageNumber,
      request.PageSize);
             var totalPages = (int)Math.Ceiling((double)paginatedData.TotalCount / request.PageSize);

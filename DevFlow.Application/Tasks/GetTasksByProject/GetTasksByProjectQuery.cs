@@ -9,5 +9,6 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
     public class GetTasksByProjectQuery:PaginationRequest,IRequest<PagedResult<GetTasksByProjectResult>>
     {
         public int ProjectId { get; set; }
+        public string? SearchTerm { get; set; }
     }
 }

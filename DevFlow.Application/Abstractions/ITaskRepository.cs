@@ -12,9 +12,10 @@ namespace DevFlow.Application.Abstractions
         Task AddAsync(TaskItem task);
         Task<TaskItem?> GetByIdAsync(int TaskId);
         Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(
-            int projectId,
-            int pageNumber,
-            int pageSize);
+     int projectId,
+     string? searchTerm,
+     int pageNumber,
+     int pageSize);
         Task UpdateAsync(TaskItem task);
         Task DeleteAsync(TaskItem task);
         Task<TaskItem?> GetByIdForAdminAsync(int taskId,int currentUserId);

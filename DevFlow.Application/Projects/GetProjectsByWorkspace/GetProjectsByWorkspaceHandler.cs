@@ -30,7 +30,7 @@ namespace DevFlow.Application.Projects.GetProjectsByWorkspace
                     throw new UnauthorizedException("Not a workspace member");
 
             }
-            var projects = await _projectRepository.GetProjectsByWorkspaceAsync(request.WorkspaceId,request.PageNumber,request.PageSize);
+            var projects = await _projectRepository.GetProjectsByWorkspaceAsync(request.WorkspaceId,request.SearchTerm,request.PageNumber,request.PageSize);
             var totalPages = (int)Math.Ceiling((double)projects.TotalCount / request.PageSize);
             var result = projects.Items.Select(x => new GetProjectsByWorkspaceResult
             {

@@ -12,7 +12,7 @@ namespace DevFlow.Application.Abstractions
         Task<Project?> GetByIdAsync(int Id);
         Task<bool> ExistsInWorkspaceAsync(int workspaceId, string projectName);
 
-        Task<PaginatedData<Project>>GetProjectsByWorkspaceAsync(int workspaceId, int pageNumber,
+        Task<PaginatedData<Project>>GetProjectsByWorkspaceAsync(int workspaceId,string ?SearchTerm,int pageNumber,
             int pageSize);
         Task UpdateAsync(Project project);
 

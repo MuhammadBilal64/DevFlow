@@ -25,9 +25,14 @@ namespace DevFlow.Infrastructure.Repositories
         }
 
       
-        public async Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, int pageNumber, int pageSize)
+        public async Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, string? SearchTerm, int pageNumber, int pageSize)
         {
             var query = _context.WorkspacesMembers.AsNoTracking().Include(u => u.User).Where(u => u.WorkspaceId == workspaceId);
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                query = query.Where(w =>
+                     w.Workspace.Name.Contains(SearchTerm));
+            }
             var totalCount=await query.CountAsync();
             var items=await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
             var result = new PaginatedData<WorkspaceMember>
@@ -44,9 +49,15 @@ namespace DevFlow.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<PaginatedData<WorkspaceMember>> GetByUserIdAsync(int userId, int pageNumber, int pageSize)
+        public async Task<PaginatedData<WorkspaceMember>> GetByUserIdAsync(int userId, string?SearchTerm,int pageNumber, int pageSize)
         {
             var query=_context.WorkspacesMembers.AsNoTracking().Include(w=>w.Workspace).Where(i=>i.UserId==userId);
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                query = query.Where(m =>
+                    m.User.Name.Contains(SearchTerm) ||
+                    m.User.Email.Contains(SearchTerm));
+            }
             var totalCount=await query.CountAsync();
             var items = await query.Skip((pageNumber - 1 )* pageSize).Take(pageSize).ToListAsync();
             var result = new PaginatedData<WorkspaceMember>

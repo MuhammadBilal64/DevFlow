@@ -8,6 +8,7 @@ namespace DevFlow.Application.Workspaces.GetWorkspaces
 {
     public class GetMyWorkspacesQuery:PaginationRequest,IRequest<PagedResult<GetMyWorkspacesResult>>
     {
+        public string? SearchTerm { get; set; }
 
     }
 }

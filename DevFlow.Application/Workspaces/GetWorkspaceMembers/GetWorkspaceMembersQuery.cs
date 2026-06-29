@@ -9,5 +9,6 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
     public class GetWorkspaceMembersQuery:PaginationRequest,IRequest<PagedResult<GetWorkspaceMembersResult>>
     {
         public int WorkspaceId {  get; set; }
+        public string? SearchTerm {  get; set; }
     }
 }

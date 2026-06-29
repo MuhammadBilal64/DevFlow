@@ -34,10 +34,16 @@ namespace DevFlow.Infrastructure.Repositories
             return await _context.Projects.FirstOrDefaultAsync(u => u.Id == Id);
         }
 
-        public async Task<PaginatedData<Project>> GetProjectsByWorkspaceAsync(int workspaceId, int pageNumber,
+        public async Task<PaginatedData<Project>> GetProjectsByWorkspaceAsync(int workspaceId,string ? searchTerm, int pageNumber,
             int pageSize)
         {
             var query =  _context.Projects.AsNoTracking().Where(u => u.WorkspaceId == workspaceId);
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(searchTerm) ||
+                    p.Description.Contains(searchTerm));
+            }
             var totalCount = await query.CountAsync();
             var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
             var result = new PaginatedData<Project>

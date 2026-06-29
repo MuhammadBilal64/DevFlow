@@ -12,11 +12,11 @@ namespace DevFlow.Application.Abstractions
         Task AddAsync(WorkspaceMember member);
         Task<List<WorkspaceMember>> GetByUserIdAsync(int userId);
         Task<PaginatedData<WorkspaceMember>> GetByUserIdAsync(
-    int userId,
+    int userId, string? SearchTerm,
     int pageNumber,
     int pageSize);
         Task<WorkspaceMember?> GetMemberAsync(int userId,int workspaceId);
-         Task<PagedResult<WorkspaceMember>> GetAllMembersAsync(int workspaceId, int pageNumber,
+         Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, string ?SearchTerm, int pageNumber,
     int pageSize);
         Task RemoveAsync(int userId,int WorkspaceId);
 

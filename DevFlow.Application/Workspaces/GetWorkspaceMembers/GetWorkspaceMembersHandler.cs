@@ -29,7 +29,7 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
             var userId = _currentUserService.UserId;
             await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
 
-            var paginatedmembers=await _workspaceMemberRepository.GetAllMembersAsync(request.WorkspaceId,request.PageNumber,request.PageSize);
+            var paginatedmembers=await _workspaceMemberRepository.GetAllMembersAsync(request.WorkspaceId,request.SearchTerm,request.PageNumber,request.PageSize);
             var totalPages = (int)Math.Ceiling((double)paginatedmembers.TotalCount / request.PageSize);
 
 

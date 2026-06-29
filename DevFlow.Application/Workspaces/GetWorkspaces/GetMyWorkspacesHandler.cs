@@ -24,7 +24,7 @@ namespace DevFlow.Application.Workspaces.GetWorkspaces
         {
             var userId = _currentUserService.UserId;
            
-            var paginatedWorkspaces = await _workspaceMemberRepository.GetByUserIdAsync(userId, request.PageNumber, request.PageSize);
+            var paginatedWorkspaces = await _workspaceMemberRepository.GetByUserIdAsync(userId,request.SearchTerm,request.PageNumber, request.PageSize);
             var totalPages = (int)Math.Ceiling((double)paginatedWorkspaces.TotalCount / request.PageSize);
             var result = paginatedWorkspaces.Items.Select(u => new GetMyWorkspacesResult
             {
