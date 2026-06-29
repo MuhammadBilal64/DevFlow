@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 using DevFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -33,9 +34,17 @@ namespace DevFlow.Infrastructure.Repositories
             return await _context.Projects.FirstOrDefaultAsync(u => u.Id == Id);
         }
 
-        public async Task<List<Project>> GetProjectsByWorkspaceAsync(int workspaceId)
+        public async Task<PaginatedData<Project>> GetProjectsByWorkspaceAsync(int workspaceId, int pageNumber,
+            int pageSize)
         {
-            var result = await _context.Projects.Where(u => u.WorkspaceId == workspaceId).ToListAsync();
+            var query =  _context.Projects.AsNoTracking().Where(u => u.WorkspaceId == workspaceId);
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            var result = new PaginatedData<Project>
+            {
+                Items = items,
+                TotalCount = totalCount,
+            };
             return result;
         }
 

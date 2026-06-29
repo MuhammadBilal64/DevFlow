@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 
 namespace DevFlow.Application.Abstractions
@@ -11,7 +12,8 @@ namespace DevFlow.Application.Abstractions
         Task<Project?> GetByIdAsync(int Id);
         Task<bool> ExistsInWorkspaceAsync(int workspaceId, string projectName);
 
-        Task<List<Project>>GetProjectsByWorkspaceAsync(int workspaceId);
+        Task<PaginatedData<Project>>GetProjectsByWorkspaceAsync(int workspaceId, int pageNumber,
+            int pageSize);
         Task UpdateAsync(Project project);
 
     }

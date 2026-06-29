@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography.Pkcs;
 using DevFlow.Api.Contracts.Responses;
+using DevFlow.Application.Common.Models;
 using DevFlow.Application.Projects.CreateProject;
 using DevFlow.Application.Projects.GetProjectById;
 using DevFlow.Application.Projects.GetProjectsByWorkspace;
@@ -38,9 +39,11 @@ namespace DevFlow.Api.Controllers
         }
         [HttpGet("workspace/{workspaceId}")]
         [Authorize]
-        public async Task<IActionResult>GetProjectsByWorkspace([FromRoute] int WorkspaceId){
-            var result=await _mediator.Send(new GetProjectsByWorkspaceQuery { WorkspaceId = WorkspaceId});
-            return Ok(ApiResponse<List<GetProjectsByWorkspaceResult>>.Ok(result, "Retrieved Successfully"));
+        public async Task<IActionResult>GetProjectsByWorkspace([FromRoute] int WorkspaceId,[FromQuery]GetProjectsByWorkspaceQuery query){
+
+            query.WorkspaceId = WorkspaceId;
+            var result = await _mediator.Send(query);
+            return Ok(ApiResponse<PagedResult<GetProjectsByWorkspaceResult>>.Ok(result, "Retrieved Successfully"));
 
         }
         [HttpPut("{ProjectId}")]
