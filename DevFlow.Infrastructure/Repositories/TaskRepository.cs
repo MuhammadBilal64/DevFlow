@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 using DevFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -43,9 +44,18 @@ namespace DevFlow.Infrastructure.Repositories
             return await _context.Tasks.Include(p => p.Project).FirstOrDefaultAsync(i=>i.Id==TaskId);
                 }
 
-        public async Task<List<TaskItem>> GetTasksByProjectAsync(int Id)
+        public async Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(int projectId,int pageNumber,int pageSize)
         {
-            return await _context.Tasks.Where(t=>t.ProjectId==Id).ToListAsync();
+            var query = _context.Tasks.AsNoTracking().
+                Where(i => i.ProjectId== projectId);
+            var totalCount=await query.CountAsync();
+            var items=await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
+            var result = new PaginatedData<TaskItem>
+            {
+                Items=items,
+                TotalCount=totalCount,
+            };
+            return result;
         }
 
         public async Task UpdateAsync(TaskItem task)

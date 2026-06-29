@@ -6,8 +6,8 @@ namespace DevFlow.Domain.Enum
 {
     public enum TaskPriority
     {
-        Low,
-        Medium,
-        High,
+        Low=0,
+        Medium=1,
+        High=2,
     }
 }

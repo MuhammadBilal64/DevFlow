@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Common.Models;
 using DevFlow.Application.Exceptions;
 using DevFlow.Application.Tasks.GetTaskById;
 using MediatR;
 
 namespace DevFlow.Application.Tasks.GetTasksByProject
 {
-    public class GetTasksByProjectHandler : IRequestHandler<GetTasksByProjectQuery, List<GetTasksByProjectResult>>
+    public class GetTasksByProjectHandler : IRequestHandler<GetTasksByProjectQuery, PagedResult<GetTasksByProjectResult>>
     {
         private readonly IProjectRepository _projectRepository;
         private readonly ITaskRepository _taskRepository;
@@ -19,7 +20,7 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
             _taskRepository = taskRepository;
             _workspaceAuthorizationService = workspaceAuthorizationService;
         }
-        public async Task<List<GetTasksByProjectResult>> Handle(GetTasksByProjectQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<GetTasksByProjectResult>> Handle(GetTasksByProjectQuery request, CancellationToken cancellationToken)
         {
             var project=await _projectRepository.GetByIdAsync(request.ProjectId);
             if (project == null)
@@ -27,14 +28,29 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
                 throw new NotFoundException("Project Doesnot Exist");
             }
             await _workspaceAuthorizationService.EnsureWorkspaceMemberAsync(project.WorkspaceId);
-            var result = await _taskRepository.GetTasksByProjectAsync(request.ProjectId);
-            var projects = result.Select(i => new GetTasksByProjectResult
+
+            var paginatedData = await _taskRepository.GetTasksByProjectAsync(
+     request.ProjectId,
+     request.PageNumber,
+     request.PageSize);
+            var totalPages = (int)Math.Ceiling((double)paginatedData.TotalCount / request.PageSize);
+
+
+            var tasks = paginatedData.Items.Select(i => new GetTasksByProjectResult
             {
                 TaskId=i.Id,
                 Title=i.Title,
                 
             }).ToList();
-            return projects;
+            return new PagedResult<GetTasksByProjectResult>
+            {
+                Items = tasks,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = paginatedData.TotalCount,
+                TotalPages = totalPages
+            };
+        
            
         }
 

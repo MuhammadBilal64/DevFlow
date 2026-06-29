@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 
 namespace DevFlow.Application.Abstractions
@@ -10,7 +11,10 @@ namespace DevFlow.Application.Abstractions
     {
         Task AddAsync(TaskItem task);
         Task<TaskItem?> GetByIdAsync(int TaskId);
-        Task<List<TaskItem>> GetTasksByProjectAsync(int Id);
+        Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(
+            int projectId,
+            int pageNumber,
+            int pageSize);
         Task UpdateAsync(TaskItem task);
         Task DeleteAsync(TaskItem task);
         Task<TaskItem?> GetByIdForAdminAsync(int taskId,int currentUserId);

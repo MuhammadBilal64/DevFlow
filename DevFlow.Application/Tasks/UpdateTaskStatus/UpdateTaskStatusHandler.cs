@@ -42,10 +42,11 @@ namespace DevFlow.Application.Tasks.UpdateTaskStatus
                 {
                     task.CompletedAt = null;
                 }
+
+                task.Status = (Domain.Enum.TaskStatus)request.TaskStatus;
+                await _taskRepository.UpdateAsync(task);
+                await _unitOfWork.SaveChangesAsync();
             }
-            task.Status = (Domain.Enum.TaskStatus)request.TaskStatus;
-            await _taskRepository.UpdateAsync(task);
-            await _unitOfWork.SaveChangesAsync();
             var result = new UpdateTaskStatusResult
             {
                 Id=task.Id,
