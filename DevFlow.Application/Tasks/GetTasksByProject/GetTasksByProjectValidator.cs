@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DevFlow.Application.Common.Models;
+using FluentValidation;
 
 namespace DevFlow.Application.Tasks.GetTasksByProject
 {
-    internal class GetTasksByProjectValidator
+    public class GetTasksByProjectValidator:AbstractValidator<PagedResult<GetTasksByProjectResult>>
     {
+
     }
 }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Interfaces;
+using DevFlow.Application.Common.Models;
 using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Enum;
 using MediatR;
 
 namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
 {
-    public class GetWorkspaceMembersHandler : IRequestHandler<GetWorkspaceMembersQuery,List<GetWorkspaceMembersResult>>
+    public class GetWorkspaceMembersHandler : IRequestHandler<GetWorkspaceMembersQuery,PagedResult<GetWorkspaceMembersResult>>
     {
         public readonly IWorkspaceRepository _workspaceRepository;
         public readonly IWorkspaceMemberRepository _workspaceMemberRepository;
@@ -23,12 +24,18 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
             _workspaceAuthorizationService = workspaceAuthorizationService;
         }
 
-        public async Task<List<GetWorkspaceMembersResult>> Handle(GetWorkspaceMembersQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<GetWorkspaceMembersResult>> Handle(GetWorkspaceMembersQuery request, CancellationToken cancellationToken)
         {
             var userId = _currentUserService.UserId;
             await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
-            var members=await _workspaceMemberRepository.GetAllMembersAsync(request.WorkspaceId);
-            var result = members.Select(x => new GetWorkspaceMembersResult
+
+            var paginatedmembers=await _workspaceMemberRepository.GetAllMembersAsync(request.WorkspaceId,request.PageNumber,request.PageSize);
+            var totalPages = (int)Math.Ceiling((double)paginatedmembers.TotalCount / request.PageSize);
+
+
+
+
+            var result = paginatedmembers.Items.Select(x => new GetWorkspaceMembersResult
             {
                 UserId = x.UserId,
                 Name=x.User.Name,
@@ -37,10 +44,16 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
 
             }
             ).ToList();
-            return result;
+            return new PagedResult<GetWorkspaceMembersResult>
+            {
 
-
-            
+                Items = result,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = paginatedmembers.TotalCount,
+                TotalPages = totalPages
+            };
+ 
         }
     }
 }

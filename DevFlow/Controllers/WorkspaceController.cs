@@ -1,4 +1,5 @@
 ﻿using DevFlow.Api.Contracts.Responses;
+using DevFlow.Application.Common.Models;
 using DevFlow.Application.Workspaces.AddWorkspaceMember;
 using DevFlow.Application.Workspaces.CreateWorkspace;
 using DevFlow.Application.Workspaces.GetWorkspaceById;
@@ -32,10 +33,11 @@ namespace DevFlow.Api.Controllers
         }
         [HttpGet("my")]
         [Authorize]
-        public async Task<IActionResult> GetMyWorkspaces()
+        public async Task<IActionResult> GetMyWorkspaces([FromQuery]GetMyWorkspacesQuery query)
         {
-            var result = await _mediator.Send(new GetMyWorkspacesQuery());
-            return Ok(ApiResponse<List<GetMyWorkspacesResult>>.Ok(result, "Retrieved all workspaces"));
+            
+            var result = await _mediator.Send(query);
+            return Ok(ApiResponse<PagedResult<GetMyWorkspacesResult>>.Ok(result, "Retrieved all workspaces"));
 
         }
 
@@ -49,11 +51,11 @@ namespace DevFlow.Api.Controllers
 
         [HttpGet("{workspaceId}/members")]
         [Authorize]
-        public async Task<IActionResult> GetWorkspaceMembers([FromRoute] int workspaceId)
+        public async Task<IActionResult> GetWorkspaceMembers([FromRoute] int workspaceId,[FromQuery] GetWorkspaceMembersQuery query)
         {
-
-            var result=await _mediator.Send(new GetWorkspaceMembersQuery { WorkspaceId = workspaceId });
-            return Ok(ApiResponse<List<GetWorkspaceMembersResult>>.Ok(result, "Retrieved Successfully"));
+            query.WorkspaceId = workspaceId;
+            var result=await _mediator.Send(query);
+            return Ok(ApiResponse<PagedResult<GetWorkspaceMembersResult>>.Ok(result, "Retrieved Successfully"));
         }
         [HttpDelete("{workspaceId}/members/{userId}")]
         [Authorize]
