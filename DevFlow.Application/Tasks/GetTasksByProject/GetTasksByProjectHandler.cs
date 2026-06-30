@@ -33,6 +33,7 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
      request.ProjectId,
      request.SearchTerm,
      request.SortBy,request.Descending,
+     request.Status,request.Priority,
      request.PageNumber,
      request.PageSize);
             var totalPages = (int)Math.Ceiling((double)paginatedData.TotalCount / request.PageSize);

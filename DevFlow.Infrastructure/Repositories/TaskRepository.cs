@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net.NetworkInformation;
 using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
+using DevFlow.Domain.Enum;
 using DevFlow.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,7 +48,7 @@ namespace DevFlow.Infrastructure.Repositories
                 }
 
         public async Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(int projectId, string? searchTerm, string? sortBy,
-    bool descending, int pageNumber,int pageSize)
+    bool descending, Domain.Enum.TaskStatus? status, TaskPriority? priority, int pageNumber,int pageSize)
         {
             var query = _context.Tasks.AsNoTracking().
                 Where(i => i.ProjectId== projectId);
@@ -56,7 +58,16 @@ namespace DevFlow.Infrastructure.Repositories
                     t.Title.Contains(searchTerm) ||
                     t.Description.Contains(searchTerm));
             }
-        var sortableFields = new Dictionary<string, Expression<Func<TaskItem, object>>>{
+            if (status.HasValue)
+            {
+                query = query.Where(t => t.Status == status.Value);
+
+            }
+            if (priority.HasValue)
+            {
+                query = query.Where(t => t.Priority == priority.Value);
+            }
+            var sortableFields = new Dictionary<string, Expression<Func<TaskItem, object>>>{
             { "title", t => t.Title },
             { "createdAt", t => t.CreatedAt },
              { "priority", t => t.Priority },
