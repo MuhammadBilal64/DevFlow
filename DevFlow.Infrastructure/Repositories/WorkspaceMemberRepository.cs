@@ -80,8 +80,7 @@ namespace DevFlow.Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 query = query.Where(m =>
-                    m.User.Name.Contains(SearchTerm) ||
-                    m.User.Email.Contains(SearchTerm));
+     m.Workspace.Name.Contains(SearchTerm));
             }
             var sortingFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
             {
