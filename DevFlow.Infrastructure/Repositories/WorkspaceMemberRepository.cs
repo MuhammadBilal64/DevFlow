@@ -36,24 +36,26 @@ namespace DevFlow.Infrastructure.Repositories
                     m.User.Name.Contains(SearchTerm) ||
                     m.User.Email.Contains(SearchTerm));
             }
-            var sortableFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
+            var sortingFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
             {
                 {"name",m=>m.User.Name },{ "joinedat",m=>m.JoinedAt}
             };
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                if (sortableFields.TryGetValue(sortBy.ToLower(), out var expression))
+                if (sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
                 {
-                    if (descending)
-                    {
-                        query = query.OrderByDescending(expression);
-                    }
-                    else
-                    {
-                        query = query.OrderBy(expression);
-                    }
-
+                    query = descending
+                        ? query.OrderByDescending(expression)
+                        : query.OrderBy(expression);
                 }
+                else
+                {
+                    query = query.OrderByDescending(p => p.JoinedAt);
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.JoinedAt);
             }
             var totalCount=await query.CountAsync();
             var items=await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
@@ -81,24 +83,26 @@ namespace DevFlow.Infrastructure.Repositories
                     m.User.Name.Contains(SearchTerm) ||
                     m.User.Email.Contains(SearchTerm));
             }
-            var sortableFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
+            var sortingFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
             {
                 {"name",m=>m.User.Name },{ "joinedat",m=>m.JoinedAt}
             };
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                if (sortableFields.TryGetValue(sortBy.ToLower(), out var expression))
+                if (sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
                 {
-                    if (descending)
-                    {
-                        query = query.OrderByDescending(expression);
-                    }
-                    else
-                    {
-                        query = query.OrderBy(expression);
-                    }
-
+                    query = descending
+                        ? query.OrderByDescending(expression)
+                        : query.OrderBy(expression);
                 }
+                else
+                {
+                    query = query.OrderByDescending(p => p.JoinedAt);
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.JoinedAt);
             }
             var totalCount=await query.CountAsync();
             var items = await query.Skip((pageNumber - 1 )* pageSize).Take(pageSize).ToListAsync();

@@ -52,17 +52,20 @@ namespace DevFlow.Infrastructure.Repositories
             };
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                if(sortingFields.TryGetValue(sortBy.ToLower(),out var expression))
+                if (sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
                 {
-                    if (descending)
-                    {
-                        query = query.OrderByDescending(expression);
-                    }
-                    else
-                    {
-                        query = query.OrderBy(expression);
-                    }
+                    query = descending
+                        ? query.OrderByDescending(expression)
+                        : query.OrderBy(expression);
                 }
+                else
+                {
+                    query = query.OrderByDescending(p => p.CreatedAt);
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.CreatedAt);
             }
             var totalCount = await query.CountAsync();
             var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();

@@ -67,26 +67,28 @@ namespace DevFlow.Infrastructure.Repositories
             {
                 query = query.Where(t => t.Priority == priority.Value);
             }
-            var sortableFields = new Dictionary<string, Expression<Func<TaskItem, object>>>{
+            var sortingFields = new Dictionary<string, Expression<Func<TaskItem, object>>>{
             { "title", t => t.Title },
-            { "createdAt", t => t.CreatedAt },
+            { "createdat", t => t.CreatedAt },
              { "priority", t => t.Priority },
              { "status", t => t.Status }
             };
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                if (sortableFields.TryGetValue(sortBy.ToLower(), out var expression))
+                if (sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
                 {
-                    if (descending)
-                    {
-                        query = query.OrderByDescending(expression);
-                    }
-                    else
-                    {
-                        query = query.OrderBy(expression);
-                    } 
-
+                    query = descending
+                        ? query.OrderByDescending(expression)
+                        : query.OrderBy(expression);
                 }
+                else
+                {
+                    query = query.OrderByDescending(p => p.CreatedAt);
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.CreatedAt);
             }
             var totalCount=await query.CountAsync();
             var items=await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
