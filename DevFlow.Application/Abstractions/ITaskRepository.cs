@@ -13,7 +13,8 @@ namespace DevFlow.Application.Abstractions
         Task<TaskItem?> GetByIdAsync(int TaskId);
         Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(
      int projectId,
-     string? searchTerm,
+     string? searchTerm, string? sortBy,
+    bool descending,
      int pageNumber,
      int pageSize);
         Task UpdateAsync(TaskItem task);

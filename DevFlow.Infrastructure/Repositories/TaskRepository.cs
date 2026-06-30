@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
@@ -44,7 +45,8 @@ namespace DevFlow.Infrastructure.Repositories
             return await _context.Tasks.Include(p => p.Project).FirstOrDefaultAsync(i=>i.Id==TaskId);
                 }
 
-        public async Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(int projectId, string? searchTerm, int pageNumber,int pageSize)
+        public async Task<PaginatedData<TaskItem>> GetTasksByProjectAsync(int projectId, string? searchTerm, string? sortBy,
+    bool descending, int pageNumber,int pageSize)
         {
             var query = _context.Tasks.AsNoTracking().
                 Where(i => i.ProjectId== projectId);
@@ -54,7 +56,27 @@ namespace DevFlow.Infrastructure.Repositories
                     t.Title.Contains(searchTerm) ||
                     t.Description.Contains(searchTerm));
             }
+        var sortableFields = new Dictionary<string, Expression<Func<TaskItem, object>>>{
+            { "title", t => t.Title },
+            { "createdAt", t => t.CreatedAt },
+             { "priority", t => t.Priority },
+             { "status", t => t.Status }
+            };
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortableFields.TryGetValue(sortBy.ToLower(), out var expression))
+                {
+                    if (descending)
+                    {
+                        query = query.OrderByDescending(expression);
+                    }
+                    else
+                    {
+                        query = query.OrderBy(expression);
+                    } 
 
+                }
+            }
             var totalCount=await query.CountAsync();
             var items=await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
             var result = new PaginatedData<TaskItem>

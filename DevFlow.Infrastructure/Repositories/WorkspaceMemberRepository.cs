@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
@@ -25,13 +26,34 @@ namespace DevFlow.Infrastructure.Repositories
         }
 
       
-        public async Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, string? SearchTerm, int pageNumber, int pageSize)
+        public async Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, string? SearchTerm, string? sortBy,
+    bool descending, int pageNumber, int pageSize)
         {
             var query = _context.WorkspacesMembers.AsNoTracking().Include(u => u.User).Where(u => u.WorkspaceId == workspaceId);
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
-                query = query.Where(w =>
-                     w.Workspace.Name.Contains(SearchTerm));
+                query = query.Where(m =>
+                    m.User.Name.Contains(SearchTerm) ||
+                    m.User.Email.Contains(SearchTerm));
+            }
+            var sortableFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
+            {
+                {"name",m=>m.User.Name },{ "joinedat",m=>m.JoinedAt}
+            };
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortableFields.TryGetValue(sortBy.ToLower(), out var expression))
+                {
+                    if (descending)
+                    {
+                        query = query.OrderByDescending(expression);
+                    }
+                    else
+                    {
+                        query = query.OrderBy(expression);
+                    }
+
+                }
             }
             var totalCount=await query.CountAsync();
             var items=await query.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
@@ -49,14 +71,34 @@ namespace DevFlow.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<PaginatedData<WorkspaceMember>> GetByUserIdAsync(int userId, string?SearchTerm,int pageNumber, int pageSize)
+        public async Task<PaginatedData<WorkspaceMember>> GetByUserIdAsync(int userId, string?SearchTerm, string? sortBy,
+    bool descending, int pageNumber, int pageSize)
         {
-            var query=_context.WorkspacesMembers.AsNoTracking().Include(w=>w.Workspace).Where(i=>i.UserId==userId);
+            var query=_context.WorkspacesMembers.AsNoTracking().Include(w => w.User).Include(w=>w.Workspace).Where(i=>i.UserId==userId);
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 query = query.Where(m =>
                     m.User.Name.Contains(SearchTerm) ||
                     m.User.Email.Contains(SearchTerm));
+            }
+            var sortableFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
+            {
+                {"name",m=>m.User.Name },{ "joinedat",m=>m.JoinedAt}
+            };
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortableFields.TryGetValue(sortBy.ToLower(), out var expression))
+                {
+                    if (descending)
+                    {
+                        query = query.OrderByDescending(expression);
+                    }
+                    else
+                    {
+                        query = query.OrderBy(expression);
+                    }
+
+                }
             }
             var totalCount=await query.CountAsync();
             var items = await query.Skip((pageNumber - 1 )* pageSize).Take(pageSize).ToListAsync();
