@@ -1,4 +1,5 @@
 ﻿using DevFlow.Api.Contracts.Responses;
+using DevFlow.Application.Common.Models;
 using DevFlow.Application.Tasks.CreateTask;
 using DevFlow.Application.Tasks.DeleteTask;
 using DevFlow.Application.Tasks.GetTaskById;
@@ -43,15 +44,14 @@ namespace DevFlow.Api.Controllers
         }
         [HttpGet("project/{projectId}")]
         [Authorize]
-        public async Task<IActionResult> GetTasksByProject(int projectId)
+        public async Task<IActionResult> GetTasksByProject([FromRoute]int projectId,
+    [FromQuery] GetTasksByProjectQuery query)
         {
-            var result = await _mediator.Send(new GetTasksByProjectQuery
-            {
-                ProjectId = projectId,
-
-            });
-            return Ok(ApiResponse<List<GetTasksByProjectResult>>.Ok(result, "Retrieved Successfully"));
+            query.ProjectId = projectId;
+            var result=await _mediator.Send(query);
+            return Ok(ApiResponse<PagedResult<GetTasksByProjectResult>>.Ok(result, "Retrieved Successfully"));
         }
+
         [HttpPut("{taskId}")]
         [Authorize]
         public async Task<IActionResult> UpdateTask([FromRoute] int taskId, UpdateTaskCommand command)
