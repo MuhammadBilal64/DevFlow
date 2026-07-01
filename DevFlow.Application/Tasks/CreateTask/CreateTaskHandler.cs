@@ -34,38 +34,13 @@ namespace DevFlow.Application.Tasks.CreateTask
             }
             var userId =   _currentUserService.UserId;
             await _workspaceAuthorizationService.EnsureWorkspaceMemberAsync(project.WorkspaceId, userId);
-            if (request.AssignedToUserId != null)
-            {
-
-
-                await _workspaceAuthorizationService
-                       .EnsureWorkspaceMemberAsync(
-                           project.WorkspaceId,
-                           request.AssignedToUserId.Value);
-
-            }
-
-            var task= new TaskItem
-            {
-                Title = request.Title,
-                Description = request.Description,
-                ProjectId = project.Id,
-
-                CreatedBy = userId,
-                CreatedAt = DateTime.UtcNow,
-
-                AssignedToUserId = request.AssignedToUserId,
-
-                AssignedAt = request.AssignedToUserId != null
-    ? DateTime.UtcNow
-    : null,
-                DueDate = request.DueDate,
-
-                Priority = request.Priority,
-
-                Status = Domain.Enum.TaskStatus.Todo,
-       
-            };
+            var task = new TaskItem(
+     request.Title,
+     request.Description,
+     project.Id,
+     userId,
+     request.DueDate,
+     request.Priority);
             await _taskRepository.AddAsync(task);
             await _unitOfWork.SaveChangesAsync();
             var result = new CreateTaskResult

@@ -17,7 +17,7 @@ namespace DevFlow.Application.Tasks.UpdateTask
                 .MaximumLength(50);
 
             RuleFor(x => x.Description)
-                .NotEmpty()
+              
                 .MaximumLength(200);
 
             RuleFor(x => x.Priority)
