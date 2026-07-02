@@ -10,6 +10,7 @@ using DevFlow.Application.Users.RegisterUser;
 using DevFlow.Infrastructure.Persistence;
 using DevFlow.Infrastructure.Repositories;
 using DevFlow.Infrastructure.Security;
+using DevFlow.Infrastructure.Services;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,6 +33,8 @@ builder.Services.AddScoped<IWorkspaceMemberRepository, WorkspaceMemberRepository
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IWorkspaceAuthorizationService, WorkspaceAuthorizationService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>(); 
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 // Program.cs
 builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));

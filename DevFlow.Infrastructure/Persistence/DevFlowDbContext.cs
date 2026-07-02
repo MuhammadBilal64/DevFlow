@@ -20,7 +20,7 @@ namespace DevFlow.Infrastructure.Persistence
         public DbSet<WorkspaceMember> WorkspacesMembers { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> Tasks {  get; set; }
-
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,13 +32,16 @@ namespace DevFlow.Infrastructure.Persistence
         }
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            //collecting events
             var domainEvents = ChangeTracker.Entries<BaseEntity>().SelectMany(entry => entry.Entity.DomainEvents).ToList();
             var result = await base.SaveChangesAsync(cancellationToken);
+            //publishing events
             foreach (var domainEvent in domainEvents)
             {
                 await _domainEventDispatcher.PublishAsync(domainEvent);
 
             }
+            //clearing events
             foreach (var entity in ChangeTracker.Entries<BaseEntity>())
             {
                 entity.Entity.ClearDomainEvents();

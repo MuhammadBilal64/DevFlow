@@ -26,6 +26,8 @@ namespace DevFlow.Domain.Entities
         public ICollection<Project> CreatedProjects { get; set; } = new List<Project>();
         public ICollection<TaskItem> CreatedTasks { get; set; } = new List<TaskItem>();
         public ICollection<TaskItem>AssignedTasks { get; set; }= new List<TaskItem>();
+        public ICollection<Notification> Notifications { get; private set; }
+    = new List<Notification>();
 
     }
 }

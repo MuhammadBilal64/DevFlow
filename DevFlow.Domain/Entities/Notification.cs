@@ -19,7 +19,7 @@ namespace DevFlow.Domain.Entities
         public Notification(int userId,string message, NotificationType type,int referenceId)
         {
             if (userId <= 0)
-                throw new ArgumentException(nameof(userId));
+                throw new ArgumentException("Invalid user id.", nameof(userId));
 
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException(nameof(message));
@@ -39,6 +39,9 @@ namespace DevFlow.Domain.Entities
                 return;
 
             IsRead = true;
+        }
+        private Notification()
+        {
         }
 
     }
