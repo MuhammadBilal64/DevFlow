@@ -93,6 +93,7 @@ namespace DevFlow.Domain.Entities
             if (status == TaskStatus.Completed)
             {
                 CompletedAt= DateTime.UtcNow;
+                AddDomainEvent(new TaskCompletedEvent(CreatedBy,Id,Title));
             }
             else
             {

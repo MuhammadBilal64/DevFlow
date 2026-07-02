@@ -20,7 +20,7 @@ namespace DevFlow.Application.DomainEvents.TaskAssigned
             _notificationRepository = notificationRepository;
         }
 
-        public Task Handle(TaskAssignedEvent notification, CancellationToken cancellationToken)
+        public async Task Handle(TaskAssignedEvent notification, CancellationToken cancellationToken)
         {
 
             var notificationEntity = new Notification(

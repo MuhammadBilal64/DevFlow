@@ -25,7 +25,14 @@ namespace DevFlow.Infrastructure.Repositories
           
         }
 
-      
+        public async Task<List<WorkspaceMember>> GetAllByWorkspaceIdAsync(int workspaceId)
+        {
+            return await _context.WorkspacesMembers
+                .AsNoTracking()
+                .Where(x => x.WorkspaceId == workspaceId)
+                .ToListAsync();
+        }
+
         public async Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, string? SearchTerm, string? sortBy,
     bool descending, int pageNumber, int pageSize)
         {

@@ -10,6 +10,7 @@ namespace DevFlow.Application.Abstractions
     public interface IWorkspaceMemberRepository
     {
         Task AddAsync(WorkspaceMember member);
+        Task<List<WorkspaceMember>> GetAllByWorkspaceIdAsync(int workspaceId);
         Task<List<WorkspaceMember>> GetByUserIdAsync(int userId);
         Task<PaginatedData<WorkspaceMember>> GetByUserIdAsync(
     int userId, string? SearchTerm, string? sortBy,

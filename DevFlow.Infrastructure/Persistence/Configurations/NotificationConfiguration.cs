@@ -26,8 +26,7 @@ namespace DevFlow.Infrastructure.Persistence.Configurations
             builder.Property(n => n.IsRead)
                    .IsRequired();
 
-            builder.Property(n => n.ReferenceId)
-                   .IsRequired();
+                   
 
             builder.HasOne(n => n.User)
                    .WithMany(u => u.Notifications)

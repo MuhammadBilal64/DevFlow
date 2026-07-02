@@ -13,10 +13,14 @@ namespace DevFlow.Domain.Entities
         public NotificationType Type { get; private set; }
         public bool IsRead { get; private set; } = false;
         public DateTime CreatedAt { get; private set; }
-        public int ReferenceId {  get;  private set; }
+        public int ?ReferenceId {  get;  private set; }
         public User User { get; private set; } = null!;
 
-        public Notification(int userId,string message, NotificationType type,int referenceId)
+        public Notification(
+     int userId,
+     string message,
+     NotificationType type,
+     int? referenceId = null)
         {
             if (userId <= 0)
                 throw new ArgumentException("Invalid user id.", nameof(userId));
@@ -24,7 +28,7 @@ namespace DevFlow.Domain.Entities
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException(nameof(message));
 
-            if (referenceId <= 0)
+            if (referenceId.HasValue && referenceId.Value <= 0)
                 throw new ArgumentException(nameof(referenceId));
 
             UserId = userId;
