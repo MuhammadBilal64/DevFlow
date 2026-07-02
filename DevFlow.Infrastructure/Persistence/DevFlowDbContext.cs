@@ -1,14 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DevFlow.Domain.Entities;
 using System.Security.Cryptography;
+using DevFlow.Application.Abstractions;
 
 namespace DevFlow.Infrastructure.Persistence
 {
     public class DevFlowDbContext : DbContext
     {
-        public DevFlowDbContext(DbContextOptions<DevFlowDbContext> options)
+        private readonly IDomainEventDispatcher _domainEventDispatcher;
+        public DevFlowDbContext(DbContextOptions<DevFlowDbContext> options,IDomainEventDispatcher domainEventDispatcher)
             : base(options)
         {
+            _domainEventDispatcher = domainEventDispatcher;
         }
 
         public DbSet<User> Users { get; set; }
@@ -27,10 +30,24 @@ namespace DevFlow.Infrastructure.Persistence
           
 
         }
-      
-     
-       
-    
-       
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var domainEvents = ChangeTracker.Entries<BaseEntity>().SelectMany(entry => entry.Entity.DomainEvents).ToList();
+            var result = await base.SaveChangesAsync(cancellationToken);
+            foreach (var domainEvent in domainEvents)
+            {
+                await _domainEventDispatcher.PublishAsync(domainEvent);
+
+            }
+            foreach (var entity in ChangeTracker.Entries<BaseEntity>())
+            {
+                entity.Entity.ClearDomainEvents();
+            }
+
+
+            return result;
+
+
+        }
     }
 }
