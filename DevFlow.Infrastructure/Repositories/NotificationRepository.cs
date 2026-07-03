@@ -24,9 +24,9 @@ namespace DevFlow.Infrastructure.Repositories
             await _context.Notifications.AddAsync(notification);
         }
 
-        public Task<Notification?> GetByIdAsync(int notificationId)
+        public async Task<Notification?> GetByIdAsync(int notificationId)
         {
-            throw new NotImplementedException();
+            return await _context.Notifications.FirstOrDefaultAsync(u=>u.Id == notificationId);
         }
 
         public async Task<PaginatedData<Notification>> GetByUserIdAsync(int userId, string? searchTerm, bool? isRead, string? sortBy, bool descending, int pageNumber, int pageSize)
@@ -71,14 +71,16 @@ namespace DevFlow.Infrastructure.Repositories
             return result;
         }
 
-        public Task<List<Notification>> GetUnreadByUserIdAsync(int userId)
+        public async Task<List<Notification>> GetUnreadByUserIdAsync(int userId)
         {
-            throw new NotImplementedException();
+            return await _context.Notifications.Where(u=>u.UserId== userId&&u.IsRead==false).ToListAsync();
         }
 
         public Task<int> GetUnreadCountAsync(int userId)
         {
-            throw new NotImplementedException();
+            var query=_context.Notifications.Where(u=>u.UserId == userId&&u.IsRead==false);
+            var totalCount = query.CountAsync();
+            return totalCount;
         }
     }
 }
