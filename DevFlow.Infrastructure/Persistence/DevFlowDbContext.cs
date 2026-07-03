@@ -34,6 +34,12 @@ namespace DevFlow.Infrastructure.Persistence
         {
             //collecting events
             var domainEvents = ChangeTracker.Entries<BaseEntity>().SelectMany(entry => entry.Entity.DomainEvents).ToList();
+            //clearing events
+            foreach (var entity in ChangeTracker.Entries<BaseEntity>())
+            {
+                entity.Entity.ClearDomainEvents();
+            }
+
             var result = await base.SaveChangesAsync(cancellationToken);
             //publishing events
             foreach (var domainEvent in domainEvents)
@@ -41,12 +47,6 @@ namespace DevFlow.Infrastructure.Persistence
                 await _domainEventDispatcher.PublishAsync(domainEvent);
 
             }
-            //clearing events
-            foreach (var entity in ChangeTracker.Entries<BaseEntity>())
-            {
-                entity.Entity.ClearDomainEvents();
-            }
-
 
             return result;
 

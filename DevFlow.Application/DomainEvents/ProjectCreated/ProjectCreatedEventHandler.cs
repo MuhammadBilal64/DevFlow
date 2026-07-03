@@ -24,6 +24,7 @@ namespace DevFlow.Application.DomainEvents.ProjectCreated
 
         public  async Task Handle(ProjectCreatedEvent notification, CancellationToken cancellationToken)
         {
+            
             var members = await _workspaceMemberRepository.GetAllByWorkspaceIdAsync(notification.WorkspaceId);
             
             foreach (var member in members)
