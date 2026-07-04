@@ -37,6 +37,7 @@ builder.Services.AddScoped<IWorkspaceAuthorizationService, WorkspaceAuthorizatio
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>(); 
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<INotificationRealtimeService, NotificationRealtimeService>();
 // Program.cs
 builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
