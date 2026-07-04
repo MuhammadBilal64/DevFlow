@@ -5,7 +5,7 @@ DevFlow is a backend platform for team collaboration and project management buil
 The project follows Clean Architecture and CQRS principles and is designed to evolve into a scalable foundation for workspace management, project tracking, workflow automation, notifications, and analytics.
 
 > ⚠️ Project Status: Active Development  
-> Authentication and Workspace Management modules are completed. Additional modules are planned and will be added incrementally.
+> Authentication, Workspace Management, Project Management, Task Tracking, and Real-Time Notifications are completed. Additional advanced modules are planned and will be added incrementally.
 
 ---
 
@@ -19,7 +19,7 @@ The long-term goal is to provide:
 - Project Management
 - Task Tracking
 - Team Collaboration
-- Notifications
+- Real-Time Notifications
 - Workflow Automation
 - Analytics & Reporting
 
@@ -28,7 +28,6 @@ The long-term goal is to provide:
 # Features
 
 ## Authentication
-
 - User Registration
 - User Login
 - JWT Authentication
@@ -37,7 +36,6 @@ The long-term goal is to provide:
 - Password Hashing
 
 ## Workspace Management
-
 - Create Workspace
 - Get Workspace By Id
 - Get My Workspaces
@@ -46,8 +44,18 @@ The long-term goal is to provide:
 - Remove Workspace Members
 - Workspace Role Management
 
-## Security
+## Project & Task Management
+- Create, Update, Delete Projects
+- Assign Tasks to Workspace Members
+- Task Status & Priority Tracking
+- Track Task Due Dates
 
+## Notifications (Real-Time)
+- In-App Notifications
+- Real-time updates via SignalR (`NotificationHub`)
+- Domain Events (Task Assigned, Task Completed, Project Created)
+
+## Security
 - JWT Protected Endpoints
 - Role-Based Authorization
 - Owner/Admin Permission Enforcement
@@ -55,11 +63,11 @@ The long-term goal is to provide:
 - Global Exception Handling
 
 ## Application Infrastructure
-
 - CQRS with MediatR
 - FluentValidation
 - Validation Pipeline Behavior
 - Logging Pipeline Behavior
+- Domain Events Dispatcher
 - Dependency Injection
 
 ---
@@ -71,10 +79,11 @@ DevFlow follows Clean Architecture to maintain separation of concerns and suppor
 ## Project Structure
 
 ```text
-DevFlow.Api
+DevFlow (API)
 │
 ├── Controllers
 ├── Middleware
+├── Program.cs
 │
 DevFlow.Application
 │
@@ -83,17 +92,20 @@ DevFlow.Application
 ├── Validators
 ├── Behaviors
 ├── Interfaces
+├── DomainEvents
 │
 DevFlow.Domain
 │
-├── Entities
+├── Entities (User, Workspace, Project, TaskItem, Notification)
 ├── Enums
+├── Events
 │
 DevFlow.Infrastructure
 │
-├── Persistence
+├── Persistence (DevFlowDbContext)
 ├── Repositories
 ├── Security
+├── Hubs (SignalR)
 ```
 
 ## High-Level Architecture
@@ -105,8 +117,51 @@ graph TD
     App -->|Defines Interfaces| Domain[Domain Layer]
     App -->|Implemented By| Infra[Infrastructure Layer]
     Infra -->|Data Access| DB[(SQL Server Database)]
+    Infra -->|Real-Time| SignalR[(SignalR Hubs)]
     
     classDef default fill:#f9f6f7,stroke:#333,stroke-width:2px;
+```
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    USER ||--o{ WORKSPACE_MEMBER : "has"
+    WORKSPACE ||--o{ WORKSPACE_MEMBER : "contains"
+    USER ||--o{ PROJECT : "creates"
+    WORKSPACE ||--o{ PROJECT : "contains"
+    PROJECT ||--o{ TASK_ITEM : "contains"
+    USER ||--o{ TASK_ITEM : "assigned to / creates"
+    USER ||--o{ NOTIFICATION : "receives"
+
+    USER {
+        int Id
+        string Email
+        string PasswordHash
+    }
+    WORKSPACE {
+        int Id
+        string Name
+        int OwnerId
+    }
+    PROJECT {
+        int Id
+        string Name
+        int WorkspaceId
+    }
+    TASK_ITEM {
+        int Id
+        string Title
+        int ProjectId
+        int AssignedToUserId
+        string Status
+    }
+    NOTIFICATION {
+        int Id
+        string Message
+        int UserId
+        bool IsRead
+    }
 ```
 
 ## CQRS Workflow Example
@@ -133,13 +188,13 @@ sequenceDiagram
 ```
 
 ## Architectural Patterns
-
 - Clean Architecture
 - CQRS (Command Query Responsibility Segregation)
 - Repository Pattern
+- Unit of Work
+- Domain-Driven Design (Domain Events)
 - MediatR
 - Dependency Injection
-- Pipeline Behaviors
 - Global Exception Handling
 
 ---
@@ -147,21 +202,16 @@ sequenceDiagram
 # Technology Stack
 
 ## Backend
-
 - ASP.NET Core
 - C#
 - Entity Framework Core
 - SQL Server
 
 ## Libraries
-
 - MediatR
 - FluentValidation
 - JWT Bearer Authentication
-
-## API Documentation
-
-- OpenAPI / Swagger
+- SignalR (Real-Time Web Sockets)
 
 ---
 
@@ -174,44 +224,50 @@ sequenceDiagram
 | Workspace Management | ✅ Completed |
 | Role-Based Authorization | ✅ Completed |
 | CQRS Setup | ✅ Completed |
+| Domain Events & Dispatcher | ✅ Completed |
 | Validation Pipeline | ✅ Completed |
 | Logging Pipeline | ✅ Completed |
-| Project Management | 🚧 Planned |
-| Task Management | 🚧 Planned |
-| Notifications | 🚧 Planned |
+| Project Management | ✅ Completed |
+| Task Management | ✅ Completed |
+| Notifications | ✅ Completed |
+| Real-Time Updates (SignalR) | ✅ Completed |
 | Workflow Automation | 🚧 Planned |
-| Analytics | 🚧 Planned |
+| Analytics & Reporting | 🚧 Planned |
 
 ---
 
 # Implemented Domain Model
 
 ## User
-
-- Authentication
-- Refresh Tokens
+- Authentication & Refresh Tokens
 - Workspace Memberships
 
 ## Workspace
+- Owner & Members
+- Role Management (Owner, Admin, Member)
 
-- Owner
-- Members
-- Role Management
+## Project
+- Belongs to a Workspace
+- Contains Tasks
+- Fires Domain Events (`ProjectCreatedEvent`)
 
-## Workspace Member
+## TaskItem
+- Belongs to a Project
+- Assignable to Users
+- Tracks Status (`Todo`, `InProgress`, `Review`, `Completed`)
+- Tracks Priority (`Low`, `Medium`, `High`)
+- Fires Domain Events (`TaskAssignedEvent`, `TaskCompletedEvent`)
 
-Supported Roles:
-
-- Owner
-- Admin
-- Member
+## Notification
+- User-specific notifications
+- Read/Unread tracking
+- Delivered via SignalR
 
 ---
 
 # Getting Started
 
 ## Prerequisites
-
 - .NET SDK
 - SQL Server
 
@@ -227,18 +283,19 @@ cd DevFlow
 Update the connection string in:
 
 ```text
-appsettings.json
+DevFlow/appsettings.json
 ```
 
 ## Apply Migrations
 
 ```bash
-dotnet ef database update
+dotnet ef database update --project DevFlow.Infrastructure --startup-project DevFlow
 ```
 
 ## Run Application
 
 ```bash
+cd DevFlow
 dotnet run
 ```
 
@@ -249,30 +306,25 @@ The API will be available locally after startup.
 # Roadmap
 
 ## Phase 1 (Completed)
-
 - Authentication
 - JWT & Refresh Tokens
 - Workspace Management
 - Role-Based Authorization
 
-## Phase 2
-
+## Phase 2 (Completed)
 - Project Management
 - Task Management
-- Comments
-- Activity Tracking
+- Domain Events (Task Assignments, etc.)
 
-## Phase 3
+## Phase 3 (Completed)
+- Real-Time Updates via SignalR
+- In-App Notifications System
 
-- Notifications
-- Real-Time Updates
-- Workflow Automation
-
-## Phase 4
-
-- Analytics
-- Reporting
-- Advanced System Design Features
+## Phase 4 (Next)
+- Comments on Tasks
+- Activity Tracking Logs
+- Advanced Workflow Automation
+- Analytics & Reporting
 
 ---
 
@@ -281,11 +333,11 @@ The API will be available locally after startup.
 DevFlow is also a practical learning project focused on applying modern backend engineering concepts:
 
 - Clean Architecture
-- CQRS
-- MediatR
+- CQRS & MediatR
 - Entity Framework Core
+- Domain-Driven Design (Domain Events)
 - Authentication & Authorization
-- System Design Fundamentals
+- Real-Time Communication (SignalR)
 - Scalable Backend Development
 
 ---
