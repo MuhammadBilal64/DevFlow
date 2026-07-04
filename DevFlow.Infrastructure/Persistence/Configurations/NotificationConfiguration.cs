@@ -12,7 +12,7 @@ namespace DevFlow.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
-            builder.HasOne(n => n.User).WithMany(p => p.Notifications).HasForeignKey(n => n.UserId).OnDelete(DeleteBehavior.Cascade);
+            
             builder.Property(n => n.Message)
        .IsRequired()
        .HasMaxLength(300);

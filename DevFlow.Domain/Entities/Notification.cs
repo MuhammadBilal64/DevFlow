@@ -26,10 +26,14 @@ namespace DevFlow.Domain.Entities
                 throw new ArgumentException("Invalid user id.", nameof(userId));
 
             if (string.IsNullOrWhiteSpace(message))
-                throw new ArgumentException(nameof(message));
+                throw new ArgumentException(
+     "Message cannot be empty.",
+     nameof(message));
 
             if (referenceId.HasValue && referenceId.Value <= 0)
-                throw new ArgumentException(nameof(referenceId));
+                throw new ArgumentException(
+     "ReferenceId must be greater than zero.",
+     nameof(referenceId));
 
             UserId = userId;
             Message = message;

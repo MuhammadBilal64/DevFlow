@@ -1,5 +1,5 @@
 using System.Text;
-using DevFlow.Api.Hubs;
+using DevFlow.Infrastructure.hubs;
 using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Behaviors;
