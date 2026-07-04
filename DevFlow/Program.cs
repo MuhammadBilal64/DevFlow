@@ -1,4 +1,5 @@
 using System.Text;
+using DevFlow.Api.Hubs;
 using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Behaviors;
@@ -70,6 +71,7 @@ builder.Services.AddAuthentication(options =>
 
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<DevFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevFlowDb")));
@@ -81,6 +83,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.MapHub<NotificationHub>("/notificationHub");
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
