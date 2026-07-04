@@ -43,14 +43,13 @@ namespace DevFlow.Application.Projects.CreateProject
             {
                 throw new ConflictException("Project already Exist in Workspace");
             }
-            var project = new Project
-            {
-                Name = request.ProjectName,
-                Description = request.Description,
-                CreatedBy = userId,
-                CreatedAt = DateTime.UtcNow,
-                WorkspaceId = request.WorkspaceId,
-            };
+
+            var project = new Project(
+    request.ProjectName,
+    request.Description,
+    request.WorkspaceId,
+    userId);
+            
             await _projectRepository.AddAsync(project);
             await _unitOfWork.SaveChangesAsync();
             var result = new CreateProjectResult

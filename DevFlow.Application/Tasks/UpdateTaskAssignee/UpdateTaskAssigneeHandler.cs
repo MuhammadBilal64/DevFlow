@@ -32,14 +32,7 @@ public UpdateTaskAssigneeHandler(IUnitOfWork unitOfWork, ITaskRepository taskRep
                 throw new NotFoundException("Task Doesnot Exist");
             }
 
-            if (task.AssignedToUserId == request.NewAssigneeId)
-            {
-                return new UpdateTaskAssigneeResult
-                {
-                    Id = task.Id,
-                    Title = task.Title
-                };
-            }
+            
 
 
             if (request.NewAssigneeId != null)
@@ -47,9 +40,14 @@ public UpdateTaskAssigneeHandler(IUnitOfWork unitOfWork, ITaskRepository taskRep
                 await _workspaceAuthorizationService.EnsureWorkspaceMemberAsync(
                     task.Project.WorkspaceId,
                     request.NewAssigneeId.Value);
+                task.Assign(request.NewAssigneeId.Value);
+
             }
-            task.AssignedToUserId = request.NewAssigneeId;
-            task.AssignedAt = request.NewAssigneeId == null ? null : DateTime.UtcNow;
+            else
+            {
+                task.Unassign();
+            }
+
             await _taskRepository.UpdateAsync(task);
             await _unitOfWork.SaveChangesAsync();
             var result = new UpdateTaskAssigneeResult

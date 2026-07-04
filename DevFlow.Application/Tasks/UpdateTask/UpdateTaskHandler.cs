@@ -27,10 +27,10 @@ namespace DevFlow.Application.Tasks.UpdateTask
             {
                 throw new NotFoundException("Task does not Exist");
             }
-            task.Title = request.Title;
-            task.Description= request.Description;
-            task.DueDate = request.DueDate;
-            task.Priority= request.Priority;
+            task.UpdateTitle(request.Title);
+            task.UpdateDescription(request.Description);
+            task.UpdatePriority(request.Priority);
+            task.UpdateDueDate(request.DueDate);
 
             await _taskRepository.UpdateAsync(task);
             await _unitOfWork.SaveChangesAsync();

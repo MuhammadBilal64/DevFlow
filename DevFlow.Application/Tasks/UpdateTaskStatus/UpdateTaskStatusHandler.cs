@@ -29,30 +29,17 @@ namespace DevFlow.Application.Tasks.UpdateTaskStatus
             {
                 throw new NotFoundException("Task Doesnot Exist");
             }
-            if (task.Status != request.TaskStatus)
-            {
-                if (request.TaskStatus == DevFlow.Domain.Enum.TaskStatus.Completed)
-                {
-                    if (task.CompletedAt == null)
-                    {
-                        task.CompletedAt = DateTime.UtcNow;
-                    }
-                }
-                else
-                {
-                    task.CompletedAt = null;
-                }
 
-                task.Status = (Domain.Enum.TaskStatus)request.TaskStatus;
-                await _taskRepository.UpdateAsync(task);
-                await _unitOfWork.SaveChangesAsync();
-            }
-            var result = new UpdateTaskStatusResult
-            {
-                Id=task.Id,
-                Status=task.Status
-            };
-            return result;
-        }
+            task.UpdateStatus(request.TaskStatus);
+
+            await _taskRepository.UpdateAsync(task);
+            await _unitOfWork.SaveChangesAsync();
+        
+           return new UpdateTaskStatusResult { 
+    
+            Id = task.Id,
+        Status = task.Status
+        };
+    }
     }
 }

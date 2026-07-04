@@ -41,8 +41,8 @@ namespace DevFlow.Application.Projects.UpdateProject
                 throw new ConflictException(
         "Project already exists in workspace");
             }
-            project.Name = request.Name;
-            project.Description = request.Description;
+            project.UpdateName (request.Name);
+            project.UpdateDescription( request.Description);
 
             await _projectRepository.UpdateAsync(project);
            await _unitOfWork.SaveChangesAsync();

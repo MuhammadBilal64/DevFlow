@@ -13,6 +13,6 @@ namespace DevFlow.Application.Tasks.CreateTask
         public string Description { get; set; } = null!;
         public TaskPriority Priority { get; set; }
         public DateTime? DueDate { get; set; }
-        public int? AssignedToUserId { get; set; }
+     
     }
 }

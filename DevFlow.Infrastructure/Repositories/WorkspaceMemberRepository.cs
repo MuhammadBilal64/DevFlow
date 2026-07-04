@@ -25,7 +25,14 @@ namespace DevFlow.Infrastructure.Repositories
           
         }
 
-      
+        public async Task<List<WorkspaceMember>> GetAllByWorkspaceIdAsync(int workspaceId)
+        {
+            return await _context.WorkspacesMembers
+                .AsNoTracking()
+                .Where(x => x.WorkspaceId == workspaceId)
+                .ToListAsync();
+        }
+
         public async Task<PaginatedData<WorkspaceMember>> GetAllMembersAsync(int workspaceId, string? SearchTerm, string? sortBy,
     bool descending, int pageNumber, int pageSize)
         {
@@ -80,8 +87,7 @@ namespace DevFlow.Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 query = query.Where(m =>
-                    m.User.Name.Contains(SearchTerm) ||
-                    m.User.Email.Contains(SearchTerm));
+     m.Workspace.Name.Contains(SearchTerm));
             }
             var sortingFields = new Dictionary<string, Expression<Func<WorkspaceMember, object>>>
             {
