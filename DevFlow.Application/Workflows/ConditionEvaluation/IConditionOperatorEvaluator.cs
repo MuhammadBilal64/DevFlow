@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using DevFlow.Domain.Enum;
 
-namespace DevFlow.Application.Workflows
+namespace DevFlow.Application.Workflows.ConditionEvaluation
 {
     public interface IConditionOperatorEvaluator
     {

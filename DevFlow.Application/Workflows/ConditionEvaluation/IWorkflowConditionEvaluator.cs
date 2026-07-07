@@ -4,7 +4,7 @@ using System.Text;
 using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 
-namespace DevFlow.Application.Workflows
+namespace DevFlow.Application.Workflows.ConditionEvaluation
 {
     public interface IWorkflowConditionEvaluator
     {
