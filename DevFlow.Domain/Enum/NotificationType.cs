@@ -10,5 +10,6 @@ namespace DevFlow.Domain.Enum
         TaskCompleted=1,
         ProjectCreated=2,
         MemberAdded=3,
+        Workflow=4
     }
 }

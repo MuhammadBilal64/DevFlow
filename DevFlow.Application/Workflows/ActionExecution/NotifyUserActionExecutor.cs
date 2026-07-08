@@ -58,7 +58,7 @@ namespace DevFlow.Application.Workflows.ActionExecution
         {
             var value=context.GetValue(key);
             if( value is int id){
-                return (int)value;
+                return id;
             }
             throw new InvalidOperationException(
         $"Workflow context does not contain a valid '{key}'.");
@@ -74,18 +74,10 @@ namespace DevFlow.Application.Workflows.ActionExecution
                 throw new InvalidOperationException(
                     "Invalid NotifyUser parameters.");
             }
-            if (!Enum.TryParse<NotificationRecipient>(
-        parameters.Recipient,
-        true,
-        out var recipient))
-            {
-                throw new InvalidOperationException(
-                    $"Invalid notification recipient '{parameters.Recipient}'.");
-            }
 
             int recipientId =
      ResolveRecipientId(
-         recipient,
+         parameters.Recipient,
          executionContext);
 
             await _notificationService.NotifyAsync(

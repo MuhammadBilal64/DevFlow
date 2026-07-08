@@ -6,7 +6,7 @@ using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
 
-namespace DevFlow.Infrastructure.Repositories
+namespace DevFlow.Infrastructure.Services
 {
     public class NotificationService : INotificationService
     {
