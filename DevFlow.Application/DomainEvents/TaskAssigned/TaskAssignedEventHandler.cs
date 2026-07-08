@@ -11,25 +11,22 @@ namespace DevFlow.Application.DomainEvents.TaskAssigned
 {
     public class TaskAssignedEventHandler : INotificationHandler<TaskAssignedEvent>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationRepository _notificationRepository;
+        private readonly INotificationService _notificationService;
 
-        public TaskAssignedEventHandler(IUnitOfWork unitOfWork, INotificationRepository notificationRepository)
+        public TaskAssignedEventHandler(INotificationService notificationService)
         {
-            _unitOfWork = unitOfWork;
-            _notificationRepository = notificationRepository;
+            _notificationService = notificationService;
         }
 
         public async Task Handle(TaskAssignedEvent notification, CancellationToken cancellationToken)
         {
 
-            var notificationEntity = new Notification(
+        await   _notificationService.NotifyAsync(
          notification.UserId,
          $"You have been assigned task '{notification.TaskTitle}'.",
          NotificationType.TaskAssigned,
          notification.TaskId);
-            await _notificationRepository.AddAsync(notificationEntity);
-            await _unitOfWork.SaveChangesAsync();
+            
 
         }
     }
