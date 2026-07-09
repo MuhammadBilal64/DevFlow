@@ -9,6 +9,7 @@ namespace DevFlow.Domain.Enum
      Assignee=0,
     Reporter=1,
     ProjectManager=2,
-    Creator=3
+    Creator=3,
+    WorkspaceMember=4
     }
 }

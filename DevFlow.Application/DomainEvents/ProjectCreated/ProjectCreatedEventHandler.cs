@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
+using DevFlow.Application.Common.Models;
 using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
@@ -12,14 +13,18 @@ namespace DevFlow.Application.DomainEvents.ProjectCreated
 {
     public class ProjectCreatedEventHandler : INotificationHandler<ProjectCreatedEvent>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationRepository _notificationRepository;
+        private readonly INotificationService _notificationService;
         private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
-        public ProjectCreatedEventHandler(IUnitOfWork unitOfWork, INotificationRepository notificationRepository, IWorkspaceMemberRepository workspaceMemberRepository)
+        private readonly IWorkflowEngine _workflowEngine;
+
+        public ProjectCreatedEventHandler(
+            INotificationService notificationService,
+            IWorkspaceMemberRepository workspaceMemberRepository,
+            IWorkflowEngine workflowEngine)
         {
-            _unitOfWork = unitOfWork;
-            _notificationRepository = notificationRepository;
+            _notificationService = notificationService;
             _workspaceMemberRepository = workspaceMemberRepository;
+            _workflowEngine = workflowEngine;
         }
 
         public  async Task Handle(ProjectCreatedEvent notification, CancellationToken cancellationToken)
@@ -31,16 +36,26 @@ namespace DevFlow.Application.DomainEvents.ProjectCreated
             {
                 if (member.UserId == notification.CreatedBy)
                     continue;
+                await _notificationService.NotifyAsync(
+                                   member.UserId,
+                                   $"Project '{notification.ProjectName}' was created.",
+                                   NotificationType.ProjectCreated);
+                var values = new Dictionary<string, object?>
+                {
+                    { "ProjectName", notification.ProjectName },
+                    { "WorkspaceId", notification.WorkspaceId },
+                    { "CreatorId", notification.CreatedBy },
+                    { "MemberId", member.UserId }
+                };
 
-                var notificationEntity = new Notification(
-     member.UserId,
-     $"Project '{notification.ProjectName}' was created.",
-     NotificationType.ProjectCreated);
-                    await _notificationRepository.AddAsync(notificationEntity );
-                
+                var context = new WorkflowExecutionContext(values);
+
+                await _workflowEngine.ExecuteAsync(
+                    WorkflowTrigger.ProjectCreated,
+                    context);
 
             }
-            await _unitOfWork.SaveChangesAsync();
+           
 
         }
     }

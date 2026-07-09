@@ -47,6 +47,8 @@ namespace DevFlow.Application.Workflows.ActionExecution
                     return GetRequiredInt(
                         context,
                         "CreatorId");
+                case NotificationRecipient.WorkspaceMember:
+                    return GetRequiredInt(context, "MemberId");
 
                 default:
 
