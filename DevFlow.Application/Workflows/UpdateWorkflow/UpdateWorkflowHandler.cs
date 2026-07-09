@@ -32,6 +32,7 @@ namespace DevFlow.Application.Workflows.UpdateWorkflow
             workflow.Update(
                 request.Name,
                 request.Description);
+
             foreach(var command in workflow.Actions.ToList())
             {
                 workflow.RemoveAction(command);
