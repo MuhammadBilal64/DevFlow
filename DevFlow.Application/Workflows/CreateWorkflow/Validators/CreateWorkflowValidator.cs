@@ -15,8 +15,8 @@ namespace DevFlow.Application.Workflows.CreateWorkflow.Validators
             RuleFor(x => x.Conditions)
                 .NotNull();
             RuleForEach(x => x.Conditions)
-     .SetValidator(new CreateWorkflowConditionDtoValidator());
-            RuleForEach(x => x.Actions).SetValidator(new CreateWorkflowActionDtoValidator());
+     .SetValidator(new WorkflowConditionDtoValidator());
+            RuleForEach(x => x.Actions).SetValidator(new WorkflowActionDtoValidator());
 
 
 

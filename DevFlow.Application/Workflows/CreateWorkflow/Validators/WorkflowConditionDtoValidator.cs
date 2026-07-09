@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DevFlow.Application.Workflows.WorkflowDtos;
 using FluentValidation;
 
 namespace DevFlow.Application.Workflows.CreateWorkflow.Validators
 {
-    public class CreateWorkflowConditionDtoValidator :  AbstractValidator<CreateWorkflowConditionDto>
+    public class WorkflowConditionDtoValidator :  AbstractValidator<WorkflowConditionDto>
 
     {
-        public CreateWorkflowConditionDtoValidator()
+        public WorkflowConditionDtoValidator()
         {
             RuleFor(x => x.Field)
                 .NotEmpty()

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using DevFlow.Domain.Enum;
 
-namespace DevFlow.Application.Workflows.CreateWorkflow
+namespace DevFlow.Application.Workflows.WorkflowDtos
 {
-    public class CreateWorkflowConditionDto
+    public class WorkflowConditionDto
     {
         public string Field { get; set; } = null!;
 

@@ -8,7 +8,7 @@ namespace DevFlow.Application.Workflows.CreateWorkflow
     public class CreateWorkflowResult
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public WorkflowTrigger Trigger { get; set; }
     }
 }

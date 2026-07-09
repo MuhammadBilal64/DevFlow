@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using DevFlow.Domain.Enum;
 
-namespace DevFlow.Application.Workflows.CreateWorkflow
+namespace DevFlow.Application.Workflows.WorkflowDtos
 {
-    public class CreateWorkflowActionDto
+    public class WorkflowActionDto
     {
         public WorkflowActionType ActionType { get; set; }
 

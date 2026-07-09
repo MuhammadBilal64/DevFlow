@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DevFlow.Application.Workflows.WorkflowDtos;
 using FluentValidation;
 
 namespace DevFlow.Application.Workflows.CreateWorkflow.Validators
 {
-    public class CreateWorkflowActionDtoValidator
+    public class WorkflowActionDtoValidator
     
-         : AbstractValidator<CreateWorkflowActionDto>
+         : AbstractValidator<WorkflowActionDto>
     {
     
-        public CreateWorkflowActionDtoValidator()
+        public WorkflowActionDtoValidator()
         {
             RuleFor(x => x.ActionType)
                 .IsInEnum();
