@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Experimental;
+using DevFlow.Application.Workflows;
+using DevFlow.Application.Workflows.ConditionEvaluation;
+using DevFlow.Application.Workflows.ActionExecution;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +41,29 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>(); 
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<INotificationRealtimeService, NotificationRealtimeService>();
+builder.Services.AddScoped<IWorkflowEngine, WorkflowEngine>();
+builder.Services.AddScoped<IWorkflowRepository, WorkflowRepository>();
+
+builder.Services.AddScoped<IWorkflowConditionEvaluator, WorkflowConditionEvaluator>();
+builder.Services.AddScoped<IWorkflowValueConverter, WorkflowValueConverter>();
+
+builder.Services.AddScoped<IActionDispatcher, WorkflowActionDispatcher>();
+
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+builder.Services.AddScoped<IActionExecutor, NotifyUserActionExecutor>();
+
+builder.Services.AddScoped<IConditionOperatorEvaluator, EqualOperatorEvaluator>();
+builder.Services.AddScoped<IConditionOperatorEvaluator, NotEqualOperatorEvaluator>();
+builder.Services.AddScoped<IConditionOperatorEvaluator, GreaterThanOperatorEvaluator>();
+builder.Services.AddScoped<IConditionOperatorEvaluator, GreaterThanOrEqualEvaluator>();
+builder.Services.AddScoped<IConditionOperatorEvaluator, LessThanOperatorEvaluator>();
+builder.Services.AddScoped<IConditionOperatorEvaluator, LessThanOrEqualOperator>();
+builder.Services.AddScoped<IConditionOperatorEvaluator, ContainsOperatorEvaluator>();
+
+
+
+
 // Program.cs
 builder.Services.Configure<JwtSetting>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
