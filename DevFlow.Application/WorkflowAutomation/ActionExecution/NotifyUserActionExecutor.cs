@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
 using DevFlow.Application.Workflows.ActionExecution.Models;
@@ -68,9 +69,17 @@ namespace DevFlow.Application.Workflows.ActionExecution
 
         public async Task ExecuteAsync(WorkflowAction action, WorkflowExecutionContext executionContext)
         {
-            var parameters = JsonSerializer.Deserialize<NotifyUserParameters>(
-    action.Parameters);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
 
+            var parameters = JsonSerializer.Deserialize<NotifyUserParameters>(action.Parameters, options);
+
+            Console.WriteLine($"JSON = {action.Parameters}");
+            Console.WriteLine($"Recipient = {parameters?.Recipient}");
+            Console.WriteLine($"Message = '{parameters?.Message}'");
             if (parameters is null)
             {
                 throw new InvalidOperationException(

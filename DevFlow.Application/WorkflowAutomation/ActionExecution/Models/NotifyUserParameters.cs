@@ -7,7 +7,7 @@ namespace DevFlow.Application.Workflows.ActionExecution.Models
 {
     public class NotifyUserParameters
     {
-        public NotificationRecipient Recipient { get; init; }
-        public string Message { get; init; } = null!;
+        public NotificationRecipient Recipient { get; set; }
+        public string Message { get; set; } = null!;
     }
 }
