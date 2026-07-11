@@ -17,7 +17,13 @@ namespace DevFlow.Application.Workflows.ConditionEvaluation
         public bool Evaluate(WorkflowCondition condition, WorkflowExecutionContext context)
         {
             var actualValue = context.GetValue(condition.Field);
-            var evaluator = _evaluators[condition.Operator];
+            if (!_evaluators.TryGetValue(
+                    condition.Operator,
+                    out var evaluator))
+            {
+                throw new InvalidOperationException(
+                    $"No evaluator registered for operator '{condition.Operator}'.");
+            }
             return evaluator.Evaluate(actualValue, condition.Value);
 
 

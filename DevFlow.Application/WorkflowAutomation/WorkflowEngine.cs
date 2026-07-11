@@ -31,17 +31,35 @@ namespace DevFlow.Application.Workflows
 
             foreach (var workflow in workflows)
             {
-                bool passed = workflow.Conditions.All(condition => _conditionEvaluator.Evaluate(condition, workflowExecutionContext));
-                if (!passed)
+                try
                 {
+                    bool passed = workflow.Conditions.All(condition =>
+                        _conditionEvaluator.Evaluate(
+                            condition,
+                            workflowExecutionContext));
+
+                    if (!passed)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        foreach (var action in workflow.Actions.OrderBy(x => x.Order))
+                        {
+                            await _actionDispatcher.ExecuteAsync(action, workflowExecutionContext);
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // log later
                     continue;
                 }
-                var orderedActions = workflow.Actions.OrderBy(x => x.Order);
-                foreach (var action in orderedActions)
-                {
-                    await _actionDispatcher.ExecuteAsync(action, workflowExecutionContext);
-                }
-
             }
         }
     }

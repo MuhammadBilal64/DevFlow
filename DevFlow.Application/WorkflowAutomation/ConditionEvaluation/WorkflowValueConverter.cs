@@ -6,23 +6,43 @@ namespace DevFlow.Application.Workflows.ConditionEvaluation
 {
     public class WorkflowValueConverter : IWorkflowValueConverter
     {
-        public object? ConvertToActualType(object? actualValue, string expectedValue)
+        public object? ConvertToActualType(
+            object? actualValue,
+            string expectedValue)
         {
             if (actualValue is null)
                 return expectedValue;
 
-            var targetType = actualValue.GetType();
-            if (targetType == typeof(string))
+            try
             {
-                return expectedValue;
+                var targetType = actualValue.GetType();
+
+                if (targetType == typeof(string))
+                {
+                    return expectedValue;
+                }
+
+                if (targetType.IsEnum)
+                {
+                    return Enum.Parse(
+                        targetType,
+                        expectedValue,
+                        ignoreCase: true);
+                }
+
+                return Convert.ChangeType(
+                    expectedValue,
+                    targetType);
             }
-            if (targetType.IsEnum)
+            catch (Exception ex) when (
+                ex is ArgumentException ||
+                ex is FormatException ||
+                ex is InvalidCastException)
             {
-                return Enum.Parse(targetType, expectedValue,ignoreCase:true);
+                throw new InvalidOperationException(
+                    $"Cannot convert workflow value '{expectedValue}' to type '{actualValue.GetType().Name}'.",
+                    ex);
             }
-            return Convert.ChangeType(
-    expectedValue,
-    targetType);
         }
     }
 }
