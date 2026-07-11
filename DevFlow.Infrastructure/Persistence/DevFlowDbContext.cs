@@ -21,6 +21,9 @@ namespace DevFlow.Infrastructure.Persistence
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> Tasks {  get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Workflow> Workflows { get; set; }
+        public DbSet<WorkflowAction> WorkflowActions { get; set; }
+        public DbSet<WorkflowCondition>WorkflowConditions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

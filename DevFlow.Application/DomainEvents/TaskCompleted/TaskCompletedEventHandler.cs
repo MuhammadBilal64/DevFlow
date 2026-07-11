@@ -12,31 +12,31 @@ namespace DevFlow.Application.DomainEvents.TaskCompleted
 {
     public class TaskCompletedEventHandler : INotificationHandler<TaskCompletedEvent>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationRepository _notificationRepository;
-        private readonly INotificationRealtimeService _notificationRealtimeService;
-        public TaskCompletedEventHandler(IUnitOfWork unitOfWork,INotificationRepository notificationRepository, INotificationRealtimeService notificationRealtimeService)
+        private readonly INotificationService _notificationService;
+        private readonly IWorkflowEngine _workflowEngine;
+        public TaskCompletedEventHandler(IWorkflowEngine workflowEngine,INotificationService notificationService   )
         {
-            _unitOfWork = unitOfWork;
-            _notificationRepository = notificationRepository;
-            _notificationRealtimeService = notificationRealtimeService;
+            _notificationService = notificationService;
+            _workflowEngine = workflowEngine;
         }
         public async Task Handle(TaskCompletedEvent notification, CancellationToken cancellationToken)
         {
-            var notification_ = new Notification(notification.RecipientUserId, $"Task '{notification.TaskTitle}' has been completed.",
-        NotificationType.TaskCompleted,
-        notification.TaskId);
-            await _notificationRepository.AddAsync(notification_);
-            await _unitOfWork.SaveChangesAsync();
-            var realtime = new NotificationRealtimeModel
+            await _notificationService.NotifyAsync(
+      notification.RecipientUserId,
+      $"Task '{notification.TaskTitle}' has been completed.",
+      NotificationType.TaskCompleted,
+      notification.TaskId);
+            var values = new Dictionary<string, object?>
             {
-                UserId = notification_.UserId,
-                Message = notification_.Message,
-                Type = notification_.Type,
-                ReferenceId = notification_.ReferenceId,
-                CreatedAt = notification_.CreatedAt
+                { "TaskId", notification.TaskId },
+        { "TaskTitle", notification.TaskTitle },
+        { "AssigneeId", notification.RecipientUserId },
+                
             };
-            await _notificationRealtimeService.SendNotificationAsync(realtime);
+            var context = new WorkflowExecutionContext(values);
+            await _workflowEngine.ExecuteAsync(
+        WorkflowTrigger.TaskCompleted,
+        context);
 
         }
     }

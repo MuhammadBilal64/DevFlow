@@ -4,12 +4,10 @@ using System.Text;
 
 namespace DevFlow.Domain.Enum
 {
-    public enum NotificationType
+    public enum WorkflowTrigger
     {
         TaskAssigned=0,
         TaskCompleted=1,
-        ProjectCreated=2,
-        MemberAdded=3,
-        Workflow=4
+        ProjectCreated=2
     }
 }
