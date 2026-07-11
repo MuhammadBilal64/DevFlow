@@ -74,7 +74,7 @@ namespace DevFlow.Domain.Entities
                 UpdatedAt = DateTime.UtcNow;
             }
         }
-        public void AddCondtion(WorkflowCondition workflowCondition)
+        public void AddCondition(WorkflowCondition workflowCondition)
         {
             if (workflowCondition == null)
                 throw new ArgumentNullException(nameof(workflowCondition));

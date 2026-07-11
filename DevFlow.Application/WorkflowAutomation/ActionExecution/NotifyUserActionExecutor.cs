@@ -75,15 +75,34 @@ namespace DevFlow.Application.Workflows.ActionExecution
             };
             options.Converters.Add(new JsonStringEnumConverter());
 
-            var parameters = JsonSerializer.Deserialize<NotifyUserParameters>(action.Parameters, options);
 
-            Console.WriteLine($"JSON = {action.Parameters}");
-            Console.WriteLine($"Recipient = {parameters?.Recipient}");
-            Console.WriteLine($"Message = '{parameters?.Message}'");
-            if (parameters is null)
+            if (string.IsNullOrWhiteSpace(action.Parameters))
             {
                 throw new InvalidOperationException(
-                    "Invalid NotifyUser parameters.");
+                    "NotifyUser action parameters are missing.");
+            }
+
+            NotifyUserParameters parameters;
+
+            try
+            {
+                parameters = JsonSerializer.Deserialize<NotifyUserParameters>(
+                    action.Parameters,
+                    options)
+                    ?? throw new InvalidOperationException(
+                        "Invalid NotifyUser parameters.");
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    "NotifyUser action parameters contain invalid JSON.",
+                    ex);
+            }
+
+            if (string.IsNullOrWhiteSpace(parameters.Message))
+            {
+                throw new InvalidOperationException(
+                    "NotifyUser action requires a non-empty message.");
             }
 
             int recipientId =

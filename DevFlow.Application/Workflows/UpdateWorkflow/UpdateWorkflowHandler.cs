@@ -43,7 +43,7 @@ namespace DevFlow.Application.Workflows.UpdateWorkflow
             }
             foreach (var dto in request.Conditions)
             {
-                workflow.AddCondtion(
+                workflow.AddCondition(
                     new WorkflowCondition(
                         dto.Field,
                         dto.Operator,

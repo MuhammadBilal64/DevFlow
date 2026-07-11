@@ -16,12 +16,17 @@ namespace DevFlow.Application.Workflows.ConditionEvaluation
         public WorkflowOperator Operator => WorkflowOperator.GreaterThan;
         public bool Evaluate(object? actualValue, string expectedValue)
         {
-           var convertedExpected = _workflowValueConverter.ConvertToActualType(actualValue,expectedValue);
+            if (actualValue is null)
+            {
+                throw new InvalidOperationException(
+                    "Actual value cannot be null.");
+            }
             if(actualValue is not IComparable comparable)
             {
-                throw new InvalidOperationException($"Type:'{actualValue?.GetType().Name}' doesnot support comparison");
+                throw new InvalidOperationException($"Type:'{actualValue?.GetType().Name}' does not support comparison");
 
             }
+            var convertedExpected = _workflowValueConverter.ConvertToActualType(actualValue,expectedValue);
             return comparable.CompareTo(convertedExpected) > 0;
 
         }

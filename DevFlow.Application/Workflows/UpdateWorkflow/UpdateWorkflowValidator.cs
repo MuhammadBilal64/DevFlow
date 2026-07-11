@@ -26,7 +26,10 @@ namespace DevFlow.Application.Workflows.UpdateWorkflow
             RuleForEach(x => x.Conditions)
                 .SetValidator(new WorkflowConditionDtoValidator());
 
-
+            RuleFor(x => x.Actions)
+    .Must(actions =>
+        actions.Select(a => a.Order).Distinct().Count() == actions.Count)
+    .WithMessage("Workflow action order values must be unique.");
         }
 
     }

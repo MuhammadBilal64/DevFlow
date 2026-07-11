@@ -32,7 +32,7 @@ namespace DevFlow.Application.Workflows.CreateWorkflow
                    condition_.Field,
                    condition_.Operator,
                    condition_.Value);
-                workflow.AddCondtion(condition);
+                workflow.AddCondition(condition);
 
             }
             foreach(var action_ in request.Actions)

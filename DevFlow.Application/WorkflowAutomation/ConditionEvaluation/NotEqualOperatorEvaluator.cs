@@ -17,6 +17,11 @@ namespace DevFlow.Application.Workflows.ConditionEvaluation
 
         public bool Evaluate(object? actualValue, string expectedValue)
         {
+            if (actualValue is null)
+            {
+                throw new InvalidOperationException(
+                    "Actual value cannot be null.");
+            }
             var convertedExpected =
     _valueConverter.ConvertToActualType(actualValue, expectedValue);
 
