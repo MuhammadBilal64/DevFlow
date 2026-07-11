@@ -39,7 +39,7 @@ namespace DevFlow.Application.Workflows.UpdateWorkflow
             }
             foreach(var command in workflow.Conditions.ToList())
             {
-                workflow.RemoveCondtion(command);
+                workflow.RemoveCondition(command);
             }
             foreach (var dto in request.Conditions)
             {

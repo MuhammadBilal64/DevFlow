@@ -82,7 +82,7 @@ namespace DevFlow.Domain.Entities
             Conditions.Add(workflowCondition);
             UpdatedAt = DateTime.UtcNow;
         }
-        public void RemoveCondtion(WorkflowCondition workflowCondition)
+        public void RemoveCondition(WorkflowCondition workflowCondition)
         {
             if (workflowCondition == null)
                 throw new ArgumentNullException(nameof(workflowCondition));
