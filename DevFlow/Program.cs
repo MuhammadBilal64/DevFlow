@@ -124,7 +124,6 @@ app.MapHub<NotificationHub>("/notificationHub");
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("DevFlowFrontend");
-
 app.UseAuthentication();
 
 app.UseAuthorization();
