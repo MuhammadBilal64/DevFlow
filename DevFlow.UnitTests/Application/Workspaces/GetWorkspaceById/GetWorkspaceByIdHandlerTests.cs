@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Interfaces;
+using DevFlow.Application.Exceptions;
 using DevFlow.Application.Workspaces.GetWorkspaceById;
 using DevFlow.Domain.Entities;
 using FluentAssertions;
@@ -69,6 +70,85 @@ namespace DevFlow.UnitTests.Application.Workspaces.GetWorkspaceById
             workspaceRepositoryMock.Verify(
                 x => x.GetByIdAsync(10),
                 Times.Once);
+
+
+        }
+        [Fact]
+        public async Task Should_Throw_UnauthorizedException_When_User_Is_Not_A_Workspace_Member()
+        {
+            // Arrange
+            var workspaceRepositoryMock = new Mock<IWorkspaceRepository>();
+            var workspaceMemberRepositoryMock = new Mock<IWorkspaceMemberRepository>();
+            var currentUserServiceMock = new Mock<ICurrentUserService>();
+
+            currentUserServiceMock
+                .Setup(x => x.UserId)
+                .Returns(1);
+            workspaceMemberRepositoryMock
+        .Setup(x => x.GetMemberAsync(1, 10))
+        .ReturnsAsync((WorkspaceMember?)null);
+            var handler = new GetWorkspaceByIdHandler(
+    currentUserServiceMock.Object,
+    workspaceMemberRepositoryMock.Object,
+    workspaceRepositoryMock.Object);
+            var query = new GetWorkspaceByIdQuery
+            {
+                WorkspaceId = 10
+            };
+
+            //Act
+            Func<Task> act = () => handler.Handle(query, CancellationToken.None);
+
+            await act.Should()
+     .ThrowAsync<UnauthorizedException>();
+
+            //Assert
+            workspaceRepositoryMock.Verify(x=>x.GetByIdAsync(It.IsAny<int>()),Times.Never);
+
+        }
+
+        [Fact]
+        public async Task Should_Throw_NotFoundException_When_Workspace_Does_Not_Exist()
+        {
+            // Arrange
+            var workspaceRepositoryMock = new Mock<IWorkspaceRepository>();
+            var workspaceMemberRepositoryMock = new Mock<IWorkspaceMemberRepository>();
+            var currentUserServiceMock = new Mock<ICurrentUserService>();
+
+            currentUserServiceMock
+                .Setup(x => x.UserId)
+                .Returns(1);
+            var member = new WorkspaceMember
+            {
+                UserId = 1,
+                WorkspaceId = 10
+            };
+
+            workspaceMemberRepositoryMock
+                .Setup(x => x.GetMemberAsync(1, 10))
+                .ReturnsAsync(member);
+
+            var handler = new GetWorkspaceByIdHandler(
+    currentUserServiceMock.Object,
+    workspaceMemberRepositoryMock.Object,
+    workspaceRepositoryMock.Object);
+           
+            workspaceRepositoryMock
+    .Setup(x => x.GetByIdAsync(10))
+    .ReturnsAsync((Workspace?)null);
+            var query = new GetWorkspaceByIdQuery
+            {
+                WorkspaceId = 10
+            };
+
+            //Act
+            Func<Task> act = () => handler.Handle(query, CancellationToken.None);
+            //Assert
+            await act.Should()
+     .ThrowAsync<NotFoundException>();
+            workspaceRepositoryMock.Verify(x => x.GetByIdAsync(It.IsAny<int>()), Times.Once);
+            workspaceMemberRepositoryMock.Verify(x => x.GetMemberAsync(1,10), Times.Once);
+
 
         }
     }

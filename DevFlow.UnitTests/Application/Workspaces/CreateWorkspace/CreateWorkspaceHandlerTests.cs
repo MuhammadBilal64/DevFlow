@@ -26,12 +26,15 @@ namespace DevFlow.UnitTests.Application.Workspaces.CreateWorkspace
             var currentUserServiceMock = new Mock<ICurrentUserService>();
 
             var unitOfWorkMock = new Mock<IUnitOfWork>();
+
             currentUserServiceMock.Setup(x => x.UserId).Returns(1);
+
             var handler = new CreateWorkspaceHandler(
             unitOfWorkMock.Object,
          workspaceRepositoryMock.Object,
          currentUserServiceMock.Object,
          workspaceMemberRepositoryMock.Object);
+
             var command = new CreateWorkspaceCommand
             {
                 Name = "Development"
@@ -54,6 +57,10 @@ namespace DevFlow.UnitTests.Application.Workspaces.CreateWorkspace
         m.UserId == 1 &&
         m.Role == WorkspaceRole.Owner)),
     Times.Once);
+
+            workspaceMemberRepositoryMock.Verify(x => x
+            .AddAsync(It.Is<WorkspaceMember>
+            (m => m.UserId == 1 && m.Role == WorkspaceRole.Owner)));
 
             unitOfWorkMock.Verify(
     x => x.SaveChangesAsync(),
