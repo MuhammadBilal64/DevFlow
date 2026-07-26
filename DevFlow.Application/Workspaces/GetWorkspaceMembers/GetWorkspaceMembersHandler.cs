@@ -12,13 +12,12 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
 {
     public class GetWorkspaceMembersHandler : IRequestHandler<GetWorkspaceMembersQuery,PagedResult<GetWorkspaceMembersResult>>
     {
-        public readonly IWorkspaceRepository _workspaceRepository;
         public readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         public readonly ICurrentUserService _currentUserService;
         public readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
-        public GetWorkspaceMembersHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceMemberRepository workspaceMemberRepository,IWorkspaceRepository workspaceRepository, ICurrentUserService currentUserService)
+        public GetWorkspaceMembersHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceMemberRepository workspaceMemberRepository, ICurrentUserService currentUserService)
         {
-            _workspaceRepository = workspaceRepository;
+
             _currentUserService = currentUserService;
             _workspaceMemberRepository = workspaceMemberRepository;
             _workspaceAuthorizationService = workspaceAuthorizationService;
@@ -43,6 +42,7 @@ namespace DevFlow.Application.Workspaces.GetWorkspaceMembers
                 JoinedAt=x.JoinedAt,
 
             }
+
             ).ToList();
             return new PagedResult<GetWorkspaceMembersResult>
             {
