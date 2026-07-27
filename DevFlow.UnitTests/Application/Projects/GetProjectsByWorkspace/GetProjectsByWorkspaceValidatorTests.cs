@@ -49,5 +49,6 @@ namespace DevFlow.UnitTests.Application.Projects.GetProjectsByWorkspace
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.WorkspaceId);
         }
+
     }
 }
