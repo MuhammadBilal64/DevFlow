@@ -7,7 +7,7 @@ using DevFlow.Domain.Enum;
 using FluentAssertions;
 using Moq;
 using Xunit;
-
+using TaskStatusEnum = DevFlow.Domain.Enum.TaskStatus;
 namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
 {
     public class UpdateTaskStatusHandlerTests
@@ -34,7 +34,7 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
             var command = new UpdateTaskStatusCommand
             {
                 TaskId = 10,
-                TaskStatus = Domain.Enum.TaskStatus.Completed
+                TaskStatus = TaskStatusEnum.Completed
             };
 
             var task = new TaskItem(
@@ -55,7 +55,7 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
             // Assert
             result.Should().NotBeNull();
             result.Id.Should().Be(task.Id);
-            result.Status.Should().Be(Domain.Enum.TaskStatus.Completed);
+            result.Status.Should().Be(TaskStatusEnum.Completed);
 
             taskRepositoryMock.Verify(
                 x => x.GetByIdForStatusUpdateAsync(10, 1),
@@ -92,7 +92,7 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
             var command = new UpdateTaskStatusCommand
             {
                 TaskId = 10,
-                TaskStatus = Domain.Enum.TaskStatus.Completed
+                TaskStatus = TaskStatusEnum.Completed
             };
 
             taskRepositoryMock

@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\" />
-    <Folder Include="Common\" />
+    <Folder Include="Domain\WorkspaceMember\" />
+    <Folder Include="Domain\Workspace\" />
   </ItemGroup>
 
 </Project>

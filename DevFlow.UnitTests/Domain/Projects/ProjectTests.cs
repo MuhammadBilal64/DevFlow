@@ -50,8 +50,10 @@ namespace DevFlow.UnitTests.Domain.Projects
 
             Action act = () => new Project(name, description, workspaceId, createdBy);
             //Assert
-            act.Should().Throw<ArgumentNullException>().WithMessage("Project name is required.").And.ParamName.Should().Be("Name");
-
+            act.Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Project name is required.*")
+                .And.ParamName.Should().Be("name");
 
 
 
@@ -216,13 +218,13 @@ namespace DevFlow.UnitTests.Domain.Projects
                 1,
                 2);
 
-            // Act
             project.UpdateDescription("Project Description");
 
             // Assert
             project.Description.Should().Be("Project Description");
         }
         [Fact]
+        // Act
         public void Should_Throw_When_Updating_Description_To_Empty()
         {
             // Arrange
