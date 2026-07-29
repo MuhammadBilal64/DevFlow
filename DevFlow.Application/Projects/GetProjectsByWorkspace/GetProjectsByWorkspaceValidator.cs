@@ -8,6 +8,10 @@ namespace DevFlow.Application.Projects.GetProjectsByWorkspace
 {
     public class GetProjectsByWorkspaceValidator:AbstractValidator<GetProjectsByWorkspaceQuery>
     {
-        public GetProjectsByWorkspaceValidator() { Include(new PaginationRequestValidator()); }
+        public GetProjectsByWorkspaceValidator() { Include(new PaginationRequestValidator());
+            RuleFor(x => x.WorkspaceId)
+                   .GreaterThan(0);
+        }
+
     }
 }

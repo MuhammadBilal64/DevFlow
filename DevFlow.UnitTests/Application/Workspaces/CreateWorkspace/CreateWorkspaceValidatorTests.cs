@@ -9,23 +9,45 @@ namespace DevFlow.UnitTests.Application.Workspaces
 {
     public class CreateWorkspaceValidatorTests
     {
-        [Fact]
-        public void Should_Have_Error_When_Name_Is_Empty()
+
+        [Theory]
+        [InlineData("abc")]          // Minimum valid (3)
+        [InlineData("Development")]  // Normal valid
+        public void Should_Not_Have_Error_When_Name_Is_Valid(string name)
         {
-            //arrange
+            // Arrange
+            var validator = new CreateWorkspaceValidator();
+
+            var command = new CreateWorkspaceCommand
+            {
+                Name = name
+            };
+
+            // Act
+            var result = validator.TestValidate(command);
+
+            // Assert
+            result.ShouldNotHaveValidationErrorFor(x => x.Name);
+        }
+
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("ab")]
+        [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")] // 101 chars
+        public void Should_Have_Error_When_Name_Is_Invalid(string name)
+        {
+            // Arrange
+
             var validator = new CreateWorkspaceValidator();
             var command = new CreateWorkspaceCommand
             {
-                Name = string.Empty
+                Name = name
             };
-            //act
+            // Act
             var result = validator.TestValidate(command);
-            //assert
+            // Assert
             result.ShouldHaveValidationErrorFor(x => x.Name);
-
-
-
-
         }
 
 

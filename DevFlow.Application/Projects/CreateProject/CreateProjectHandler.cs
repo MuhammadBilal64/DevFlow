@@ -14,15 +14,13 @@ namespace DevFlow.Application.Projects.CreateProject
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IProjectRepository _projectRepository;
-        private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
-        public CreateProjectHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceRepository workspaceRepository,IUnitOfWork unitOfWork,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService, IProjectRepository projectRepository)
+        public CreateProjectHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceRepository workspaceRepository,IUnitOfWork unitOfWork,ICurrentUserService currentUserService, IProjectRepository projectRepository)
         {
             _currentUserService = currentUserService;
             _projectRepository = projectRepository;
-            _workspaceMemberRepository = workspaceMemberRepository;
             _unitOfWork = unitOfWork;
             _workspaceRepository = workspaceRepository;
             _workspaceAuthorizationService = workspaceAuthorizationService;

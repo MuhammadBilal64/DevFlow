@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/tests/">
+    <Project Path="DevFlow.UnitTests/DevFlow.UnitTests.csproj" Id="6cf1534e-ac0c-427d-9ad9-23903e0a1bf1" />
+  </Folder>
   <Project Path="DevFlow.Application/DevFlow.Application.csproj" Id="bec4ae08-b50e-422d-9680-59911c551413" />
   <Project Path="DevFlow.Domain/DevFlow.Domain.csproj" Id="217e26a4-f5d0-4cae-bf3f-6757fb0e5b71" />
   <Project Path="DevFlow.Infrastructure/DevFlow.Infrastructure.csproj" Id="d4292045-97dc-4265-88f5-ec199668d5a8" />

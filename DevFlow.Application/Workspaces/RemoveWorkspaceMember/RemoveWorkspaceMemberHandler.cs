@@ -31,7 +31,8 @@ namespace DevFlow.Application.Workspaces.RemoveWorkspaceMember
             
 
             await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
-            var member=await _workspaceMemberRepository.GetMemberAsync(request.UserId, request.WorkspaceId);
+            var member=await _workspaceMemberRepository
+                .GetMemberAsync(request.UserId, request.WorkspaceId);
             if (member == null)
             {
                 throw new NotFoundException("Target member not found");

@@ -10,7 +10,9 @@ namespace DevFlow.Application.Projects.CreateProject
        public CreateProjectValidator() {
             RuleFor(x => x.ProjectName).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Description).NotEmpty().MaximumLength(200);
-            
+            RuleFor(x => x.WorkspaceId)
+            .GreaterThan(0);
+
         }
     }
 }
