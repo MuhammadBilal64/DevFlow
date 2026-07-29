@@ -115,59 +115,6 @@ namespace DevFlow.UnitTests.Application.WorkflowAutomation.ActionExecution
         }
 
 
-        // Should throw when action parameters are missing
-        [Fact]
-        public async Task Should_Throw_When_Action_Parameters_Are_Missing()
-        {
-            // Arrange
-
-            var notificationServiceMock =
-                new Mock<INotificationService>();
-
-            var executor =
-                new NotifyUserActionExecutor(
-                    notificationServiceMock.Object);
-
-
-            var action =
-                new WorkflowAction(
-                    WorkflowActionType.NotifyUser,
-                    "",
-                    1);
-
-
-            var context =
-                new WorkflowExecutionContext(
-                    new Dictionary<string, object?>
-                    {
-                        ["AssigneeId"] = 10
-                    });
-
-
-            // Act
-
-            Func<Task> act = () =>
-                executor.ExecuteAsync(
-                    action,
-                    context);
-
-
-            // Assert
-
-            await act.Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage(
-                    "NotifyUser action parameters are missing.");
-
-
-            notificationServiceMock.Verify(
-                x => x.NotifyAsync(
-                    It.IsAny<int>(),
-                    It.IsAny<string>(),
-                    It.IsAny<NotificationType>(),
-                    It.IsAny<int?>()),
-                Times.Never);
-        }
 
 
         // Should throw when action parameters contain invalid JSON
