@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Common\Behaviours\" />
     <Folder Include="Domain\WorkspaceMember\" />
     <Folder Include="Domain\Workspace\" />
   </ItemGroup>
