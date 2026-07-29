@@ -42,6 +42,9 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskAssignee
                 "Project Description",
                 5,
                 1);
+            typeof(Project)
+    .GetProperty(nameof(Project.Id))!
+    .SetValue(project, 10);
 
             var task = new TaskItem(
                 "Implement JWT",
@@ -114,7 +117,9 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskAssignee
                 "Project Description",
                 5,
                 1);
-
+            typeof(Project)
+    .GetProperty(nameof(Project.Id))!
+    .SetValue(project, 10);
             var task = new TaskItem(
                 "Implement JWT",
                 "Task Description",
@@ -230,6 +235,9 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskAssignee
                 "Project Description",
                 5,
                 1);
+            typeof(Project)
+    .GetProperty(nameof(Project.Id))!
+    .SetValue(project, 10);
 
             var task = new TaskItem(
                 "Implement JWT",

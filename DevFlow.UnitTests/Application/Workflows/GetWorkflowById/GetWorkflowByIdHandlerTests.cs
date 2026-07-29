@@ -62,7 +62,7 @@ namespace DevFlow.UnitTests.Application.Workflows.GetWorkflowById
             result.Name.Should().Be(workflow.Name);
             result.Description.Should().Be(workflow.Description);
             result.Trigger.Should().Be(workflow.Trigger);
-            result.IsEnabled.Should().BeTrue();
+            result.IsEnabled.Should().BeFalse();
 
             result.Conditions.Should().HaveCount(1);
             result.Conditions[0].Field.Should().Be("Priority");

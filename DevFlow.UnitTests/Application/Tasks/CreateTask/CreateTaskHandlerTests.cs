@@ -48,6 +48,11 @@ namespace DevFlow.UnitTests.Application.Tasks.CreateTask
                 5,
                 1);
 
+            typeof(Project)
+    .GetProperty(nameof(Project.Id))!
+    .SetValue(project, 10);
+
+
             projectRepositoryMock
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync(project);

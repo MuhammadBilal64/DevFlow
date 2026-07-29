@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
 using DevFlow.Application.Tasks.GetTaskById;
 using DevFlow.Domain.Entities;
@@ -14,7 +11,8 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTaskById
     public class GetTaskByIdHandlerTests
     {
         [Fact]
-        public async Task Should_Return_Task_By_Id() {
+        public async Task Should_Return_Task_By_Id()
+        {
 
             // Arrange
             var taskRepositoryMock = new Mock<ITaskRepository>();
@@ -28,6 +26,10 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTaskById
         "Project Description",
         5,
         1);
+            typeof(Project)
+    .GetProperty(nameof(Project.Id))!
+    .SetValue(project, 10);
+
 
             var task = new TaskItem(
                 "Implement JWT",
@@ -50,7 +52,7 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTaskById
                 TaskId = 10
             };
             //Act
-            var result = await handler.Handle(query,CancellationToken.None);
+            var result = await handler.Handle(query, CancellationToken.None);
             //Assert
             result.Should().NotBeNull();
             result.TaskId.Should().Be(task.Id);
@@ -123,10 +125,14 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTaskById
             };
 
             var project = new Project(
-                "DevFlow",
-                "Project Description",
-                5,
-                1);
+         "DevFlow",
+     "Project Description",
+     5,
+     1);
+
+            typeof(Project)
+                .GetProperty(nameof(Project.Id))!
+                .SetValue(project, 10);
 
             var task = new TaskItem(
                 "Implement JWT",

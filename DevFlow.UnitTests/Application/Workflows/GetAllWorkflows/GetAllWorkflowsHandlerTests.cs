@@ -28,18 +28,18 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
                 SortBy = "",
                 Descending = false
             };
-
             var workflow1 = new Workflow(
                 "Approval Workflow",
                 "Approval Description",
                 WorkflowTrigger.TaskAssigned);
 
+            workflow1.Enable();
+
+
             var workflow2 = new Workflow(
                 "Completion Workflow",
                 "Completion Description",
                 WorkflowTrigger.TaskCompleted);
-
-            workflow2.Disable();
 
             var paginatedData = new PaginatedData<Workflow>
             {
