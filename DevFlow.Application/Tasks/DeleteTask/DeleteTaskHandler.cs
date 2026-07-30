@@ -27,6 +27,7 @@ namespace DevFlow.Application.Tasks.DeleteTask
             }
             await _projectAuthorizationService
     .EnsureProjectMemberAsync(task.ProjectId);
+
             await _taskRepository.DeleteAsync(task);
             await _unitOfWork.SaveChangesAsync();
             var result = new DeleteTaskResult

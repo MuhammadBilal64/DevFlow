@@ -1,10 +1,9 @@
 ﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
-using DevFlow.Application.ProjectMembers.AddProjectMember;
 using DevFlow.Domain.Entities;
 using MediatR;
 
-namespace DevFlow.Application.ProjectMembers
+namespace DevFlow.Application.ProjectMembers.AddProjectMember
 {
     public class AddProjectMemberHandler : IRequestHandler<AddProjectMemberCommand, AddProjectMemberResult>
     {

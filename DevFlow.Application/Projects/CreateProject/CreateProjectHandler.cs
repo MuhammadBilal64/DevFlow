@@ -54,7 +54,7 @@ namespace DevFlow.Application.Projects.CreateProject
               creatorRole);
 
             await _projectRepository.AddAsync(project);
-            await _projectMemberRepository.AddAsync(projectMember);
+            await _projectMemberRepository.AddAsync(pro);
             await _unitOfWork.SaveChangesAsync();
             var result = new CreateProjectResult
             {

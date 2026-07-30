@@ -27,7 +27,7 @@ namespace DevFlow.Application.Tasks.UpdateTaskStatus
                 throw new NotFoundException("Task Doesnot Exist");
             }
             await _projectAuthorizationService
-    .EnsureProjectMemberAsync(task.ProjectId);
+                                    .EnsureProjectMemberAsync(task.ProjectId);
 
             task.UpdateStatus(request.TaskStatus);
 
