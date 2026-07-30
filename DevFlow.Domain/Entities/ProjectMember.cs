@@ -16,22 +16,20 @@ namespace DevFlow.Domain.Entities
 
         public DateTime JoinedAt { get; private set; }
 
-        public ProjectMember(
-            int projectId,
-            int userId,
-            ProjectRole role)
+        ProjectMember(
+    Project project,
+    int userId,
+    ProjectRole role)
         {
-            if (projectId <= 0)
-                throw new ArgumentException(
-                    "Invalid project id.",
-                    nameof(projectId));
+            if (project == null)
+                throw new ArgumentNullException(nameof(project));
 
             if (userId <= 0)
                 throw new ArgumentException(
                     "Invalid user id.",
                     nameof(userId));
 
-            ProjectId = projectId;
+            Project = project;
             UserId = userId;
             Role = role;
             JoinedAt = DateTime.UtcNow;
