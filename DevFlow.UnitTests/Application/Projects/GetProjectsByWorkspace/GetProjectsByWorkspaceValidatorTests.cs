@@ -14,7 +14,7 @@ namespace DevFlow.UnitTests.Application.Projects.GetProjectsByWorkspace
             // Arrange
             var validator = new GetProjectsByWorkspaceValidator();
 
-            var query = new GetProjectsByWorkspaceQuery
+            var query = new GetMyProjectsByWorkspaceQuery
             {
                 WorkspaceId = workspaceId,
                 PageNumber = 1,
@@ -36,7 +36,7 @@ namespace DevFlow.UnitTests.Application.Projects.GetProjectsByWorkspace
             // Arrange
             var validator = new GetProjectsByWorkspaceValidator();
 
-            var query = new GetProjectsByWorkspaceQuery
+            var query = new GetMyProjectsByWorkspaceQuery
             {
                 WorkspaceId = workspaceId,
                 PageNumber = 1,

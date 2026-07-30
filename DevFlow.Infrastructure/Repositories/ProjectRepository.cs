@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Linq.Expressions;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
@@ -15,7 +12,7 @@ namespace DevFlow.Infrastructure.Repositories
         private readonly DevFlowDbContext _context;
         public ProjectRepository(DevFlowDbContext context)
         {
-            _context= context;
+            _context = context;
         }
 
         public async Task AddAsync(Project project)
@@ -27,7 +24,7 @@ namespace DevFlow.Infrastructure.Repositories
         public async Task<bool> ExistsInWorkspaceAsync(int workspaceId, string projectName)
         {
             return await _context.Projects.AnyAsync(u => u.WorkspaceId == workspaceId && u.Name == projectName);
-           
+
         }
 
         public async Task<Project?> GetByIdAsync(int Id)
@@ -35,21 +32,34 @@ namespace DevFlow.Infrastructure.Repositories
             return await _context.Projects.FirstOrDefaultAsync(u => u.Id == Id);
         }
 
-        public async Task<PaginatedData<Project>> GetProjectsByWorkspaceAsync(int workspaceId,string ? searchTerm, string? sortBy,
-    bool descending, int pageNumber,
-            int pageSize)
+        public async Task<PaginatedData<Project>> GetProjectsForUserAsync(
+    int workspaceId,
+    int userId,
+    string? searchTerm,
+    string? sortBy,
+    bool descending,
+    int pageNumber,
+    int pageSize)
         {
-            var query =  _context.Projects.AsNoTracking().Where(u => u.WorkspaceId == workspaceId);
+            var query = _context.Projects
+                .AsNoTracking()
+                .Where(p =>
+                    p.WorkspaceId == workspaceId &&
+                    p.Members.Any(pm => pm.UserId == userId));
+
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 query = query.Where(p =>
                     p.Name.Contains(searchTerm) ||
                     p.Description.Contains(searchTerm));
             }
+
             var sortingFields = new Dictionary<string, Expression<Func<Project, object>>>
-            {
-                {"name", p=>p.Name},{"createdat",p=>p.CreatedAt}
-            };
+    {
+        {"name", p => p.Name},
+        {"createdat", p => p.CreatedAt}
+    };
+
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
                 if (sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
@@ -67,19 +77,26 @@ namespace DevFlow.Infrastructure.Repositories
             {
                 query = query.OrderByDescending(p => p.CreatedAt);
             }
+
             var totalCount = await query.CountAsync();
-            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-            var result = new PaginatedData<Project>
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginatedData<Project>
             {
                 Items = items,
-                TotalCount = totalCount,
+                TotalCount = totalCount
             };
-            return result;
         }
+
+
 
         public async Task UpdateAsync(Project project)
         {
-             _context.Projects.Update(project);
+            _context.Projects.Update(project);
         }
     }
 }

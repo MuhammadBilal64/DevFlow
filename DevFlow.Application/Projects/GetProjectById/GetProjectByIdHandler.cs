@@ -1,38 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
-using DevFlow.Application.Common.Interfaces;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
 using MediatR;
 
 namespace DevFlow.Application.Projects.GetProjectById
 {
-    public class GetProjectByIdHandler : IRequestHandler<GetProjectByIdQuery, GetProjectByIdResult>
+    public class GetProjectByIdHandler
+        : IRequestHandler<GetProjectByIdQuery, GetProjectByIdResult>
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
 
-        public GetProjectByIdHandler(IProjectRepository projectRepository,ICurrentUserService currentUserService, IWorkspaceMemberRepository workspaceMemberRepository)
+        public GetProjectByIdHandler(
+            IProjectRepository projectRepository,
+            IProjectAuthorizationService projectAuthorizationService)
         {
             _projectRepository = projectRepository;
-            _currentUserService = currentUserService;
-            _workspaceMemberRepository = workspaceMemberRepository;
-        } 
-        public async Task<GetProjectByIdResult> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
+            _projectAuthorizationService = projectAuthorizationService;
+        }
+
+        public async Task<GetProjectByIdResult> Handle(
+            GetProjectByIdQuery request,
+            CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
             var project = await _projectRepository.GetByIdAsync(request.Id);
+
             if (project == null)
-            {
-                throw new NotFoundException("Project Not Found");
-            }
-            var membership = await _workspaceMemberRepository.GetMemberAsync(userId, project.WorkspaceId);
-            if (membership == null)
-            {
-                throw new UnauthorizedException("Not a workspace member");
-            }
+                throw new NotFoundException("Project not found.");
+
+            await _projectAuthorizationService
+                .EnsureProjectMemberAsync(request.Id);
+
             return new GetProjectByIdResult
             {
                 ProjectId = project.Id,

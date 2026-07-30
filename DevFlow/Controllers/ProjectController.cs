@@ -39,7 +39,7 @@ namespace DevFlow.Api.Controllers
         }
         [HttpGet("workspace/{workspaceId}")]
         [Authorize]
-        public async Task<IActionResult>GetProjectsByWorkspace([FromRoute] int WorkspaceId,[FromQuery]GetProjectsByWorkspaceQuery query){
+        public async Task<IActionResult>GetProjectsByWorkspace([FromRoute] int WorkspaceId,[FromQuery]GetMyProjectsByWorkspaceQuery query){
 
             query.WorkspaceId = WorkspaceId;
             var result = await _mediator.Send(query);

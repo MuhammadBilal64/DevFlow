@@ -32,7 +32,7 @@ namespace DevFlow.UnitTests.Application.Projects.GetProjectsByWorkspace
                 .Setup(x => x.UserId)
                 .Returns(1);
 
-            var query = new GetProjectsByWorkspaceQuery
+            var query = new GetMyProjectsByWorkspaceQuery
             {
                 WorkspaceId = 10,
                 PageNumber = 1,
@@ -125,7 +125,7 @@ namespace DevFlow.UnitTests.Application.Projects.GetProjectsByWorkspace
                 .Setup(x => x.UserId)
                 .Returns(1);
 
-            var query = new GetProjectsByWorkspaceQuery
+            var query = new GetMyProjectsByWorkspaceQuery
             {
                 WorkspaceId = 10,
                 PageNumber = 1,
