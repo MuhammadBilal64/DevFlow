@@ -20,7 +20,7 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
             var handler = new GetAllWorkflowHandler(
                 workflowRepositoryMock.Object);
 
-            var query = new GetAllWorkflowsQuery
+            var query = new GetWorkflowsByProjectQuery
             {
                 PageNumber = 1,
                 PageSize = 10,

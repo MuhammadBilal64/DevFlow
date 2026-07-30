@@ -7,13 +7,13 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
 {
     public class GetAllWorkflowValidatorTests
     {
-        private readonly GetAllWorkflowValidator _validator = new();
+        private readonly GetWorkflowsByProjectValidator _validator = new();
 
         [Fact]
         public void Should_Not_Have_Error_When_Query_Is_Valid()
         {
             // Arrange
-            var query = new GetAllWorkflowsQuery
+            var query = new GetWorkflowsByProjectQuery
             {
                 PageNumber = 1,
                 PageSize = 10,
@@ -33,7 +33,7 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
         public void Should_Have_Error_When_Trigger_Is_Invalid(WorkflowTrigger trigger)
         {
             // Arrange
-            var query = new GetAllWorkflowsQuery
+            var query = new GetWorkflowsByProjectQuery
             {
                 PageNumber = 1,
                 PageSize = 10,

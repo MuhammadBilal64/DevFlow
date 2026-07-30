@@ -9,13 +9,14 @@ namespace DevFlow.Application.Workflows.DisableWorkflow
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUnitOfWork _unitOfWork;
-
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
         public DisableWorkflowHandler(
-            IWorkflowRepository workflowRepository,
+            IWorkflowRepository workflowRepository, IProjectAuthorizationService projectAuthorizationService,
             IUnitOfWork unitOfWork)
         {
             _workflowRepository = workflowRepository;
             _unitOfWork = unitOfWork;
+            _projectAuthorizationService = projectAuthorizationService;
         }
 
         public async Task Handle(
@@ -27,6 +28,8 @@ namespace DevFlow.Application.Workflows.DisableWorkflow
 
             if (workflow == null)
                 throw new NotFoundException("Workflow does not exist.");
+            await _projectAuthorizationService
+             .EnsureCanManageProjectAsync(workflow.ProjectId);
 
             workflow.Disable();
 

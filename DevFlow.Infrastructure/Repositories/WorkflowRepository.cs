@@ -17,6 +17,15 @@ namespace DevFlow.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<bool> ExistsInProjectAsync(
+            int projectId,
+            string workflowName)
+        {
+            return await _context.Workflows.AnyAsync(w =>
+                w.ProjectId == projectId &&
+                w.Name == workflowName);
+        }
+
         public async Task AddAsync(Workflow workflow)
         {
             await _context.Workflows.AddAsync(workflow);
@@ -37,32 +46,39 @@ namespace DevFlow.Infrastructure.Repositories
         public async Task<Workflow?> GetByIdAsync(int workflowId)
         {
             return await _context.Workflows
+                .Include(w => w.Project)
                 .Include(w => w.Conditions)
                 .Include(w => w.Actions)
                 .FirstOrDefaultAsync(w => w.Id == workflowId);
         }
 
-        public async Task<IReadOnlyList<Workflow>> GetActiveByTriggerAsync(
+        public async Task<IReadOnlyList<Workflow>> GetEnabledByTriggerAsync(
+            int projectId,
             WorkflowTrigger trigger)
         {
             return await _context.Workflows
                 .Include(w => w.Conditions)
                 .Include(w => w.Actions)
-                .Where(w => w.Trigger == trigger && w.IsEnabled)
+                .Where(w =>
+                    w.ProjectId == projectId &&
+                    w.Trigger == trigger &&
+                    w.IsEnabled)
                 .ToListAsync();
         }
 
-        public async Task<PaginatedData<Workflow>> GetAllAsync(
-     string? searchTerm,
-     WorkflowTrigger? trigger,
-     bool? isEnabled,
-     string? sortBy,
-     bool descending,
-     int pageNumber,
-     int pageSize)
+        public async Task<PaginatedData<Workflow>> GetByProjectAsync(
+            int projectId,
+            string? searchTerm,
+            WorkflowTrigger? trigger,
+            bool? isEnabled,
+            string? sortBy,
+            bool descending,
+            int pageNumber,
+            int pageSize)
         {
             var query = _context.Workflows
-                .AsNoTracking();
+                .AsNoTracking()
+                .Where(w => w.ProjectId == projectId);
 
             // Search
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -86,28 +102,20 @@ namespace DevFlow.Infrastructure.Repositories
             }
 
             // Sorting
-
-            var sortingFields =
-                new Dictionary<string, Expression<Func<Workflow, object>>>
-                {
-            { "name", w => w.Name },
-            { "createdat", w => w.CreatedAt },
-            { "trigger", w => w.Trigger },
-            { "isenabled", w => w.IsEnabled }
-                };
-
-            if (!string.IsNullOrWhiteSpace(sortBy))
+            var sortingFields = new Dictionary<string, Expression<Func<Workflow, object>>>
             {
-                if (sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
-                {
-                    query = descending
-                        ? query.OrderByDescending(expression)
-                        : query.OrderBy(expression);
-                }
-                else
-                {
-                    query = query.OrderByDescending(w => w.CreatedAt);
-                }
+                { "name", w => w.Name },
+                { "createdat", w => w.CreatedAt },
+                { "trigger", w => w.Trigger },
+                { "isenabled", w => w.IsEnabled }
+            };
+
+            if (!string.IsNullOrWhiteSpace(sortBy) &&
+                sortingFields.TryGetValue(sortBy.ToLower(), out var expression))
+            {
+                query = descending
+                    ? query.OrderByDescending(expression)
+                    : query.OrderBy(expression);
             }
             else
             {
@@ -115,7 +123,6 @@ namespace DevFlow.Infrastructure.Repositories
             }
 
             // Pagination
-
             var totalCount = await query.CountAsync();
 
             var items = await query

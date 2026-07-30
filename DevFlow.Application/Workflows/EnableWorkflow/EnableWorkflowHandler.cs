@@ -8,14 +8,16 @@ namespace DevFlow.Application.Workflows.EnableWorkflow
         : IRequestHandler<EnableWorkflowCommand>
     {
         private readonly IWorkflowRepository _workflowRepository;
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
         private readonly IUnitOfWork _unitOfWork;
 
         public EnableWorkflowHandler(
-            IWorkflowRepository workflowRepository,
+            IWorkflowRepository workflowRepository, IProjectAuthorizationService projectAuthorizationService,
             IUnitOfWork unitOfWork)
         {
             _workflowRepository = workflowRepository;
             _unitOfWork = unitOfWork;
+            _projectAuthorizationService = projectAuthorizationService;
         }
 
         public async Task Handle(
@@ -27,6 +29,8 @@ namespace DevFlow.Application.Workflows.EnableWorkflow
 
             if (workflow == null)
                 throw new NotFoundException("Workflow does not exist.");
+            await _projectAuthorizationService
+    .EnsureCanManageProjectAsync(workflow.ProjectId);
 
             workflow.Enable();
 
