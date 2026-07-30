@@ -14,6 +14,7 @@ namespace DevFlow.Domain.Entities
         public User Creator { get; private set; } = null!;
         public ICollection<TaskItem> Tasks { get; private set; } = new List<TaskItem>();
         public ICollection<ProjectMember> Members { get; private set; } = new List<ProjectMember>();
+        public ICollection<Workflow> Workflows { get; private set; } = new List<Workflow>();
         public Project(
             string name,
             string description,

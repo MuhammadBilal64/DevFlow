@@ -6,9 +6,9 @@ using FluentValidation;
 
 namespace DevFlow.Application.Workflows.GetAllWorkflows
 {
-    public class GetAllWorkflowValidator:AbstractValidator<GetAllWorkflowsQuery>
+    public class GetWorkflowsByProjectValidator:AbstractValidator<GetWorkflowsByProjectQuery>
     {
-        public GetAllWorkflowValidator()
+        public GetWorkflowsByProjectValidator()
         {
             RuleFor(x => x.Trigger)
            .IsInEnum()
