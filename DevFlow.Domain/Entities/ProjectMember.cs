@@ -16,10 +16,10 @@ namespace DevFlow.Domain.Entities
 
         public DateTime JoinedAt { get; private set; }
 
-        ProjectMember(
-    Project project,
-    int userId,
-    ProjectRole role)
+        public ProjectMember(
+     Project project,
+     int userId,
+     ProjectRole role)
         {
             if (project == null)
                 throw new ArgumentNullException(nameof(project));
