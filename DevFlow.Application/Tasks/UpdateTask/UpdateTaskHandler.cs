@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
-using DevFlow.Application.Common.Interfaces;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
 using MediatR;
 
@@ -12,21 +8,27 @@ namespace DevFlow.Application.Tasks.UpdateTask
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentUserService _currentUserService;
-        public UpdateTaskHandler(ICurrentUserService currentUserService,IUnitOfWork unitOfWork,ITaskRepository taskRepository)
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
+        public UpdateTaskHandler(
+      IUnitOfWork unitOfWork,
+      ITaskRepository taskRepository,
+      IProjectAuthorizationService projectAuthorizationService)
         {
             _taskRepository = taskRepository;
             _unitOfWork = unitOfWork;
-            _currentUserService= currentUserService;
+            _projectAuthorizationService = projectAuthorizationService;
         }
         public async Task<UpdateTaskResult> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
-            var task = await _taskRepository.GetByIdForAdminAsync(request.TaskId, userId);
+
+            var task = await _taskRepository
+                .GetByIdAsync(request.TaskId);
             if (task == null)
             {
                 throw new NotFoundException("Task does not Exist");
             }
+            await _projectAuthorizationService
+                                            .EnsureProjectMemberAsync(task.ProjectId);
             task.UpdateTitle(request.Title);
             task.UpdateDescription(request.Description);
             task.UpdatePriority(request.Priority);
@@ -36,9 +38,9 @@ namespace DevFlow.Application.Tasks.UpdateTask
             await _unitOfWork.SaveChangesAsync();
             var result = new UpdateTaskResult
             {
-                Id=task.Id,
-                Title=task.Title,
-                Description=task.Description,
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
             };
             return result;
         }

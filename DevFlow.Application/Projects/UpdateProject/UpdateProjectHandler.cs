@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
-using DevFlow.Application.Common.Interfaces;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
-using DevFlow.Domain.Entities;
-using DevFlow.Domain.Enum;
 using MediatR;
 
 namespace DevFlow.Application.Projects.UpdateProject
@@ -13,45 +7,44 @@ namespace DevFlow.Application.Projects.UpdateProject
     public class UpdateProjectHandler : IRequestHandler<UpdateProjectCommand, UpdateProjectResult>
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
         private readonly IUnitOfWork _unitOfWork;
-        public UpdateProjectHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IUnitOfWork unitOfWork ,IProjectRepository projectRepository,IWorkspaceMemberRepository workspaceMemberRepository,ICurrentUserService currentUserService)
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
+        public UpdateProjectHandler(
+      IProjectAuthorizationService projectAuthorizationService,
+      IUnitOfWork unitOfWork,
+      IProjectRepository projectRepository)
         {
             _projectRepository = projectRepository;
-            _workspaceMemberRepository=workspaceMemberRepository;
-            _currentUserService=currentUserService;
-            _workspaceAuthorizationService=workspaceAuthorizationService;
-            _unitOfWork=unitOfWork;
-
+            _projectAuthorizationService = projectAuthorizationService;
+            _unitOfWork = unitOfWork;
         }
         public async Task<UpdateProjectResult> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
+
             var project = await _projectRepository.GetByIdAsync(request.ProjectId);
             if (project == null)
             {
                 throw new NotFoundException("No such Project Exist");
             }
-            await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(project.WorkspaceId);
-            var exist =await _projectRepository.ExistsInWorkspaceAsync(project.WorkspaceId, request.Name);
-            if (exist&&request.Name!=project.Name)
+            await _projectAuthorizationService
+                .EnsureCanManageProjectAsync(project.Id);
+            var exist = await _projectRepository.ExistsInWorkspaceAsync(project.WorkspaceId, request.Name);
+            if (exist && request.Name != project.Name)
             {
                 throw new ConflictException(
         "Project already exists in workspace");
             }
-            project.UpdateName (request.Name);
-            project.UpdateDescription( request.Description);
+            project.UpdateName(request.Name);
+            project.UpdateDescription(request.Description);
 
             await _projectRepository.UpdateAsync(project);
-           await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             var result = new UpdateProjectResult
             {
-                Id=project.Id,
-                ProjectName=project.Name,
+                Id = project.Id,
+                ProjectName = project.Name,
                 Description = project.Description,
-};
+            };
             return result;
 
         }
