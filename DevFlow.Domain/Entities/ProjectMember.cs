@@ -1,0 +1,44 @@
+﻿using DevFlow.Domain.Enum;
+
+namespace DevFlow.Domain.Entities
+{
+    public class ProjectMember
+    {
+        public int Id { get; private set; }
+
+        public int ProjectId { get; private set; }
+        public Project Project { get; private set; } = null!;
+
+        public int UserId { get; private set; }
+        public User User { get; private set; } = null!;
+
+        public ProjectRole Role { get; private set; }
+
+        public DateTime JoinedAt { get; private set; }
+
+        public ProjectMember(
+            int projectId,
+            int userId,
+            ProjectRole role)
+        {
+            if (projectId <= 0)
+                throw new ArgumentException(
+                    "Invalid project id.",
+                    nameof(projectId));
+
+            if (userId <= 0)
+                throw new ArgumentException(
+                    "Invalid user id.",
+                    nameof(userId));
+
+            ProjectId = projectId;
+            UserId = userId;
+            Role = role;
+            JoinedAt = DateTime.UtcNow;
+        }
+
+        private ProjectMember()
+        {
+        }
+    }
+}
