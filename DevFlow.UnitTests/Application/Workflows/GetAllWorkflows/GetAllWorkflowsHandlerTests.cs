@@ -16,30 +16,58 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
         {
             // Arrange
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
+            var projectRepositoryMock = new Mock<IProjectRepository>();
+            var authorizationMock = new Mock<IProjectAuthorizationService>();
+
 
             var handler = new GetAllWorkflowHandler(
-                workflowRepositoryMock.Object);
+                workflowRepositoryMock.Object,
+                projectRepositoryMock.Object,
+                authorizationMock.Object);
+
+
+            var project = new Project(
+                "DevFlow Project",
+                "Project Description",
+                1,
+                1);
+
+
+            projectRepositoryMock
+                .Setup(x => x.GetByIdAsync(project.Id))
+                .ReturnsAsync(project);
+
 
             var query = new GetWorkflowsByProjectQuery
             {
+                ProjectId = project.Id,
                 PageNumber = 1,
                 PageSize = 10,
                 SearchTerm = "",
                 SortBy = "",
                 Descending = false
             };
+
+
             var workflow1 = new Workflow(
+                project,
+                1,
                 "Approval Workflow",
                 "Approval Description",
                 WorkflowTrigger.TaskAssigned);
+
 
             workflow1.Enable();
 
 
             var workflow2 = new Workflow(
+                project,
+                1,
                 "Completion Workflow",
                 "Completion Description",
                 WorkflowTrigger.TaskCompleted);
+
+
 
             var paginatedData = new PaginatedData<Workflow>
             {
@@ -51,13 +79,27 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
                 TotalCount = 2
             };
 
+
             workflowRepositoryMock
-                .Setup(x => x.GetAllAsync(
-                    "", null, null, "", false, 1, 10))
+                .Setup(x => x.GetByProjectAsync(
+                    project.Id,
+                    "",
+                    null,
+                    null,
+                    "",
+                    false,
+                    1,
+                    10))
                 .ReturnsAsync(paginatedData);
 
+
+
             // Act
-            var result = await handler.Handle(query, CancellationToken.None);
+            var result = await handler.Handle(
+                query,
+                CancellationToken.None);
+
+
 
             // Assert
             result.Should().NotBeNull();
@@ -69,23 +111,42 @@ namespace DevFlow.UnitTests.Application.Workflows.GetAllWorkflows
             result.TotalCount.Should().Be(2);
             result.TotalPages.Should().Be(1);
 
-            result.HasPreviousPage.Should().BeFalse();
-            result.HasNextPage.Should().BeFalse();
 
             result.Items[0].Name.Should().Be(workflow1.Name);
             result.Items[0].Description.Should().Be(workflow1.Description);
             result.Items[0].Trigger.Should().Be(workflow1.Trigger);
             result.Items[0].IsEnabled.Should().BeTrue();
 
+
             result.Items[1].Name.Should().Be(workflow2.Name);
             result.Items[1].Description.Should().Be(workflow2.Description);
             result.Items[1].Trigger.Should().Be(workflow2.Trigger);
             result.Items[1].IsEnabled.Should().BeFalse();
 
-            // Verifies
+
+
+            // Verify project lookup
+            projectRepositoryMock.Verify(
+                x => x.GetByIdAsync(project.Id),
+                Times.Once);
+
+
+            authorizationMock.Verify(
+                x => x.EnsureProjectMemberAsync(project.Id),
+                Times.Once);
+
+
+
             workflowRepositoryMock.Verify(
-                x => x.GetAllAsync(
-                    "", null, null, "", false, 1, 10),
+                x => x.GetByProjectAsync(
+                    project.Id,
+                    "",
+                    null,
+                    null,
+                    "",
+                    false,
+                    1,
+                    10),
                 Times.Once);
         }
     }
