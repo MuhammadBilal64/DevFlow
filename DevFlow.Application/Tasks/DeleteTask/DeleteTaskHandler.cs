@@ -21,12 +21,15 @@ namespace DevFlow.Application.Tasks.DeleteTask
         public async Task<DeleteTaskResult> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
         {
             var task = await _taskRepository.GetByIdAsync(request.TaskId);
+
             if (task == null)
-            {
-                throw new NotFoundException("Task Doesnot Exist");
-            }
+                throw new NotFoundException("Task Does not exist.");
+
+            if (task.ProjectId != request.ProjectId)
+                throw new NotFoundException("Task Does not exist.");
+
             await _projectAuthorizationService
-    .EnsureProjectMemberAsync(task.ProjectId);
+                .EnsureProjectMemberAsync(request.ProjectId);
 
             await _taskRepository.DeleteAsync(task);
             await _unitOfWork.SaveChangesAsync();

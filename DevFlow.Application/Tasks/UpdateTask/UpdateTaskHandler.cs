@@ -21,14 +21,16 @@ namespace DevFlow.Application.Tasks.UpdateTask
         public async Task<UpdateTaskResult> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
 
-            var task = await _taskRepository
-                .GetByIdAsync(request.TaskId);
+            var task = await _taskRepository.GetByIdAsync(request.TaskId);
+
             if (task == null)
-            {
-                throw new NotFoundException("Task does not Exist");
-            }
+                throw new NotFoundException("Task does not exist.");
+
+            if (task.ProjectId != request.ProjectId)
+                throw new NotFoundException("Task does not exist.");
+
             await _projectAuthorizationService
-                                            .EnsureProjectMemberAsync(task.ProjectId);
+                .EnsureProjectMemberAsync(request.ProjectId);
             task.UpdateTitle(request.Title);
             task.UpdateDescription(request.Description);
             task.UpdatePriority(request.Priority);

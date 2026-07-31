@@ -18,20 +18,24 @@ namespace DevFlow.Application.Tasks.GetTaskById
         public async Task<GetTaskByIdResult> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
         {
             var task = await _taskRepository.GetByIdAsync(request.TaskId);
-            if (task == null)
-            {
-                throw new NotFoundException("Task not Exist");
-            }
-            await _projectAuthorizationService
-                .EnsureProjectMemberAsync(task.ProjectId);
 
-            var result = new GetTaskByIdResult
+            if (task == null)
+                throw new NotFoundException("Task does not exist.");
+
+            if (task.ProjectId != request.ProjectId)
+                throw new NotFoundException("Task does not exist.");
+
+            await _projectAuthorizationService
+                .EnsureProjectMemberAsync(request.ProjectId);
+
+            return new GetTaskByIdResult
             {
                 TaskId = task.Id,
                 Title = task.Title,
-                Description = task.Description,
+                Description = task.Description
             };
-            return result;
+
+
         }
     }
 }

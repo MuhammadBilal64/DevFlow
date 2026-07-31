@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace DevFlow.Application.Tasks.UpdateTask
 {
@@ -9,6 +6,9 @@ namespace DevFlow.Application.Tasks.UpdateTask
     {
         public UpdateTaskValidator()
         {
+            RuleFor(x => x.ProjectId)
+      .GreaterThan(0);
+
             RuleFor(x => x.TaskId)
                 .GreaterThan(0);
 
@@ -17,7 +17,7 @@ namespace DevFlow.Application.Tasks.UpdateTask
                 .MaximumLength(50);
 
             RuleFor(x => x.Description)
-              
+
                 .MaximumLength(200);
 
             RuleFor(x => x.Priority)
