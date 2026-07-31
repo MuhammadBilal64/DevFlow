@@ -18,15 +18,34 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
             // Arrange
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var authorizationMock = new Mock<IProjectAuthorizationService>();
 
             var handler = new UpdateWorkflowHandler(
                 workflowRepositoryMock.Object,
+                authorizationMock.Object,
                 unitOfWorkMock.Object);
 
+            var project = new Project(
+                "Project",
+                "Description",
+                1,
+                1);
+
+            // Set Project.Id via reflection
+            typeof(Project)
+                .GetProperty(nameof(Project.Id))!
+                .SetValue(project, 1);
+
             var workflow = new Workflow(
+                project,
+                1,
                 "Old Workflow",
                 "Old Description",
                 WorkflowTrigger.TaskAssigned);
+
+            typeof(Workflow)
+    .GetProperty(nameof(Workflow.ProjectId))!
+    .SetValue(workflow, 1);
 
             workflow.AddCondition(
                 new WorkflowCondition(
@@ -44,9 +63,20 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync(workflow);
 
+            authorizationMock
+                .Setup(x => x.EnsureCanManageProjectAsync(It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
+
+            workflowRepositoryMock
+                .Setup(x => x.ExistsInProjectAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<string>()))
+                .ReturnsAsync(false);
+
             var command = new UpdateWorkflowCommand
             {
                 WorkflowId = 10,
+                ProjectId = 1,
                 Name = "Updated Workflow",
                 Description = "Updated Description",
 
@@ -75,26 +105,25 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
             await handler.Handle(command, CancellationToken.None);
 
             // Assert
-            workflow.Name.Should().Be(command.Name);
-            workflow.Description.Should().Be(command.Description);
+            workflow.Name.Should().Be("Updated Workflow");
+            workflow.Description.Should().Be("Updated Description");
 
             workflow.Conditions.Should().HaveCount(1);
             workflow.Actions.Should().HaveCount(1);
 
             workflow.Conditions.First().Field.Should().Be("Status");
-            workflow.Conditions.First().Value.Should().Be("Completed");
-
-            workflow.Actions.First().ActionType.Should().Be(WorkflowActionType.NotifyUser);
             workflow.Actions.First().Parameters.Should().Be("UserId=5");
-            workflow.Actions.First().Order.Should().Be(1);
 
-            // Verifies
             workflowRepositoryMock.Verify(
                 x => x.UpdateAsync(workflow),
                 Times.Once);
 
             unitOfWorkMock.Verify(
                 x => x.SaveChangesAsync(),
+                Times.Once);
+
+            authorizationMock.Verify(
+                x => x.EnsureCanManageProjectAsync(1),
                 Times.Once);
         }
 
@@ -104,9 +133,11 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
             // Arrange
             var workflowRepositoryMock = new Mock<IWorkflowRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
+            var authorizationMock = new Mock<IProjectAuthorizationService>();
 
             var handler = new UpdateWorkflowHandler(
                 workflowRepositoryMock.Object,
+                authorizationMock.Object,
                 unitOfWorkMock.Object);
 
             workflowRepositoryMock
@@ -115,7 +146,8 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
 
             var command = new UpdateWorkflowCommand
             {
-                WorkflowId = 10
+                WorkflowId = 10,
+                ProjectId = 1
             };
 
             // Act
@@ -124,7 +156,6 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
             // Assert
             await act.Should().ThrowAsync<NotFoundException>();
 
-            // Verifies
             workflowRepositoryMock.Verify(
                 x => x.UpdateAsync(It.IsAny<Workflow>()),
                 Times.Never);

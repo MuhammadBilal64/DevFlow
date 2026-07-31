@@ -42,7 +42,7 @@ namespace DevFlow.UnitTests.Domain.Workflows
             act.Should()
                 .Throw<ArgumentException>()
                 .WithMessage("Parameters cannot be empty*")
-                .And.ParamName.Should().Be("Parameters_");
+                .And.ParamName.Should().Be("parameters");
         }
         [Fact]
         public void Should_Throw_When_Order_Is_Less_Than_Or_Equal_To_Zero()
