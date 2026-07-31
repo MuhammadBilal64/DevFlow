@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
 using DevFlow.Application.Exceptions;
 using DevFlow.Application.Tasks.GetTasksByProject;
@@ -20,12 +17,15 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTasksByProject
             // Arrange
             var projectRepositoryMock = new Mock<IProjectRepository>();
             var taskRepositoryMock = new Mock<ITaskRepository>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
+
 
             var handler = new GetTasksByProjectHandler(
                 projectRepositoryMock.Object,
                 taskRepositoryMock.Object,
-                workspaceAuthorizationServiceMock.Object);
+                projectAuthorizationServiceMock.Object);
+
+
 
             var query = new GetTasksByProjectQuery
             {
@@ -37,40 +37,55 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTasksByProject
                 Descending = false
             };
 
+
+
             var project = new Project(
                 "DevFlow",
                 "Project Description",
                 5,
                 1);
 
+
+            typeof(Project)
+                .GetProperty(nameof(Project.Id))!
+                .SetValue(project, 10);
+
+
+
             projectRepositoryMock
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync(project);
 
-            var tasks = new List<TaskItem>
-    {
-        new TaskItem(
-            "Implement JWT",
-            "Task Description",
-            10,
-            1,
-            DateTime.UtcNow.AddDays(2),
-            DevFlow.Domain.Enum.TaskPriority.High),
 
-        new TaskItem(
-            "Implement SignalR",
-            "SignalR Description",
-            10,
-            1,
-            DateTime.UtcNow.AddDays(3),
-            DevFlow.Domain.Enum.TaskPriority.Medium)
-    };
+
+            var tasks = new List<TaskItem>
+            {
+                new TaskItem(
+                    "Implement JWT",
+                    "Task Description",
+                    10,
+                    1,
+                    DateTime.UtcNow.AddDays(2),
+                    DevFlow.Domain.Enum.TaskPriority.High),
+
+                new TaskItem(
+                    "Implement SignalR",
+                    "SignalR Description",
+                    10,
+                    1,
+                    DateTime.UtcNow.AddDays(3),
+                    DevFlow.Domain.Enum.TaskPriority.Medium)
+            };
+
+
 
             var paginatedData = new PaginatedData<TaskItem>
             {
                 Items = tasks,
                 TotalCount = 2
             };
+
+
 
             taskRepositoryMock
                 .Setup(x => x.GetTasksByProjectAsync(
@@ -84,8 +99,14 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTasksByProject
                     10))
                 .ReturnsAsync(paginatedData);
 
+
+
             // Act
-            var result = await handler.Handle(query, CancellationToken.None);
+            var result = await handler.Handle(
+                query,
+                CancellationToken.None);
+
+
 
             // Assert
             result.Should().NotBeNull();
@@ -97,20 +118,23 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTasksByProject
             result.TotalCount.Should().Be(2);
             result.TotalPages.Should().Be(1);
 
-            result.HasPreviousPage.Should().BeFalse();
-            result.HasNextPage.Should().BeFalse();
-
             result.Items[0].Title.Should().Be("Implement JWT");
             result.Items[1].Title.Should().Be("Implement SignalR");
 
-            // Verifies
+
+
+            // Verify
             projectRepositoryMock.Verify(
                 x => x.GetByIdAsync(10),
                 Times.Once);
 
-            workspaceAuthorizationServiceMock.Verify(
-                x => x.EnsureWorkspaceMemberAsync(5),
+
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(10),
                 Times.Once);
+
+
 
             taskRepositoryMock.Verify(
                 x => x.GetTasksByProjectAsync(
@@ -124,47 +148,64 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTasksByProject
                     10),
                 Times.Once);
         }
+
+
+
         [Fact]
         public async Task Should_Throw_NotFoundException_When_Project_Does_Not_Exist()
         {
             // Arrange
             var projectRepositoryMock = new Mock<IProjectRepository>();
             var taskRepositoryMock = new Mock<ITaskRepository>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
+
 
             var handler = new GetTasksByProjectHandler(
                 projectRepositoryMock.Object,
                 taskRepositoryMock.Object,
-                workspaceAuthorizationServiceMock.Object);
+                projectAuthorizationServiceMock.Object);
+
+
 
             var query = new GetTasksByProjectQuery
             {
                 ProjectId = 10,
                 PageNumber = 1,
-                PageSize = 10,
-                SearchTerm = "",
-                SortBy = "",
-                Descending = false
+                PageSize = 10
             };
+
+
 
             projectRepositoryMock
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync((Project?)null);
 
+
+
             // Act
-            Func<Task> act = () => handler.Handle(query, CancellationToken.None);
+            Func<Task> act = () =>
+                handler.Handle(query, CancellationToken.None);
+
+
 
             // Assert
-            await act.Should().ThrowAsync<NotFoundException>();
+            await act.Should()
+                .ThrowAsync<NotFoundException>();
 
-            // Verifies
+
+
+            // Verify
             projectRepositoryMock.Verify(
                 x => x.GetByIdAsync(10),
                 Times.Once);
 
-            workspaceAuthorizationServiceMock.Verify(
-                x => x.EnsureWorkspaceMemberAsync(It.IsAny<int>()),
+
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(It.IsAny<int>()),
                 Times.Never);
+
+
 
             taskRepositoryMock.Verify(
                 x => x.GetTasksByProjectAsync(

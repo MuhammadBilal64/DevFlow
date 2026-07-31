@@ -13,159 +13,227 @@ namespace DevFlow.UnitTests.Application.Tasks.GetTaskById
         [Fact]
         public async Task Should_Return_Task_By_Id()
         {
-
             // Arrange
             var taskRepositoryMock = new Mock<ITaskRepository>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
 
             var handler = new GetTaskByIdHandler(
                 taskRepositoryMock.Object,
-                workspaceAuthorizationServiceMock.Object);
-            var project = new Project(
-        "DevFlow",
-        "Project Description",
-        5,
-        1);
-            typeof(Project)
-    .GetProperty(nameof(Project.Id))!
-    .SetValue(project, 10);
-
+                projectAuthorizationServiceMock.Object);
 
             var task = new TaskItem(
                 "Implement JWT",
                 "Task Description",
-                project.Id,
+                10,
                 1,
                 DateTime.UtcNow.AddDays(2),
                 DevFlow.Domain.Enum.TaskPriority.High);
 
-            typeof(TaskItem)
-                .GetProperty(nameof(TaskItem.Project))!
-                .SetValue(task, project);
 
             taskRepositoryMock
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync(task);
 
+
             var query = new GetTaskByIdQuery
             {
-                TaskId = 10
+                TaskId = 10,
+                ProjectId = 10
             };
-            //Act
-            var result = await handler.Handle(query, CancellationToken.None);
-            //Assert
-            result.Should().NotBeNull();
-            result.TaskId.Should().Be(task.Id);
-            result.Title.Should().Be(task.Title);
-            result.Description.Should().Be(task.Description);
 
-            // Verifies
+
+            // Act
+            var result = await handler.Handle(
+                query,
+                CancellationToken.None);
+
+
+            // Assert
+            result.Should().NotBeNull();
+
+            result.TaskId.Should().Be(task.Id);
+            result.Title.Should().Be("Implement JWT");
+            result.Description.Should().Be("Task Description");
+
+
+            // Verify
             taskRepositoryMock.Verify(
                 x => x.GetByIdAsync(10),
                 Times.Once);
 
-            workspaceAuthorizationServiceMock.Verify(
-                x => x.EnsureWorkspaceMemberAsync(project.WorkspaceId),
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(10),
                 Times.Once);
-
-
-
         }
+
 
         [Fact]
         public async Task Should_Throw_NotFoundException_When_Task_Does_Not_Exist()
         {
             // Arrange
             var taskRepositoryMock = new Mock<ITaskRepository>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
+
 
             var handler = new GetTaskByIdHandler(
                 taskRepositoryMock.Object,
-                workspaceAuthorizationServiceMock.Object);
+                projectAuthorizationServiceMock.Object);
+
 
             var query = new GetTaskByIdQuery
             {
-                TaskId = 10
+                TaskId = 10,
+                ProjectId = 10
             };
+
 
             taskRepositoryMock
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync((TaskItem?)null);
 
+
+
             // Act
-            Func<Task> act = () => handler.Handle(query, CancellationToken.None);
+            Func<Task> act = () =>
+                handler.Handle(query, CancellationToken.None);
+
+
 
             // Assert
-            await act.Should().ThrowAsync<NotFoundException>();
+            await act.Should()
+                .ThrowAsync<NotFoundException>();
 
-            // Verifies
+
+
+            // Verify
             taskRepositoryMock.Verify(
                 x => x.GetByIdAsync(10),
                 Times.Once);
 
-            workspaceAuthorizationServiceMock.Verify(
-                x => x.EnsureWorkspaceMemberAsync(It.IsAny<int>()),
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(It.IsAny<int>()),
                 Times.Never);
         }
 
+
+
         [Fact]
-        public async Task Should_Throw_UnauthorizedException_When_User_Is_Not_A_Workspace_Member()
+        public async Task Should_Throw_NotFoundException_When_Task_Belongs_To_Different_Project()
         {
             // Arrange
             var taskRepositoryMock = new Mock<ITaskRepository>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
+
 
             var handler = new GetTaskByIdHandler(
                 taskRepositoryMock.Object,
-                workspaceAuthorizationServiceMock.Object);
+                projectAuthorizationServiceMock.Object);
 
-            var query = new GetTaskByIdQuery
-            {
-                TaskId = 10
-            };
 
-            var project = new Project(
-         "DevFlow",
-     "Project Description",
-     5,
-     1);
-
-            typeof(Project)
-                .GetProperty(nameof(Project.Id))!
-                .SetValue(project, 10);
 
             var task = new TaskItem(
                 "Implement JWT",
                 "Task Description",
-                project.Id,
+                20,
                 1,
                 DateTime.UtcNow.AddDays(2),
                 DevFlow.Domain.Enum.TaskPriority.High);
 
-            typeof(TaskItem).GetProperty(nameof(TaskItem.Project))!.SetValue(task, project);
 
 
             taskRepositoryMock
                 .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync(task);
 
-            workspaceAuthorizationServiceMock
-                .Setup(x => x.EnsureWorkspaceMemberAsync(project.WorkspaceId))
-                .ThrowsAsync(new UnauthorizedException("Not a workspace member"));
+
+
+            var query = new GetTaskByIdQuery
+            {
+                TaskId = 10,
+                ProjectId = 10
+            };
+
+
 
             // Act
-            Func<Task> act = () => handler.Handle(query, CancellationToken.None);
+            Func<Task> act = () =>
+                handler.Handle(query, CancellationToken.None);
+
+
 
             // Assert
-            await act.Should().ThrowAsync<UnauthorizedException>();
+            await act.Should()
+                .ThrowAsync<NotFoundException>();
 
-            // Verifies
-            taskRepositoryMock.Verify(
-                x => x.GetByIdAsync(10),
-                Times.Once);
 
-            workspaceAuthorizationServiceMock.Verify(
-                x => x.EnsureWorkspaceMemberAsync(project.WorkspaceId),
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(It.IsAny<int>()),
+                Times.Never);
+        }
+
+
+
+        [Fact]
+        public async Task Should_Throw_UnauthorizedException_When_User_Is_Not_Project_Member()
+        {
+            // Arrange
+            var taskRepositoryMock = new Mock<ITaskRepository>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
+
+
+            var handler = new GetTaskByIdHandler(
+                taskRepositoryMock.Object,
+                projectAuthorizationServiceMock.Object);
+
+
+
+            var task = new TaskItem(
+                "Implement JWT",
+                "Task Description",
+                10,
+                1,
+                DateTime.UtcNow.AddDays(2),
+                DevFlow.Domain.Enum.TaskPriority.High);
+
+
+
+            taskRepositoryMock
+                .Setup(x => x.GetByIdAsync(10))
+                .ReturnsAsync(task);
+
+
+
+            projectAuthorizationServiceMock
+                .Setup(x => x.EnsureProjectMemberAsync(10))
+                .ThrowsAsync(
+                    new UnauthorizedException("Not project member"));
+
+
+
+            var query = new GetTaskByIdQuery
+            {
+                TaskId = 10,
+                ProjectId = 10
+            };
+
+
+
+            // Act
+            Func<Task> act = () =>
+                handler.Handle(query, CancellationToken.None);
+
+
+
+            // Assert
+            await act.Should()
+                .ThrowAsync<UnauthorizedException>();
+
+
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(10),
                 Times.Once);
         }
     }
