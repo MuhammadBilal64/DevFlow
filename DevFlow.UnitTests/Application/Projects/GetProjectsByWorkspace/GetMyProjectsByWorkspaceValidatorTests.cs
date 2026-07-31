@@ -1,54 +1,48 @@
-﻿using DevFlow.Application.Projects.GetProjectsByWorkspace;
+﻿using DevFlow.Application.Projects.GetMyProjectsByWorkspace;
 using FluentValidation.TestHelper;
 using Xunit;
 
-namespace DevFlow.UnitTests.Application.Projects.GetProjectsByWorkspace
+namespace DevFlow.UnitTests.Application.Projects.GetMyProjectsByWorkspace
 {
-    public class GetProjectsByWorkspaceValidatorTests
+    public class GetMyProjectsByWorkspaceValidatorTests
     {
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
         public void Should_Not_Have_Validation_Error_When_Query_Is_Valid(int workspaceId)
         {
-            // Arrange
-            var validator = new GetProjectsByWorkspaceValidator();
+            var validator = new GetMyProjectsByWorkspaceValidator();
 
-            var query = new GetProjectsByWorkspaceQuery
+            var query = new GetMyProjectsByWorkspaceQuery
             {
                 WorkspaceId = workspaceId,
                 PageNumber = 1,
                 PageSize = 10
             };
 
-            // Act
             var result = validator.TestValidate(query);
 
-            // Assert
             result.ShouldNotHaveValidationErrorFor(x => x.WorkspaceId);
         }
+
 
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
         public void Should_Have_Validation_Error_When_WorkspaceId_Is_Invalid(int workspaceId)
         {
-            // Arrange
-            var validator = new GetProjectsByWorkspaceValidator();
+            var validator = new GetMyProjectsByWorkspaceValidator();
 
-            var query = new GetProjectsByWorkspaceQuery
+            var query = new GetMyProjectsByWorkspaceQuery
             {
                 WorkspaceId = workspaceId,
                 PageNumber = 1,
                 PageSize = 10
             };
 
-            // Act
             var result = validator.TestValidate(query);
 
-            // Assert
             result.ShouldHaveValidationErrorFor(x => x.WorkspaceId);
         }
-
     }
 }

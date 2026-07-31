@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Interfaces;
 using DevFlow.Application.Exceptions;
 using DevFlow.Domain.Entities;
@@ -17,12 +14,14 @@ namespace DevFlow.Application.Projects.CreateProject
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkspaceRepository _workspaceRepository;
         private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
-        public CreateProjectHandler(IWorkspaceAuthorizationService workspaceAuthorizationService,IWorkspaceRepository workspaceRepository,IUnitOfWork unitOfWork,ICurrentUserService currentUserService, IProjectRepository projectRepository)
+        private readonly IProjectMemberRepository _projectMemberRepository;
+        public CreateProjectHandler(IProjectMemberRepository projectMemberRepository, IWorkspaceAuthorizationService workspaceAuthorizationService, IWorkspaceRepository workspaceRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IProjectRepository projectRepository)
         {
             _currentUserService = currentUserService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
             _workspaceRepository = workspaceRepository;
+            _projectMemberRepository = projectMemberRepository;
             _workspaceAuthorizationService = workspaceAuthorizationService;
         }
 
@@ -31,11 +30,11 @@ namespace DevFlow.Application.Projects.CreateProject
             var userId = _currentUserService.UserId;
             var workspace = await _workspaceRepository.GetByIdAsync(request.WorkspaceId);
             if (workspace == null)
-{
-    throw new NotFoundException("Workspace does not exist");
-}
+            {
+                throw new NotFoundException("Workspace does not exist");
+            }
             await _workspaceAuthorizationService.EnsureAdminOrOwnerAsync(request.WorkspaceId);
-           
+
             var exist = await _projectRepository.ExistsInWorkspaceAsync(request.WorkspaceId, request.ProjectName);
             if (exist)
             {
@@ -47,8 +46,15 @@ namespace DevFlow.Application.Projects.CreateProject
     request.Description,
     request.WorkspaceId,
     userId);
-            
+            var creatorRole = ProjectRole.ProjectManager;
+
+            var projectMember = new ProjectMember(
+                project,
+                userId,
+              creatorRole);
+
             await _projectRepository.AddAsync(project);
+            await _projectMemberRepository.AddAsync(projectMember);
             await _unitOfWork.SaveChangesAsync();
             var result = new CreateProjectResult
             {

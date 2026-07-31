@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DevFlow.Api.Controllers
 {
-    [Route("api/workflows")]
+    [Route("api/projects/{projectId}/workflows")]
     [ApiController]
     [Authorize]
     public class WorkflowController : ControllerBase
@@ -25,8 +25,12 @@ namespace DevFlow.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateWorkflow(CreateWorkflowCommand command)
+        public async Task<IActionResult> CreateWorkflow(
+            [FromRoute] int projectId,
+            CreateWorkflowCommand command)
         {
+            command.ProjectId = projectId;
+
             var result = await _mediator.Send(command);
 
             return Ok(ApiResponse<CreateWorkflowResult>.Ok(
@@ -34,11 +38,28 @@ namespace DevFlow.Api.Controllers
                 "Workflow created successfully"));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllWorkflows(
+            [FromRoute] int projectId,
+            [FromQuery] GetWorkflowsByProjectQuery query)
+        {
+            query.ProjectId = projectId;
+
+            var result = await _mediator.Send(query);
+
+            return Ok(ApiResponse<PagedResult<GetWorkflowsByProjectResult>>.Ok(
+                result,
+                "Retrieved successfully"));
+        }
+
         [HttpGet("{workflowId}")]
-        public async Task<IActionResult> GetWorkflowById([FromRoute] int workflowId)
+        public async Task<IActionResult> GetWorkflowById(
+            [FromRoute] int projectId,
+            [FromRoute] int workflowId)
         {
             var result = await _mediator.Send(new GetWorkflowByIdQuery
             {
+                ProjectId = projectId,
                 WorkflowId = workflowId
             });
 
@@ -47,21 +68,13 @@ namespace DevFlow.Api.Controllers
                 "Retrieved successfully"));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllWorkflows([FromQuery] GetAllWorkflowsQuery query)
-        {
-            var result = await _mediator.Send(query);
-
-            return Ok(ApiResponse<PagedResult<GetAllWorkflowsResult>>.Ok(
-                result,
-                "Retrieved successfully"));
-        }
-
         [HttpPut("{workflowId}")]
         public async Task<IActionResult> UpdateWorkflow(
+            [FromRoute] int projectId,
             [FromRoute] int workflowId,
             UpdateWorkflowCommand command)
         {
+            command.ProjectId = projectId;
             command.WorkflowId = workflowId;
 
             await _mediator.Send(command);
@@ -72,12 +85,17 @@ namespace DevFlow.Api.Controllers
         }
 
         [HttpPatch("{workflowId}/enable")]
-        public async Task<IActionResult> EnableWorkflow([FromRoute] int workflowId)
+        public async Task<IActionResult> EnableWorkflow(
+            [FromRoute] int projectId,
+            [FromRoute] int workflowId)
         {
-            await _mediator.Send(new EnableWorkflowCommand
+            var command = new EnableWorkflowCommand
             {
+                ProjectId = projectId,
                 WorkflowId = workflowId
-            });
+            };
+
+            await _mediator.Send(command);
 
             return Ok(ApiResponse<object>.Ok(
                 null,
@@ -85,12 +103,17 @@ namespace DevFlow.Api.Controllers
         }
 
         [HttpPatch("{workflowId}/disable")]
-        public async Task<IActionResult> DisableWorkflow([FromRoute] int workflowId)
+        public async Task<IActionResult> DisableWorkflow(
+            [FromRoute] int projectId,
+            [FromRoute] int workflowId)
         {
-            await _mediator.Send(new DisableWorkflowCommand
+            var command = new DisableWorkflowCommand
             {
+                ProjectId = projectId,
                 WorkflowId = workflowId
-            });
+            };
+
+            await _mediator.Send(command);
 
             return Ok(ApiResponse<object>.Ok(
                 null,

@@ -6,6 +6,9 @@ public class GetWorkflowByIdValidator
 {
     public GetWorkflowByIdValidator()
     {
+        RuleFor(x => x.ProjectId)
+            .GreaterThan(0);
+
         RuleFor(x => x.WorkflowId)
             .GreaterThan(0);
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace DevFlow.Application.Tasks.UpdateTaskStatus
 {
@@ -14,6 +11,8 @@ namespace DevFlow.Application.Tasks.UpdateTaskStatus
 
             RuleFor(x => x.TaskStatus)
                 .IsInEnum();
+            RuleFor(x => x.ProjectId)
+      .GreaterThan(0);
         }
     }
 }

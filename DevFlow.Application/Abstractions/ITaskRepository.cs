@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using DevFlow.Application.Common.Models;
+﻿using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
 
@@ -21,7 +17,6 @@ namespace DevFlow.Application.Abstractions
      int pageSize);
         Task UpdateAsync(TaskItem task);
         Task DeleteAsync(TaskItem task);
-        Task<TaskItem?> GetByIdForAdminAsync(int taskId,int currentUserId);
-        Task<TaskItem?> GetByIdForStatusUpdateAsync(int taskId, int currentUserId);
+
     }
 }

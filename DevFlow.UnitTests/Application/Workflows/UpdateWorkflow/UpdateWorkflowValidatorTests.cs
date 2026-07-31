@@ -10,15 +10,18 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
     {
         private readonly UpdateWorkflowValidator _validator = new();
 
+
         [Fact]
         public void Should_Not_Have_Error_When_Command_Is_Valid()
         {
             // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = "Task Assignment Workflow",
                 Description = "Workflow Description",
+
                 Conditions =
                 {
                     new WorkflowConditionDto
@@ -28,6 +31,7 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                         Value = "High"
                     }
                 },
+
                 Actions =
                 {
                     new WorkflowActionDto
@@ -39,93 +43,127 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                 }
             };
 
+
             // Act
             var result = _validator.TestValidate(command);
+
 
             // Assert
             result.ShouldNotHaveAnyValidationErrors();
         }
+
+
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void Should_Have_Error_When_ProjectId_Is_Invalid(int projectId)
+        {
+            var command = new UpdateWorkflowCommand
+            {
+                ProjectId = projectId,
+                WorkflowId = 1,
+                Name = "Workflow"
+            };
+
+
+            var result = _validator.TestValidate(command);
+
+
+            result.ShouldHaveValidationErrorFor(x => x.ProjectId);
+        }
+
+
 
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
         public void Should_Have_Error_When_WorkflowId_Is_Invalid(int workflowId)
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = workflowId,
                 Name = "Workflow"
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor(x => x.WorkflowId);
         }
+
+
 
         [Theory]
         [InlineData("")]
         public void Should_Have_Error_When_Name_Is_Invalid(string name)
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = name
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor(x => x.Name);
         }
+
+
 
         [Fact]
         public void Should_Have_Error_When_Name_Exceeds_Maximum_Length()
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = new string('A', 101)
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor(x => x.Name);
         }
+
+
 
         [Fact]
         public void Should_Have_Error_When_Description_Exceeds_Maximum_Length()
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = "Workflow",
                 Description = new string('A', 501)
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor(x => x.Description);
         }
+
+
 
         [Fact]
         public void Should_Have_Error_When_Action_Is_Invalid()
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = "Workflow",
+
                 Actions =
                 {
                     new WorkflowActionDto
@@ -137,22 +175,25 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                 }
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor("Actions[0].Parameters");
             result.ShouldHaveValidationErrorFor("Actions[0].Order");
         }
 
+
+
         [Fact]
         public void Should_Have_Error_When_Condition_Is_Invalid()
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = "Workflow",
+
                 Conditions =
                 {
                     new WorkflowConditionDto
@@ -164,22 +205,25 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                 }
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor("Conditions[0].Field");
             result.ShouldHaveValidationErrorFor("Conditions[0].Value");
         }
 
+
+
         [Fact]
         public void Should_Have_Error_When_Action_Order_Is_Duplicated()
         {
-            // Arrange
             var command = new UpdateWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1,
                 Name = "Workflow",
+
                 Actions =
                 {
                     new WorkflowActionDto
@@ -188,6 +232,7 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                         Parameters = "UserId=1",
                         Order = 1
                     },
+
                     new WorkflowActionDto
                     {
                         ActionType = WorkflowActionType.NotifyUser,
@@ -197,10 +242,10 @@ namespace DevFlow.UnitTests.Application.Workflows.UpdateWorkflow
                 }
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor(x => x.Actions);
         }
     }

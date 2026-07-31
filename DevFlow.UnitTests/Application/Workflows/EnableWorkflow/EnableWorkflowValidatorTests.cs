@@ -8,38 +8,61 @@ namespace DevFlow.UnitTests.Application.Workflows.EnableWorkflow
     {
         private readonly EnableWorkflowValidator _validator = new();
 
+
         [Fact]
-        public void Should_Not_Have_Error_When_WorkflowId_Is_Valid()
+        public void Should_Not_Have_Error_When_Command_Is_Valid()
         {
-            // Arrange
             var command = new EnableWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = 1
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldNotHaveAnyValidationErrors();
         }
+
+
 
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
         public void Should_Have_Error_When_WorkflowId_Is_Invalid(int workflowId)
         {
-            // Arrange
             var command = new EnableWorkflowCommand
             {
+                ProjectId = 1,
                 WorkflowId = workflowId
             };
 
-            // Act
+
             var result = _validator.TestValidate(command);
 
-            // Assert
+
             result.ShouldHaveValidationErrorFor(x => x.WorkflowId);
+        }
+
+
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void Should_Have_Error_When_ProjectId_Is_Invalid(int projectId)
+        {
+            var command = new EnableWorkflowCommand
+            {
+                ProjectId = projectId,
+                WorkflowId = 1
+            };
+
+
+            var result = _validator.TestValidate(command);
+
+
+            result.ShouldHaveValidationErrorFor(x => x.ProjectId);
         }
     }
 }

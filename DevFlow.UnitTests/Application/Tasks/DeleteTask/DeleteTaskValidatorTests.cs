@@ -8,6 +8,7 @@ namespace DevFlow.UnitTests.Application.Tasks.DeleteTask
     {
         private readonly DeleteTaskValidator _validator = new();
 
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -15,13 +16,17 @@ namespace DevFlow.UnitTests.Application.Tasks.DeleteTask
         {
             var command = new DeleteTaskCommand
             {
-                TaskId = taskId
+                TaskId = taskId,
+                ProjectId = 1
             };
+
 
             var result = _validator.TestValidate(command);
 
+
             result.ShouldNotHaveValidationErrorFor(x => x.TaskId);
         }
+
 
         [Theory]
         [InlineData(0)]
@@ -30,12 +35,51 @@ namespace DevFlow.UnitTests.Application.Tasks.DeleteTask
         {
             var command = new DeleteTaskCommand
             {
-                TaskId = taskId
+                TaskId = taskId,
+                ProjectId = 1
             };
+
 
             var result = _validator.TestValidate(command);
 
+
             result.ShouldHaveValidationErrorFor(x => x.TaskId);
+        }
+
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void Should_Have_Error_When_ProjectId_Is_Invalid(int projectId)
+        {
+            var command = new DeleteTaskCommand
+            {
+                TaskId = 1,
+                ProjectId = projectId
+            };
+
+
+            var result = _validator.TestValidate(command);
+
+
+            result.ShouldHaveValidationErrorFor(x => x.ProjectId);
+        }
+
+
+        [Fact]
+        public void Should_Not_Have_Error_When_ProjectId_Is_Valid()
+        {
+            var command = new DeleteTaskCommand
+            {
+                TaskId = 1,
+                ProjectId = 10
+            };
+
+
+            var result = _validator.TestValidate(command);
+
+
+            result.ShouldNotHaveValidationErrorFor(x => x.ProjectId);
         }
     }
 }

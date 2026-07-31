@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Exceptions;
 using DevFlow.Application.Workflows.WorkflowDtos;
 using MediatR;
@@ -9,14 +6,17 @@ using MediatR;
 namespace DevFlow.Application.Workflows.GetWorkflowById
 {
     public class GetWorkflowByIdHandler
-    : IRequestHandler<GetWorkflowByIdQuery, GetWorkflowByIdResult>
+        : IRequestHandler<GetWorkflowByIdQuery, GetWorkflowByIdResult>
     {
         private readonly IWorkflowRepository _workflowRepository;
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
 
         public GetWorkflowByIdHandler(
-            IWorkflowRepository workflowRepository)
+            IWorkflowRepository workflowRepository,
+            IProjectAuthorizationService projectAuthorizationService)
         {
             _workflowRepository = workflowRepository;
+            _projectAuthorizationService = projectAuthorizationService;
         }
 
         public async Task<GetWorkflowByIdResult> Handle(
@@ -24,12 +24,16 @@ namespace DevFlow.Application.Workflows.GetWorkflowById
             CancellationToken cancellationToken)
         {
             var workflow =
-                await _workflowRepository.GetByIdAsync(request.WorkflowId);
+     await _workflowRepository.GetByIdAsync(request.WorkflowId);
 
             if (workflow == null)
-            {
                 throw new NotFoundException("Workflow does not exist.");
-            }
+
+            if (workflow.ProjectId != request.ProjectId)
+                throw new NotFoundException("Workflow does not exist.");
+
+            await _projectAuthorizationService
+                .EnsureProjectMemberAsync(request.ProjectId);
 
             return new GetWorkflowByIdResult
             {
@@ -49,7 +53,7 @@ namespace DevFlow.Application.Workflows.GetWorkflowById
                     .ToList(),
 
                 Actions = workflow.Actions
-                   .OrderBy(a => a.Order)
+                    .OrderBy(a => a.Order)
                     .Select(a => new WorkflowActionDto
                     {
                         ActionType = a.ActionType,

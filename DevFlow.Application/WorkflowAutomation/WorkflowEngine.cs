@@ -23,7 +23,17 @@ namespace DevFlow.Application.Workflows
 
         public async Task ExecuteAsync(WorkflowTrigger trigger, WorkflowExecutionContext workflowExecutionContext)
         {
-            var workflows = await _workflowRepository.GetActiveByTriggerAsync(trigger);
+            var projectId =
+    (int?)workflowExecutionContext.GetValue("ProjectId");
+
+            if (projectId == null)
+            {
+                throw new InvalidOperationException(
+                    "WorkflowExecutionContext must contain ProjectId.");
+            }
+            var workflows = await _workflowRepository.GetEnabledByTriggerAsync(
+    projectId.Value,
+    trigger);
 
             foreach (var workflow in workflows)
             {

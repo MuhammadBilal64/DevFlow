@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Domain.Events;
+﻿using DevFlow.Domain.Events;
 
 namespace DevFlow.Domain.Entities
 {
-    public class Project:BaseEntity
+    public class Project : BaseEntity
     {
         public int Id { get; private set; }
         public string Name { get; private set; } = null!;
         public string Description { get; private set; } = null!;
-        public int CreatedBy {  get; private set; }
+        public int CreatedBy { get; private set; }
         public DateTime CreatedAt { get; private set; }
-        public int WorkspaceId {  get; private set; }
+        public int WorkspaceId { get; private set; }
         public Workspace Workspace { get; private set; } = null!;
         public User Creator { get; private set; } = null!;
-        public ICollection<TaskItem> Tasks { get;private set; }= new List<TaskItem>();
+        public ICollection<TaskItem> Tasks { get; private set; } = new List<TaskItem>();
+        public ICollection<ProjectMember> Members { get; private set; } = new List<ProjectMember>();
+        public ICollection<Workflow> Workflows { get; private set; } = new List<Workflow>();
         public Project(
             string name,
             string description,
@@ -30,7 +29,7 @@ namespace DevFlow.Domain.Entities
 
             if (createdBy <= 0)
                 throw new ArgumentException("Invalid creator id.", nameof(createdBy));
-            if(string.IsNullOrWhiteSpace(description))
+            if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Project description is required.", nameof(description));
 
 

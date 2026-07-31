@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Workflows.CreateWorkflow.Validators;
+﻿using DevFlow.Application.Workflows.CreateWorkflow.Validators;
 using FluentValidation;
 
 namespace DevFlow.Application.Workflows.UpdateWorkflow
 {
-    public class UpdateWorkflowValidator:AbstractValidator<UpdateWorkflowCommand>
+    public class UpdateWorkflowValidator : AbstractValidator<UpdateWorkflowCommand>
     {
-        public UpdateWorkflowValidator() {
+        public UpdateWorkflowValidator()
+        {
 
             RuleFor(x => x.WorkflowId)
                 .GreaterThan(0);
+            RuleFor(x => x.ProjectId)
+    .GreaterThan(0);
 
             RuleFor(x => x.Name)
                 .NotEmpty()

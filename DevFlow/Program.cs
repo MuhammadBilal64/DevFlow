@@ -1,13 +1,13 @@
 using System.Text;
-using DevFlow.Infrastructure.hubs;
 using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Behaviors;
 using DevFlow.Application.Common.Interfaces;
 using DevFlow.Application.Users.LoginUser;
-using DevFlow.Application.Users.LogoutUser;
-using DevFlow.Application.Users.RefreshToken;
-using DevFlow.Application.Users.RegisterUser;
+using DevFlow.Application.Workflows;
+using DevFlow.Application.Workflows.ActionExecution;
+using DevFlow.Application.Workflows.ConditionEvaluation;
+using DevFlow.Infrastructure.hubs;
 using DevFlow.Infrastructure.Persistence;
 using DevFlow.Infrastructure.Repositories;
 using DevFlow.Infrastructure.Security;
@@ -17,10 +17,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.IdentityModel.Tokens.Experimental;
-using DevFlow.Application.Workflows;
-using DevFlow.Application.Workflows.ConditionEvaluation;
-using DevFlow.Application.Workflows.ActionExecution;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,10 +41,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
 builder.Services.AddScoped<IWorkspaceMemberRepository, WorkspaceMemberRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IWorkspaceAuthorizationService, WorkspaceAuthorizationService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>(); 
+builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<INotificationRealtimeService, NotificationRealtimeService>();
 builder.Services.AddScoped<IWorkflowEngine, WorkflowEngine>();
@@ -95,16 +92,16 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidateAudience=true,
-        ValidateLifetime=true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer=jwtsettings!.Issuer,
-        ValidAudience=jwtsettings.Audience,
-        IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtsettings.Key))
+        ValidIssuer = jwtsettings!.Issuer,
+        ValidAudience = jwtsettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtsettings.Key))
 
 
 
-    };   
+    };
 
 });
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

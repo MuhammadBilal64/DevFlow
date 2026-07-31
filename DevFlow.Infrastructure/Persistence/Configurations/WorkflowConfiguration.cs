@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Domain.Entities;
+﻿using DevFlow.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -41,7 +38,15 @@ namespace DevFlow.Infrastructure.Persistence.Configurations
                 .HasForeignKey(x => x.WorkflowId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasIndex(x => x.Name);
+            builder.HasOne(x => x.Project)
+                .WithMany(x => x.Workflows)
+                .HasForeignKey(x => x.ProjectId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+
+
+
+            builder.HasIndex(x => new { x.ProjectId, x.Name }).IsUnique();
         }
     }
 }

@@ -13,18 +13,20 @@ namespace DevFlow.UnitTests.Domain.Events
             var recipientUserId = 10;
             var taskId = 5;
             var taskTitle = "Implement JWT";
+            var projectId = 2;
 
             // Act
             var domainEvent = new TaskCompletedEvent(
                 recipientUserId,
                 taskId,
-                taskTitle);
+                taskTitle,
+                projectId);
 
             // Assert
             domainEvent.RecipientUserId.Should().Be(recipientUserId);
             domainEvent.TaskId.Should().Be(taskId);
             domainEvent.TaskTitle.Should().Be(taskTitle);
+            domainEvent.ProjectId.Should().Be(projectId);
         }
-
     }
 }

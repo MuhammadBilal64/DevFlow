@@ -21,11 +21,11 @@ namespace DevFlow.UnitTests.Application.DomainEvents.TaskCompleted
                 workflowEngineMock.Object,
                 notificationServiceMock.Object);
 
-
             var domainEvent = new TaskCompletedEvent(
                 userId: 5,
                 taskId: 10,
-                taskTitle: "Implement JWT");
+                taskTitle: "Implement JWT",
+                projectId: 2);
 
 
             // Act
@@ -35,7 +35,6 @@ namespace DevFlow.UnitTests.Application.DomainEvents.TaskCompleted
 
 
             // Assert
-
             notificationServiceMock.Verify(
                 x => x.NotifyAsync(
                     5,

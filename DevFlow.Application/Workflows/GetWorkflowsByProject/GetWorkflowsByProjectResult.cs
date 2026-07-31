@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Domain.Enum;
+﻿using DevFlow.Domain.Enum;
 
 namespace DevFlow.Application.Workflows.GetAllWorkflows
 {
-    public class GetAllWorkflowsResult
+    public class GetWorkflowsByProjectResult
     {
 
         public int Id { get; set; }

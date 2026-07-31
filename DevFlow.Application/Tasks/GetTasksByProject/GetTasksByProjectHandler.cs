@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Abstractions;
+﻿using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Models;
 using DevFlow.Application.Exceptions;
-using DevFlow.Application.Tasks.GetTaskById;
 using MediatR;
 
 namespace DevFlow.Application.Tasks.GetTasksByProject
@@ -13,27 +9,32 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
     {
         private readonly IProjectRepository _projectRepository;
         private readonly ITaskRepository _taskRepository;
-        private readonly IWorkspaceAuthorizationService _workspaceAuthorizationService;
-        public GetTasksByProjectHandler(IProjectRepository projectRepository,ITaskRepository taskRepository,IWorkspaceAuthorizationService workspaceAuthorizationService)
+        private readonly IProjectAuthorizationService _projectAuthorizationService;
+        public GetTasksByProjectHandler(
+     IProjectRepository projectRepository,
+     ITaskRepository taskRepository,
+     IProjectAuthorizationService projectAuthorizationService)
         {
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;
-            _workspaceAuthorizationService = workspaceAuthorizationService;
+            _projectAuthorizationService = projectAuthorizationService;
         }
+
         public async Task<PagedResult<GetTasksByProjectResult>> Handle(GetTasksByProjectQuery request, CancellationToken cancellationToken)
         {
-            var project=await _projectRepository.GetByIdAsync(request.ProjectId);
+            var project = await _projectRepository.GetByIdAsync(request.ProjectId);
             if (project == null)
             {
                 throw new NotFoundException("Project Doesnot Exist");
             }
-            await _workspaceAuthorizationService.EnsureWorkspaceMemberAsync(project.WorkspaceId);
+            await _projectAuthorizationService
+     .EnsureProjectMemberAsync(project.Id);
 
             var paginatedData = await _taskRepository.GetTasksByProjectAsync(
      request.ProjectId,
      request.SearchTerm,
-     request.SortBy,request.Descending,
-     request.Status,request.Priority,
+     request.SortBy, request.Descending,
+     request.Status, request.Priority,
      request.PageNumber,
      request.PageSize);
             var totalPages = (int)Math.Ceiling((double)paginatedData.TotalCount / request.PageSize);
@@ -41,9 +42,9 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
 
             var tasks = paginatedData.Items.Select(i => new GetTasksByProjectResult
             {
-                TaskId=i.Id,
-                Title=i.Title,
-                
+                TaskId = i.Id,
+                Title = i.Title,
+
             }).ToList();
             return new PagedResult<GetTasksByProjectResult>
             {
@@ -53,8 +54,8 @@ namespace DevFlow.Application.Tasks.GetTasksByProject
                 TotalCount = paginatedData.TotalCount,
                 TotalPages = totalPages
             };
-        
-           
+
+
         }
 
     }

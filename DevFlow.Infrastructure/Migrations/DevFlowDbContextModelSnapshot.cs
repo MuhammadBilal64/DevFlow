@@ -93,6 +93,36 @@ namespace DevFlow.Infrastructure.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("DevFlow.Domain.Entities.ProjectMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ProjectId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ProjectMembers");
+                });
+
             modelBuilder.Entity("DevFlow.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -405,6 +435,25 @@ namespace DevFlow.Infrastructure.Migrations
                     b.Navigation("Workspace");
                 });
 
+            modelBuilder.Entity("DevFlow.Domain.Entities.ProjectMember", b =>
+                {
+                    b.HasOne("DevFlow.Domain.Entities.Project", "Project")
+                        .WithMany("Members")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DevFlow.Domain.Entities.User", "User")
+                        .WithMany("ProjectMemberships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DevFlow.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("DevFlow.Domain.Entities.User", "User")
@@ -496,6 +545,8 @@ namespace DevFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("DevFlow.Domain.Entities.Project", b =>
                 {
+                    b.Navigation("Members");
+
                     b.Navigation("Tasks");
                 });
 
@@ -510,6 +561,8 @@ namespace DevFlow.Infrastructure.Migrations
                     b.Navigation("CreatedWorkspaces");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("ProjectMemberships");
 
                     b.Navigation("RefreshTokens");
 

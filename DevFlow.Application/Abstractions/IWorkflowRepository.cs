@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Application.Common.Models;
+﻿using DevFlow.Application.Common.Models;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
 
@@ -17,15 +14,22 @@ namespace DevFlow.Application.Abstractions
 
         Task DeleteAsync(Workflow workflow);
 
-        Task<IReadOnlyList<Workflow>> GetActiveByTriggerAsync(
+        Task<bool> ExistsInProjectAsync(
+            int projectId,
+            string workflowName);
+
+        Task<IReadOnlyList<Workflow>> GetEnabledByTriggerAsync(
+            int projectId,
             WorkflowTrigger trigger);
-        Task<PaginatedData<Workflow>> GetAllAsync(
-    string? searchTerm,
-    WorkflowTrigger? trigger,
-    bool? isEnabled,
-    string? sortBy,
-    bool descending,
-    int pageNumber,
-    int pageSize);
+
+        Task<PaginatedData<Workflow>> GetByProjectAsync(
+            int projectId,
+            string? searchTerm,
+            WorkflowTrigger? trigger,
+            bool? isEnabled,
+            string? sortBy,
+            bool descending,
+            int pageNumber,
+            int pageSize);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using DevFlow.Application.Abstractions;
-using DevFlow.Application.Common.Interfaces;
 using DevFlow.Application.Exceptions;
 using DevFlow.Application.Tasks.UpdateTaskStatus;
 using DevFlow.Domain.Entities;
@@ -8,6 +7,7 @@ using FluentAssertions;
 using Moq;
 using Xunit;
 using TaskStatusEnum = DevFlow.Domain.Enum.TaskStatus;
+
 namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
 {
     public class UpdateTaskStatusHandlerTests
@@ -16,24 +16,19 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
         public async Task Should_Update_Task_Status_Successfully()
         {
             // Arrange
-            var currentUserServiceMock = new Mock<ICurrentUserService>();
             var taskRepositoryMock = new Mock<ITaskRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
 
             var handler = new UpdateTaskStatusHandler(
-                currentUserServiceMock.Object,
                 taskRepositoryMock.Object,
                 unitOfWorkMock.Object,
-                workspaceAuthorizationServiceMock.Object);
-
-            currentUserServiceMock
-                .Setup(x => x.UserId)
-                .Returns(1);
+                projectAuthorizationServiceMock.Object);
 
             var command = new UpdateTaskStatusCommand
             {
                 TaskId = 10,
+                ProjectId = 5,
                 TaskStatus = TaskStatusEnum.Completed
             };
 
@@ -46,7 +41,7 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
                 TaskPriority.High);
 
             taskRepositoryMock
-                .Setup(x => x.GetByIdForStatusUpdateAsync(10, 1))
+                .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync(task);
 
             // Act
@@ -58,11 +53,15 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
             result.Status.Should().Be(TaskStatusEnum.Completed);
 
             taskRepositoryMock.Verify(
-                x => x.GetByIdForStatusUpdateAsync(10, 1),
+                x => x.GetByIdAsync(10),
+                Times.Once);
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(5),
                 Times.Once);
 
             taskRepositoryMock.Verify(
-                x => x.UpdateAsync(It.IsAny<TaskItem>()),
+                x => x.UpdateAsync(task),
                 Times.Once);
 
             unitOfWorkMock.Verify(
@@ -70,44 +69,46 @@ namespace DevFlow.UnitTests.Application.Tasks.UpdateTaskStatus
                 Times.Once);
         }
 
+
         [Fact]
         public async Task Should_Throw_NotFoundException_When_Task_Does_Not_Exist()
         {
             // Arrange
-            var currentUserServiceMock = new Mock<ICurrentUserService>();
             var taskRepositoryMock = new Mock<ITaskRepository>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var workspaceAuthorizationServiceMock = new Mock<IWorkspaceAuthorizationService>();
+            var projectAuthorizationServiceMock = new Mock<IProjectAuthorizationService>();
 
             var handler = new UpdateTaskStatusHandler(
-                currentUserServiceMock.Object,
                 taskRepositoryMock.Object,
                 unitOfWorkMock.Object,
-                workspaceAuthorizationServiceMock.Object);
-
-            currentUserServiceMock
-                .Setup(x => x.UserId)
-                .Returns(1);
+                projectAuthorizationServiceMock.Object);
 
             var command = new UpdateTaskStatusCommand
             {
                 TaskId = 10,
+                ProjectId = 5,
                 TaskStatus = TaskStatusEnum.Completed
             };
 
             taskRepositoryMock
-                .Setup(x => x.GetByIdForStatusUpdateAsync(10, 1))
+                .Setup(x => x.GetByIdAsync(10))
                 .ReturnsAsync((TaskItem?)null);
 
             // Act
-            Func<Task> act = () => handler.Handle(command, CancellationToken.None);
+            Func<Task> act = () =>
+                handler.Handle(command, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<NotFoundException>();
+            await act.Should()
+                .ThrowAsync<NotFoundException>();
 
             taskRepositoryMock.Verify(
-                x => x.GetByIdForStatusUpdateAsync(10, 1),
+                x => x.GetByIdAsync(10),
                 Times.Once);
+
+            projectAuthorizationServiceMock.Verify(
+                x => x.EnsureProjectMemberAsync(It.IsAny<int>()),
+                Times.Never);
 
             taskRepositoryMock.Verify(
                 x => x.UpdateAsync(It.IsAny<TaskItem>()),

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DevFlow.Domain.Enum;
+﻿using DevFlow.Domain.Enum;
 using DevFlow.Domain.Events;
 using TaskStatus = DevFlow.Domain.Enum.TaskStatus;
 
 namespace DevFlow.Domain.Entities
 {
-    public class TaskItem:BaseEntity
+    public class TaskItem : BaseEntity
     {
         public int Id { get; private set; }
 
         public string Title { get; private set; } = null!;
-        public string? Description { get; private set; } 
+        public string? Description { get; private set; }
 
         public int ProjectId { get; private set; }
         public Project Project { get; private set; } = null!;
@@ -66,14 +63,18 @@ namespace DevFlow.Domain.Entities
         }
         public void Assign(int userId)
         {
-            if (userId <= 0) throw new ArgumentException("Invalid User Id",nameof(userId));
-            if(AssignedToUserId== userId)
+            if (userId <= 0) throw new ArgumentException("Invalid User Id", nameof(userId));
+            if (AssignedToUserId == userId)
             {
                 return;
             }
             AssignedToUserId = userId;
-            AssignedAt= DateTime.UtcNow;
-            AddDomainEvent(new TaskAssignedEvent(userId,Id,Title));
+            AssignedAt = DateTime.UtcNow;
+            AddDomainEvent(new TaskAssignedEvent(
+                userId,
+                Id,
+                ProjectId,
+                Title));
         }
         public void Unassign()
         {
@@ -85,15 +86,19 @@ namespace DevFlow.Domain.Entities
         }
         public void UpdateStatus(TaskStatus status)
         {
-            if(Status == status)
+            if (Status == status)
             {
                 return;
             }
-            Status= status;
+            Status = status;
             if (status == TaskStatus.Completed)
             {
-                CompletedAt= DateTime.UtcNow;
-                AddDomainEvent(new TaskCompletedEvent(CreatedBy,Id,Title));
+                CompletedAt = DateTime.UtcNow;
+                AddDomainEvent(new TaskCompletedEvent(
+       CreatedBy,
+       Id,
+       Title,
+       ProjectId));
             }
             else
             {

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DevFlow.Application.Workflows.EnableWorkflow;
 using FluentValidation;
 
-namespace DevFlow.Application.Workflows.EnableWorkflow
+public class EnableWorkflowValidator
+    : AbstractValidator<EnableWorkflowCommand>
 {
-    public class EnableWorkflowValidator
-        : AbstractValidator<EnableWorkflowCommand>
+    public EnableWorkflowValidator()
     {
-        public EnableWorkflowValidator()
-        {
-            RuleFor(x => x.WorkflowId)
-                .GreaterThan(0);
-        }
-    }
+        RuleFor(x => x.ProjectId)
+            .GreaterThan(0);
 
+        RuleFor(x => x.WorkflowId)
+            .GreaterThan(0);
+    }
 }

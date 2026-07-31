@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace DevFlow.Application.Tasks.DeleteTask
 {
@@ -9,6 +6,9 @@ namespace DevFlow.Application.Tasks.DeleteTask
     {
         public DeleteTaskValidator()
         {
+            RuleFor(x => x.ProjectId)
+        .GreaterThan(0);
+
             RuleFor(x => x.TaskId)
                 .GreaterThan(0);
         }

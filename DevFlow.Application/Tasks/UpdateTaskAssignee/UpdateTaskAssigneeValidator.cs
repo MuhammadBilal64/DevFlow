@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace DevFlow.Application.Tasks.UpdateTaskAssignee
 {
@@ -15,6 +12,8 @@ namespace DevFlow.Application.Tasks.UpdateTaskAssignee
             RuleFor(x => x.NewAssigneeId)
      .GreaterThan(0)
      .When(x => x.NewAssigneeId.HasValue);
+            RuleFor(x => x.ProjectId)
+    .GreaterThan(0);
         }
     }
 }
