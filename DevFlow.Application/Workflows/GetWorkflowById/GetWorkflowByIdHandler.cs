@@ -24,13 +24,16 @@ namespace DevFlow.Application.Workflows.GetWorkflowById
             CancellationToken cancellationToken)
         {
             var workflow =
-                await _workflowRepository.GetByIdAsync(request.WorkflowId);
+     await _workflowRepository.GetByIdAsync(request.WorkflowId);
 
             if (workflow == null)
                 throw new NotFoundException("Workflow does not exist.");
 
+            if (workflow.ProjectId != request.ProjectId)
+                throw new NotFoundException("Workflow does not exist.");
+
             await _projectAuthorizationService
-                .EnsureProjectMemberAsync(workflow.ProjectId);
+                .EnsureProjectMemberAsync(request.ProjectId);
 
             return new GetWorkflowByIdResult
             {

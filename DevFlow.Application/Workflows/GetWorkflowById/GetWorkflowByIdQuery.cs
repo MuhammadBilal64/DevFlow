@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MediatR;
+﻿using MediatR;
 
 namespace DevFlow.Application.Workflows.GetWorkflowById
 {
-    public class GetWorkflowByIdQuery:IRequest<GetWorkflowByIdResult>
+    public class GetWorkflowByIdQuery : IRequest<GetWorkflowByIdResult>
     {
-        public int WorkflowId {  get; set; }
+        public int ProjectId { get; set; }
+        public int WorkflowId { get; set; }
     }
 }

@@ -23,13 +23,27 @@ namespace DevFlow.Application.Workflows.UpdateWorkflow
         public async Task Handle(UpdateWorkflowCommand request, CancellationToken cancellationToken)
         {
             var workflow =
-            await _workflowRepository.GetByIdAsync(request.WorkflowId);
+     await _workflowRepository.GetByIdAsync(request.WorkflowId);
 
             if (workflow == null)
                 throw new NotFoundException("Workflow does not exist.");
-            await _projectAuthorizationService
-    .EnsureCanManageProjectAsync(workflow.ProjectId);
 
+            if (workflow.ProjectId != request.ProjectId)
+                throw new NotFoundException("Workflow does not exist.");
+
+            await _projectAuthorizationService
+                .EnsureCanManageProjectAsync(request.ProjectId);
+
+            if (!workflow.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                var exists = await _workflowRepository.ExistsInProjectAsync(
+                    workflow.ProjectId,
+                    request.Name);
+
+                if (exists)
+                    throw new ConflictException(
+                        "Workflow with this name already exists.");
+            }
             workflow.Update(
                 request.Name,
                 request.Description);
@@ -57,16 +71,6 @@ namespace DevFlow.Application.Workflows.UpdateWorkflow
                         dto.ActionType,
                         dto.Parameters,
                         dto.Order));
-            }
-            if (!workflow.Name.Equals(request.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                var exists = await _workflowRepository.ExistsInProjectAsync(
-                    workflow.ProjectId,
-                    request.Name);
-
-                if (exists)
-                    throw new ConflictException(
-                        "Workflow with this name already exists.");
             }
             await _workflowRepository.UpdateAsync(workflow);
 

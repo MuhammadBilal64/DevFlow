@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DevFlow.Application.Workflows.DisableWorkflow;
 using FluentValidation;
 
-namespace DevFlow.Application.Workflows.DisableWorkflow
+public class DisableWorkflowValidator : AbstractValidator<DisableWorkflowCommand>
 {
-    public class DisableWorkflowValidator:AbstractValidator<DisableWorkflowCommand>
+    public DisableWorkflowValidator()
     {
-        public DisableWorkflowValidator()
-        {
-            RuleFor(x => x.WorkflowId)
-                .GreaterThan(0);
-        }
+        RuleFor(x => x.ProjectId)
+            .GreaterThan(0);
+
+        RuleFor(x => x.WorkflowId)
+            .GreaterThan(0);
     }
 }
