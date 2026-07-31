@@ -44,6 +44,7 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IWorkspaceAuthorizationService, WorkspaceAuthorizationService>();
+builder.Services.AddScoped<IProjectAuthorizationService, ProjectAuthorizationService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();

@@ -1,199 +1,163 @@
 # DevFlow
 
-DevFlow is a backend platform for team collaboration and project management built with ASP.NET Core.
+DevFlow is an enterprise-grade backend platform for team collaboration, project tracking, and workflow automation built with ASP.NET Core (.NET 9).
 
-The project follows **Clean Architecture**, **CQRS**, and **Domain-Driven Design (DDD)** principles to provide a scalable and maintainable foundation for workspace management, project tracking, workflow automation, notifications, and future analytics.
-
-The architecture emphasizes separation of concerns, extensibility, and maintainability while serving as a practical learning project for modern backend engineering.
+The project follows **Clean Architecture**, **CQRS (Command Query Responsibility Segregation)**, and **Domain-Driven Design (DDD)** principles to provide a robust, scalable, and maintainable foundation for workspace organization, project management, real-time notifications, and extensible business automation.
 
 > ⚠️ **Project Status: Active Development**
 >
-> Authentication, Workspace Management, Project Management, Task Management, Real-Time Notifications, and the Workflow Automation Engine are fully implemented.
+> Authentication, Workspace Management, Project Management, Project Membership, Task Management, Real-Time Notifications (SignalR), the Workflow Automation Engine, and a **Comprehensive Unit Testing Suite (348 Passing Tests)** are fully implemented.
 >
-> The current development focus is expanding automated test coverage (Unit, Integration, and End-to-End testing), followed by Analytics & Reporting and additional collaboration features.
+> The current development focus is Integration Testing and Analytics & Reporting, followed by expanded collaboration features.
 
 ---
 
 # Vision
 
-DevFlow aims to become a modern collaboration platform inspired by tools such as Jira, Trello, and similar project management systems.
-
-The long-term goal is to provide:
+DevFlow aims to become a modern, high-performance project management & team collaboration platform inspired by industry tools such as Jira, Trello, and Linear.
 
 ## Completed
 
-- ✅ Authentication & Authorization
-- ✅ Workspace Management
-- ✅ Project Management
-- ✅ Task Management
-- ✅ Real-Time Notifications
-- ✅ Workflow Automation
+- ✅ Authentication & Authorization (JWT + Refresh Tokens)
+- ✅ Workspace Management (Roles, Membership, Granular Authorizations)
+- ✅ Project Management & Project Membership Management
+- ✅ Task Management (Kanban States, Priority, Assignment Events)
+- ✅ Real-Time Notifications (SignalR WebSockets)
+- ✅ Workflow Automation Engine (Strategy-based Triggers, Conditions, Actions)
+- ✅ Comprehensive Unit Test Suite (**348/348 Unit Tests Passed**)
 
 ## Planned
 
-- 🚧 Team Collaboration
-- 🚧 Analytics & Reporting
-- 🚧 Activity Tracking
-- 🚧 Additional Workflow Triggers & Actions
+- 🚧 Integration & End-to-End Testing
+- 🚧 Analytics & Reporting Dashboard
+- 🚧 Activity Tracking & Audit Logs
+- 🚧 Additional Workflow Triggers & Actions (e.g., TaskCompleted, Webhooks)
 
 ---
 
 # Features
 
-## Authentication
+## Authentication & Security
 
-- User Registration
-- User Login
-- JWT Authentication
-- Refresh Token Support
-- Secure Logout
-- Password Hashing
-- Role-Based Authorization
+- User Registration & Authentication
+- JWT Bearer Access Tokens
+- Refresh Token Support (Sliding Expiration & Revocation)
+- Password Hashing (BCrypt / ASP.NET Identity)
+- Role-Based Authorization (`Admin`, `Manager`, `Member`)
+- Global Exception Handling Middleware
 
 ---
 
 ## Workspace Management
 
-- Create Workspace
-- Update Workspace
-- Delete Workspace
-- Get Workspace By Id
-- Get My Workspaces
-- Workspace Membership Management
-- Add Workspace Members
-- Remove Workspace Members
-- Workspace Role Management
-- Owner/Admin Permission Enforcement
+- Create, Update, Delete Workspace
+- Workspace Membership Management (Add/Remove members by email)
+- Workspace Role Management (`Owner`, `Admin`, `Member`)
+- Owner & Admin Authorization Enforcement
+- Paginated Workspace Queries (`GetMyWorkspaces`, `GetWorkspaceMembers`)
 
 ---
 
 ## Project & Task Management
 
-### Projects
+### Projects & Project Members
 
-- Create Project
-- Update Project
-- Delete Project
-- Workspace-based Project Organization
+- Create, Update, Delete Projects (Workspace-scoped)
+- Project Membership Management (`AddProjectMember`, `GetProjectMembers`, `RemoveProjectMember`)
+- Granular Project Authorization Checks (`IProjectAuthorizationService`)
 
 ### Tasks
 
-- Create Task
-- Update Task
-- Delete Task
-- Assign Tasks to Workspace Members
-- Task Status Tracking
-- Task Priority Tracking
-- Due Date Management
-- Task Assignment Events
+- Create, Update, Delete Tasks
+- Priority Tracking (`Low`, `Medium`, `High`)
+- Status Lifecycle (`Todo`, `InProgress`, `Completed`)
+- Assign Tasks to Workspace/Project Members
+- Due Date Tracking
+- Domain Event Triggers (`TaskAssignedEvent`, `TaskCompletedEvent`)
+- Paginated & Filtered Queries (Filter by Status, Priority, Assignee)
 
 ---
 
-## Workflow Automation
+## Workflow Automation Engine
 
-The Workflow Automation module enables configurable business automation through workflows that respond to domain events.
+The Workflow Automation module enables configurable, event-driven business automation without modifying application core logic.
 
 Features include:
 
-- Workflow CRUD APIs
-- Enable / Disable Workflows
-- Configurable Workflow Triggers
-- Configurable Conditions
-- Ordered Workflow Actions
-- Strategy-based Condition Evaluation
-- Strategy-based Action Execution
-- Automatic Workflow Execution
-- Workflow Notifications
-- Domain Event Integration
-
-### Current Supported Trigger
-
-- TaskAssignedEvent
-
-### Current Supported Action
-
-- NotifyUser
-
-The workflow engine is intentionally designed to be extensible, allowing new triggers, operators, and action executors to be added without modifying the core engine.
+- Configurable Workflow Triggers (`TaskAssignedEvent`, `TaskCompletedEvent`, `ProjectCreatedEvent`)
+- Strategy-Based Condition Evaluation (`Equals`, `NotEquals`, `GreaterThan`, `GreaterThanOrEqual`, `LessThan`, `LessThanOrEqual`, `Contains`)
+- Strategy-Based Action Dispatching & Execution (`NotifyUser`)
+- Automatic MediatR Domain Event Interception & Workflow Dispatching
+- Workflow CRUD & Management APIs (Enable/Disable Workflows)
 
 ---
 
-## Notifications
+## Real-Time Notifications
 
-- In-App Notifications
-- Real-Time Notifications via SignalR
-- Business Notifications
-- Workflow Notifications
-- Read / Unread Tracking
-- Automatic Notification Delivery
+- In-App Notification Persistence
+- WebSockets via SignalR (`/notificationHub`)
+- Real-Time Broadcasts for Task Assignments & Workflow Triggers
+- Notification State Tracking (`IsRead`, Unread Counter, Mark All Read)
 
 ---
 
-## Security
+## Architecture & Code Quality
 
-- JWT Protected Endpoints
-- Role-Based Authorization
-- Workspace Membership Validation
-- Owner/Admin Permission Enforcement
-- Global Exception Handling
-
----
-
-## Application Infrastructure
-
-- Clean Architecture
-- CQRS with MediatR
-- Repository Pattern
-- Unit of Work
-- Domain Events
-- Dependency Injection
-- FluentValidation
-- Validation Pipeline Behavior
+- Clean Architecture with strict layer isolation
+- CQRS powered by MediatR
+- Repository Pattern & Unit of Work (`IUnitOfWork`)
+- Domain-Driven Design (Domain Entities, Value Objects, Domain Events)
+- FluentValidation Pipeline Behavior
 - Logging Pipeline Behavior
+- **348 Unit Tests** verifying Domain Logic, Handlers, Validators, Event Handlers, and Strategy Executors
 
 ---
 
 # Architecture
 
-DevFlow follows Clean Architecture to keep business logic independent from infrastructure concerns while maintaining a scalable and testable architecture.
+DevFlow strictly isolates domain rules from infrastructure, database, and UI concerns through Clean Architecture layer separation.
 
 ## Project Structure
 
 ```text
-DevFlow (API)
-
-├── Controllers
-├── Middleware
-├── Program.cs
-
-DevFlow.Application
-
-├── Authentication
-├── Projects
-├── Tasks
-├── Workspaces
-├── Workflows
-├── Notifications
-├── Behaviors
-├── Common
-├── Interfaces
-├── DomainEvents
-
-DevFlow.Domain
-
-├── Entities
-├── Enums
-├── Events
-├── ValueObjects
-
-DevFlow.Infrastructure
-
-├── Persistence
-├── Repositories
-├── Authentication
-├── Security
-├── Services
-├── Hubs
+DevFlow (Solution)
+│
+├── DevFlow (Api Project)
+│   ├── Controllers/               # REST Endpoints (Auth, Workspace, Project, Task, Workflow, Notification)
+│   ├── Middleware/                # GlobalExceptionHandlingMiddleware
+│   ├── Program.cs                 # Composition Root & Middleware Pipeline
+│   └── appsettings.json
+│
+├── DevFlow.Application            # Application Layer (CQRS Commands & Queries)
+│   ├── Abstractions/              # Repository & Service Interfaces
+│   ├── Common/                    # Behaviors (Validation, Logging), Models (ApiResponse, PagedResult)
+│   ├── DomainEvents/              # Domain Event Handlers (TaskAssigned, TaskCompleted, ProjectCreated)
+│   ├── Exceptions/                # Typed Domain/Application Exceptions
+│   ├── Notifications/             # Notification CQRS Handlers
+│   ├── ProjectMembers/            # Project Membership CQRS Handlers
+│   ├── Projects/                  # Project CQRS Handlers
+│   ├── Tasks/                     # Task CQRS Handlers
+│   ├── Users/                     # Auth & User CQRS Handlers
+│   ├── WorkflowAutomation/        # Workflow Engine, Condition Evaluators & Action Executors
+│   ├── Workflows/                 # Workflow CRUD CQRS Handlers
+│   └── Workspaces/                # Workspace CQRS Handlers
+│
+├── DevFlow.Domain                 # Core Domain Layer (Zero External Dependencies)
+│   ├── Entities/                  # User, Workspace, WorkspaceMember, Project, ProjectMember, TaskItem, Notification, Workflow, RefreshToken
+│   ├── Enum/                      # UserRole, WorkspaceRole, ProjectRole, TaskPriority, TaskStatus, NotificationType, WorkflowTrigger, etc.
+│   └── Events/                    # IDomainEvent, TaskAssignedEvent, TaskCompletedEvent, ProjectCreatedEvent
+│
+├── DevFlow.Infrastructure         # Infrastructure & Persistence Layer
+│   ├── Persistence/               # DevFlowDbContext & EF Core Entity Configurations
+│   ├── Repositories/              # EF Core Repository Implementations & UnitOfWork
+│   ├── Security/                  # JwtTokenGenerator, PasswordHasher
+│   ├── Services/                  # WorkspaceAuthorizationService, ProjectAuthorizationService, DomainEventDispatcher
+│   └── Hubs/                      # SignalR NotificationHub
+│
+└── DevFlow.UnitTests              # Comprehensive Unit Test Suite (348 Unit Tests)
+    ├── Application/               # Handler, Validator & Strategy Tests
+    ├── Common/                    # Pipeline Behavior Tests
+    └── Domain/                    # Domain Entity & Event Tests
 ```
 
 ---
@@ -203,54 +167,86 @@ DevFlow.Infrastructure
 ```mermaid
 graph TD
 
-Client[Client / Postman]
+Client[Client / Web UI / Postman]
 
-Client --> API
+Client --> API[DevFlow.Api]
 
-API --> Application
+API --> Application[DevFlow.Application]
 
-Application --> Domain
+Application --> Domain[DevFlow.Domain]
 
-Application --> Infrastructure
+Application --> Infrastructure[DevFlow.Infrastructure]
 
-Infrastructure --> SQL[(SQL Server)]
+Infrastructure --> SQL[(SQL Server EF Core)]
 
-Infrastructure --> SignalR[(SignalR)]
+Infrastructure --> SignalR[(SignalR WebSockets)]
 
-Domain --> DomainEvents
+Domain --> DomainEvents[MediatR Domain Events]
 
-DomainEvents --> WorkflowEngine
+DomainEvents --> WorkflowEngine[Workflow Automation Engine]
 
-WorkflowEngine --> Notifications
+WorkflowEngine --> Notifications[Notification System]
+
+Notifications --> SignalR
 ```
 
 ---
 
-## Workflow Execution Architecture
+## CQRS Request Pipeline
+
+```mermaid
+sequenceDiagram
+
+participant Client
+participant API Controller
+participant ValidationBehavior
+participant Handler
+participant Repository
+participant Database
+
+Client->>API Controller: HTTP Request
+API Controller->>ValidationBehavior: MediatR Send(Command/Query)
+ValidationBehavior->>ValidationBehavior: Execute FluentValidation
+ValidationBehavior->>Handler: Forward Request
+Handler->>Repository: Query / Persist
+Repository->>Database: Save Changes / Fetch
+Database-->>Repository: Result Data
+Repository-->>Handler: Entity Result
+Handler-->>API Controller: Response DTO / ApiResponse<T>
+API Controller-->>Client: HTTP 200 OK Response
+```
+
+---
+
+## Workflow Automation Execution Flow
 
 ```mermaid
 graph TD
 
-TaskAssignedEvent
+TaskAssigned[TaskAssignedEvent Published]
 
-TaskAssignedEvent --> WorkflowEngine
+TaskAssigned --> DomainEventDispatcher
 
-WorkflowEngine --> LoadActiveWorkflows
+DomainEventDispatcher --> TaskAssignedEventHandler
 
-LoadActiveWorkflows --> EvaluateConditions
+TaskAssignedEventHandler --> WorkflowEngine
 
-EvaluateConditions --> ExecuteActions
+WorkflowEngine --> FetchWorkflows[Fetch Active Workflows for Trigger]
 
-ExecuteActions --> NotifyUser
+FetchWorkflows --> EvaluateConditions[Evaluate Conditions Strategy]
 
-NotifyUser --> NotificationRepository
+EvaluateConditions -- Passed --> ExecuteActions[Execute Action Strategy]
 
-NotificationRepository --> SignalR
+ExecuteActions --> NotifyUser[NotifyUserActionExecutor]
+
+NotifyUser --> SaveNotification[Notification Repository]
+
+SaveNotification --> RealtimeHub[SignalR Realtime NotificationHub]
 ```
 
 ---
 
-## Entity Relationship Diagram
+## Entity Relationship Diagram (ERD)
 
 ```mermaid
 erDiagram
@@ -258,354 +254,142 @@ erDiagram
 USER ||--o{ WORKSPACE_MEMBER : has
 WORKSPACE ||--o{ WORKSPACE_MEMBER : contains
 WORKSPACE ||--o{ PROJECT : contains
+PROJECT ||--o{ PROJECT_MEMBER : contains
+USER ||--o{ PROJECT_MEMBER : joined
 PROJECT ||--o{ TASK_ITEM : contains
 USER ||--o{ TASK_ITEM : assigned
 USER ||--o{ NOTIFICATION : receives
+USER ||--o{ REFRESH_TOKEN : owns
 WORKFLOW ||--o{ WORKFLOW_CONDITION : contains
 WORKFLOW ||--o{ WORKFLOW_ACTION : contains
 
 USER {
     int Id
+    string Name
     string Email
+    string PasswordHash
+    UserRole Role
 }
 
 WORKSPACE {
     int Id
     string Name
+    int CreatedBy
+}
+
+WORKSPACE_MEMBER {
+    int Id
+    int WorkspaceId
+    int UserId
+    WorkspaceRole Role
 }
 
 PROJECT {
     int Id
     string Name
+    string Description
+    int WorkspaceId
+    int CreatedBy
+}
+
+PROJECT_MEMBER {
+    int Id
+    int ProjectId
+    int UserId
+    ProjectRole Role
 }
 
 TASK_ITEM {
     int Id
     string Title
-    string Status
+    int ProjectId
+    int AssignedToUserId
+    TaskPriority Priority
+    TaskStatus Status
 }
 
 NOTIFICATION {
     int Id
+    int UserId
     string Message
+    NotificationType Type
     bool IsRead
 }
 
 WORKFLOW {
     int Id
     string Name
-    bool Enabled
-}
-
-WORKFLOW_CONDITION {
-    int Id
-    string Field
-    string Operator
-    string Value
-}
-
-WORKFLOW_ACTION {
-    int Id
-    string ActionType
-    int Order
+    WorkflowTrigger Trigger
+    bool IsEnabled
 }
 ```
 
----
-
-## CQRS Request Flow
-
-```mermaid
-sequenceDiagram
-
-participant Client
-
-participant API
-
-participant MediatR
-
-participant Handler
-
-participant Repository
-
-participant Database
-
-Client->>API: HTTP Request
-
-API->>MediatR: Send(Command/Query)
-
-MediatR->>Handler: Handle()
-
-Handler->>Repository: Execute
-
-Repository->>Database: Save / Read
-
-Database-->>Repository: Result
-
-Repository-->>Handler: Return
-
-Handler-->>MediatR: Response
-
-MediatR-->>API: Result
-
-API-->>Client: HTTP Response
-```
-
----
-
-## Architectural Patterns
-
-- Clean Architecture
-- CQRS
-- Repository Pattern
-- Unit of Work
-- Domain-Driven Design (DDD)
-- Domain Events
-- Strategy Pattern
-- MediatR
-- Dependency Injection
-- Pipeline Behaviors
-- Global Exception Handling
 ---
 
 # Technology Stack
 
-## Backend
+## Backend Framework & Core
 
-- ASP.NET Core
-- C#
-- Entity Framework Core
-- SQL Server
+- **Framework**: .NET 9 ASP.NET Core Web API
+- **Language**: C# 13
+- **ORM**: Entity Framework Core 9
+- **Database**: SQL Server
 
-## Libraries & Frameworks
+## Libraries & Packages
 
-- ASP.NET Core Identity
-- JWT Bearer Authentication
-- MediatR
-- FluentValidation
-- SignalR
-
-## Architectural Concepts
-
-- Clean Architecture
-- CQRS
-- Domain-Driven Design (DDD)
-- Repository Pattern
-- Unit of Work
-- Strategy Pattern
-- Domain Events
-- Dependency Injection
+- **MediatR**: CQRS pattern implementation & in-process messaging
+- **FluentValidation**: Request model validation
+- **BCrypt.Net**: Secure password hashing
+- **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT Security
+- **Microsoft.AspNetCore.SignalR**: Real-time WebSocket notifications
+- **xUnit, FluentAssertions, Moq**: Unit testing framework & mocking library
 
 ---
 
 # Current Progress
 
-| Module | Status |
-|---------|--------|
-| Authentication | ✅ Completed |
-| JWT Authentication | ✅ Completed |
-| Refresh Tokens | ✅ Completed |
-| Workspace Management | ✅ Completed |
-| Workspace Member Management | ✅ Completed |
-| Role-Based Authorization | ✅ Completed |
-| Project Management | ✅ Completed |
-| Task Management | ✅ Completed |
-| Notifications | ✅ Completed |
-| Real-Time Notifications (SignalR) | ✅ Completed |
-| Domain Events | ✅ Completed |
-| CQRS | ✅ Completed |
-| Validation Pipeline | ✅ Completed |
-| Logging Pipeline | ✅ Completed |
-| Workflow Automation | ✅ Completed |
-| Workflow Management APIs | ✅ Completed |
-| Workflow Engine | ✅ Completed |
-| Workflow Notifications | ✅ Completed |
-| Unit Testing | 🚧 Planned |
-| Integration Testing | 🚧 Planned |
-| End-to-End Testing | 🚧 Planned |
-| Analytics & Reporting | 🚧 Planned |
+| Module | Status | Details |
+|---|---|---|
+| Authentication & Identity | ✅ Completed | JWT, Refresh Tokens, BCrypt, Logout |
+| Workspace Management | ✅ Completed | CRUD, Membership, Owner/Admin Authorization |
+| Project Management | ✅ Completed | CRUD, Workspace Scope, Member Management |
+| Task Management | ✅ Completed | CRUD, Status (Todo/InProgress/Completed), Priority, Assignee |
+| Real-Time Notifications | ✅ Completed | Persistent Notifications, SignalR WebSockets |
+| Workflow Automation | ✅ Completed | Strategy-based Triggers, Conditions & Actions |
+| Domain Events | ✅ Completed | TaskAssigned, TaskCompleted, ProjectCreated |
+| Validation Pipeline | ✅ Completed | FluentValidation MediatR Pipeline Behavior |
+| Unit Testing | ✅ Completed | **348 / 348 Unit Tests Passed (100% Pass Rate)** |
+| Integration Testing | 🚧 Planned | WebApplicationFactory API Endpoint Testing |
+| End-to-End Testing | 🚧 Planned | Full Integration Flows |
+| Analytics & Reporting | 🚧 Planned | Dashboard Metrics & Aggregated Queries |
 
 ---
 
-# Workflow Automation Overview
+# Test Suite Verification
 
-The Workflow Automation module enables administrators to configure automated business workflows that react to domain events.
+DevFlow contains a comprehensive unit test suite written with **xUnit**, **FluentAssertions**, and **Moq**.
 
-A workflow consists of:
+### Running Tests
 
-- Trigger
-- One or more Conditions
-- One or more ordered Actions
+To run the unit test suite locally:
 
-When a supported domain event occurs, the workflow engine:
+```bash
+dotnet test DevFlow.UnitTests/DevFlow.UnitTests.csproj
+```
 
-1. Loads all active workflows for the trigger.
-2. Evaluates every configured condition.
-3. Executes actions in order.
-4. Persists workflow notifications.
-5. Delivers notifications in real time using SignalR.
+### Test Summary
 
-Current implementation includes:
+```text
+Passed!  - Failed: 0, Passed: 348, Skipped: 0, Total: 348
+```
 
-### Supported Trigger
-
-- TaskAssignedEvent
-
-### Supported Condition Operators
-
-- Equals
-- NotEquals
-- GreaterThan
-- GreaterThanOrEqual
-- LessThan
-- LessThanOrEqual
-- Contains
-
-### Supported Action
-
-- NotifyUser
-
-The engine is fully extensible, allowing additional triggers, condition operators, and action executors to be introduced without modifying the core workflow engine.
-
----
-
-# Workflow Management API
-
-The Workflow module exposes authenticated REST endpoints for workflow management.
-
-| Method | Endpoint |
-|----------|----------|
-| POST | `/api/workflows` |
-| GET | `/api/workflows` |
-| GET | `/api/workflows/{id}` |
-| PUT | `/api/workflows/{id}` |
-| PATCH | `/api/workflows/{id}/enable` |
-| PATCH | `/api/workflows/{id}/disable` |
-
-Supports:
-
-- Pagination
-- Searching
-- Filtering
-- Sorting
-- Enable / Disable workflows
-
----
-
-# Implemented Domain Model
-
-## User
-
-- Authentication
-- Refresh Tokens
-- Workspace Memberships
-- Notifications
-
----
-
-## Workspace
-
-- Owner
-- Members
-- Role Management
-- Contains Projects
-
----
-
-## Project
-
-- Belongs to a Workspace
-- Contains Tasks
-- Raises Domain Events
-
-Current Event:
-
-- ProjectCreatedEvent
-
----
-
-## TaskItem
-
-- Belongs to a Project
-- Assigned to Workspace Members
-- Status Tracking
-- Priority Tracking
-- Due Dates
-
-Current Events:
-
-- TaskAssignedEvent
-- TaskCompletedEvent
-
----
-
-## Notification
-
-- User-specific Notifications
-- Read / Unread Tracking
-- SignalR Delivery
-- Workflow Notifications
-
----
-
-## Workflow
-
-Represents an automation rule.
-
-Contains:
-
-- Trigger
-- Conditions
-- Actions
-- Enabled State
-
----
-
-## WorkflowCondition
-
-Represents a configurable rule evaluated during workflow execution.
-
-Contains:
-
-- Target Field
-- Comparison Operator
-- Comparison Value
-
----
-
-## WorkflowAction
-
-Represents an action executed after successful condition evaluation.
-
-Current implementation supports:
-
-- NotifyUser
-
-The design supports adding future actions without changing the workflow engine.
-
----
-
-# End-to-End Workflow Verification
-
-The Workflow Automation module has been verified through an end-to-end execution flow.
-
-Verified scenario:
-
-1. Create Workflow
-2. Enable Workflow
-3. Create Workspace
-4. Add Workspace Member
-5. Create Project
-6. Create Task
-7. Assign Task
-8. TaskAssignedEvent Published
-9. Workflow Engine Executed
-10. Conditions Evaluated
-11. NotifyUser Action Executed
-12. Notification Persisted
-13. SignalR Notification Delivered
-
-The workflow engine executes automatically as part of the application's normal request pipeline without requiring controller-level integration.
+The unit test suite covers:
+- **Domain Entities & Logic**: Invariants on TaskItem, Workflow, Project, Workspace, User.
+- **Application CQRS Handlers**: Command & Query Handlers across Auth, Workspaces, Projects, Project Members, Tasks, Workflows, Notifications.
+- **FluentValidation Rules**: Validator behavior for all input DTOs and Commands.
+- **MediatR Pipeline Behaviors**: `ValidationBehavior` validation enforcement.
+- **Workflow Automation Engine**: Condition evaluators (Equals, NotEquals, GreaterThan, LessThan, Contains), Action Executors (NotifyUser), and `WorkflowEngine` orchestration.
+- **Domain Event Handlers**: Event-to-Workflow & Event-to-Notification dispatching.
 
 ---
 
@@ -613,286 +397,45 @@ The workflow engine executes automatically as part of the application's normal r
 
 ## Prerequisites
 
-- .NET SDK
-- SQL Server
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- SQL Server (LocalDB or full instance)
 
 ---
 
-## Clone Repository
-
-```bash
-git clone https://github.com/MuhammadBilal64/DevFlow.git
-cd DevFlow
-```
-
----
-
-## Configure Database
-
-Update the connection string in:
-
-```text
-DevFlow/appsettings.json
-```
-
----
-
-## Apply Migrations
-
-```bash
-dotnet ef database update --project DevFlow.Infrastructure --startup-project DevFlow
-```
-
----
-
-## Run the Application
-
-```bash
-cd DevFlow
-dotnet run
-```
-
-The API will be available locally after startup.
-
-Authentication is required for protected endpoints.
-
----
-
-# Roadmap
-
-The project is being developed incrementally, with each phase focusing on a major backend capability.
-
-## Phase 1 — Authentication & Workspace Management ✅
-
-Completed
-
-- JWT Authentication
-- Refresh Token Support
-- ASP.NET Core Identity
-- Workspace Management
-- Workspace Membership Management
-- Role-Based Authorization
-- Owner/Admin Permission Enforcement
-
----
-
-## Phase 2 — Project & Task Management ✅
-
-Completed
-
-- Project Management
-- Task Management
-- Task Assignment
-- Task Status Tracking
-- Task Priority Tracking
-- Due Date Management
-- Domain Events
-
----
-
-## Phase 3 — Notifications ✅
-
-Completed
-
-- In-App Notifications
-- Real-Time Notifications (SignalR)
-- Notification APIs
-- Notification Persistence
-- Business Notifications
-
----
-
-## Phase 4 — Workflow Automation ✅
-
-Completed
-
-The Workflow Automation module introduces configurable business automation through workflows.
-
-Completed features include:
-
-- Workflow Domain Model
-- Workflow CRUD APIs
-- Enable / Disable Workflows
-- Workflow Repository
-- Workflow Engine
-- Strategy-based Condition Evaluation
-- Strategy-based Action Execution
-- NotifyUser Action
-- Workflow Notifications
-- Domain Event Integration
-- End-to-End Workflow Execution
-
-Current supported trigger:
-
-- TaskAssignedEvent
-
-Current supported action:
-
-- NotifyUser
-
-The architecture is intentionally extensible to support future triggers, operators, and action executors.
-
----
-
-## Phase 5 — Testing 🚧
-
-Current Focus
-
-The next milestone is building a comprehensive testing suite for the application.
-
-Planned:
-
-- Unit Testing
-- Integration Testing
-- End-to-End Testing
-- API Testing
-- Domain Testing
-- Handler Testing
-- Repository Testing
-- Workflow Engine Testing
-- Authentication Testing
-
----
-
-## Phase 6 — Analytics & Reporting
-
-Planned
-
-- Dashboard Statistics
-- Project Analytics
-- Workspace Analytics
-- User Productivity Metrics
-- Reporting APIs
-- Aggregated Queries
-
----
-
-## Future Enhancements
-
-Planned improvements include:
-
-- Comments on Tasks
-- Activity Timeline
-- Audit Logs
-- File Attachments
-- Email Notifications
-- Additional Workflow Triggers
-- Additional Workflow Actions
-- Scheduled Workflows
-- Background Jobs
-- Performance Optimizations
-- Redis Caching
-- Docker Support
-- CI/CD Pipeline
-- Cloud Deployment
-- Message Queue Integration
-- Monitoring & Observability
-
----
-
-# Learning Objectives
-
-DevFlow is more than a CRUD application.
-
-It is a practical learning project focused on applying modern backend engineering concepts used in production systems.
-
-Topics covered include:
-
-- Clean Architecture
-- CQRS with MediatR
-- Domain-Driven Design (DDD)
-- Entity Framework Core
-- Repository Pattern
-- Unit of Work
-- Domain Events
-- Strategy Pattern
-- Dependency Injection
-- FluentValidation
-- Pipeline Behaviors
-- JWT Authentication
-- Refresh Tokens
-- Role-Based Authorization
-- SignalR
-- Workflow Engine Design
-- Event-Driven Architecture
-- Scalable Backend Development
-
-Upcoming learning topics:
-
-- Unit Testing
-- Integration Testing
-- End-to-End Testing
-- Redis
-- Docker
-- CI/CD
-- Background Processing
-- Distributed Systems Concepts
-
----
-
-# Project Highlights
-
-Some of the key architectural features implemented in DevFlow include:
-
-- Clean Architecture
-- CQRS using MediatR
-- Repository Pattern
-- Unit of Work
-- Domain Events
-- Event-Driven Workflow Automation
-- Strategy-based Condition Evaluation
-- Strategy-based Action Execution
-- Real-Time Notifications with SignalR
-- Global Exception Handling
-- Validation & Logging Pipeline Behaviors
-- Extensible Workflow Engine
-
----
-
-# Future Vision
-
-The long-term goal of DevFlow is to evolve into a production-style collaboration platform capable of supporting:
-
-- Large Workspaces
-- Team Collaboration
-- Workflow Automation
-- Advanced Analytics
-- Background Processing
-- Scalable Infrastructure
-- Cloud Deployment
-- Enterprise-Level Backend Architecture
-
-The project is intentionally designed so that new modules can be added without requiring major architectural changes.
-
----
-
-# Contributing
-
-DevFlow is currently under active development.
-
-Suggestions, discussions, issue reports, and pull requests are welcome.
-
-If you would like to contribute:
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Open a Pull Request.
-
-For significant changes, please open an issue first to discuss the proposed design.
-
----
-
-# License
-
-This project is licensed under the MIT License.
+## Quick Setup
+
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/MuhammadBilal64/DevFlow.git
+   cd DevFlow
+   ```
+
+2. **Configure Connection String**:
+   Update `appsettings.json` inside `DevFlow/DevFlow`:
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=DevFlowDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+   }
+   ```
+
+3. **Apply Database Migrations**:
+   ```bash
+   dotnet ef database update --project DevFlow.Infrastructure --startup-project DevFlow/DevFlow
+   ```
+
+4. **Run Application**:
+   ```bash
+   cd DevFlow/DevFlow
+   dotnet run
+   ```
+
+The API will start at `https://localhost:7001` / `http://localhost:5000`. Swagger documentation is available at `/swagger` in Development mode.
 
 ---
 
 # Author
 
 **Muhammad Bilal**
+Backend Developer | ASP.NET Core | Clean Architecture | CQRS | DDD
 
-Backend Developer | ASP.NET Core | Clean Architecture | CQRS | Domain-Driven Design
-
-DevFlow is an ongoing learning project built to explore modern backend engineering practices while applying production-inspired architectural patterns.
+DevFlow is built with production-grade backend engineering practices, focusing on maintainability, clean separation of concerns, test-driven development, and scalable event-driven automation.
