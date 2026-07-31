@@ -1,5 +1,4 @@
 ﻿using DevFlow.Application.Abstractions;
-using DevFlow.Application.Common.Models;
 using DevFlow.Application.DomainEvents.ProjectCreated;
 using DevFlow.Domain.Entities;
 using DevFlow.Domain.Enum;
@@ -17,12 +16,10 @@ namespace DevFlow.UnitTests.Application.DomainEvents.ProjectCreated
             // Arrange
             var notificationServiceMock = new Mock<INotificationService>();
             var workspaceMemberRepositoryMock = new Mock<IWorkspaceMemberRepository>();
-            var workflowEngineMock = new Mock<IWorkflowEngine>();
 
             var handler = new ProjectCreatedEventHandler(
                 notificationServiceMock.Object,
-                workspaceMemberRepositoryMock.Object,
-                workflowEngineMock.Object);
+                workspaceMemberRepositoryMock.Object);
 
 
             var members = new List<WorkspaceMember>
@@ -52,11 +49,12 @@ namespace DevFlow.UnitTests.Application.DomainEvents.ProjectCreated
 
 
             // Act
-            await handler.Handle(domainEvent, CancellationToken.None);
+            await handler.Handle(
+                domainEvent,
+                CancellationToken.None);
 
 
             // Assert
-
             notificationServiceMock.Verify(
                 x => x.NotifyAsync(
                     2,
@@ -71,13 +69,6 @@ namespace DevFlow.UnitTests.Application.DomainEvents.ProjectCreated
                     "Project 'DevFlow' was created.",
                     NotificationType.ProjectCreated),
                 Times.Once);
-
-
-            workflowEngineMock.Verify(
-                x => x.ExecuteAsync(
-                    WorkflowTrigger.ProjectCreated,
-                    It.IsAny<WorkflowExecutionContext>()),
-                Times.Exactly(2));
         }
 
 
@@ -85,16 +76,12 @@ namespace DevFlow.UnitTests.Application.DomainEvents.ProjectCreated
         public async Task Should_Not_Notify_Project_Creator()
         {
             // Arrange
-
             var notificationServiceMock = new Mock<INotificationService>();
             var workspaceMemberRepositoryMock = new Mock<IWorkspaceMemberRepository>();
-            var workflowEngineMock = new Mock<IWorkflowEngine>();
-
 
             var handler = new ProjectCreatedEventHandler(
                 notificationServiceMock.Object,
-                workspaceMemberRepositoryMock.Object,
-                workflowEngineMock.Object);
+                workspaceMemberRepositoryMock.Object);
 
 
             var members = new List<WorkspaceMember>
@@ -112,7 +99,6 @@ namespace DevFlow.UnitTests.Application.DomainEvents.ProjectCreated
                 .ReturnsAsync(members);
 
 
-
             var domainEvent = new ProjectCreatedEvent(
                 "DevFlow",
                 1,
@@ -120,25 +106,17 @@ namespace DevFlow.UnitTests.Application.DomainEvents.ProjectCreated
 
 
             // Act
-
-            await handler.Handle(domainEvent, CancellationToken.None);
-
+            await handler.Handle(
+                domainEvent,
+                CancellationToken.None);
 
 
             // Assert
-
             notificationServiceMock.Verify(
                 x => x.NotifyAsync(
                     It.IsAny<int>(),
                     It.IsAny<string>(),
                     It.IsAny<NotificationType>()),
-                Times.Never);
-
-
-            workflowEngineMock.Verify(
-                x => x.ExecuteAsync(
-                    It.IsAny<WorkflowTrigger>(),
-                    It.IsAny<WorkflowExecutionContext>()),
                 Times.Never);
         }
     }
