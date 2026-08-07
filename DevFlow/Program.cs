@@ -1,4 +1,5 @@
 using System.Text;
+using Scalar.AspNetCore;
 using DevFlow.Api.Middleware;
 using DevFlow.Application.Abstractions;
 using DevFlow.Application.Common.Behaviors;
@@ -36,6 +37,7 @@ builder.Services.AddCors(options =>
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddHttpContextAccessor();
@@ -129,6 +131,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 app.MapHub<NotificationHub>("/notificationHub");
 app.UseMiddleware<ExceptionMiddleware>();
