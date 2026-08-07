@@ -1,39 +1,64 @@
-# DevFlow Frontend Integration Reference (`details.md`)
+# ⚡ DevFlow Integration & API Reference (`details.md`)
 
-This document is the **definitive, production-accurate technical reference** for building and connecting the **DevFlow Frontend** (React / Vite / Next.js) to the **DevFlow Backend API**.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/server.svg" width="90" alt="DevFlow API Logo" />
+</p>
 
-It contains all API endpoints, exact route structures, HTTP methods, request/response models, query parameters, enums, error contracts, and SignalR WebSocket specs.
+<h3 align="center">Definitive Production-Accurate Frontend & API Integration Reference</h3>
+
+<p align="center">
+  This document serves as the complete technical blueprint for integrating frontend applications (React, Vite, Next.js) with the <strong>DevFlow ASP.NET Core (.NET 9) Backend API</strong>.
+</p>
+
+---
+
+## 📋 Table of Contents
+
+- [1. Core Architecture & Environment Basics](#1-core-architecture--environment-basics)
+- [2. Global Response & Error Envelopes](#2-global-response--error-envelopes)
+- [3. Frontend Axios & SignalR WebSockets Client Setup](#3-frontend-axios--signalr-websockets-client-setup)
+- [4. Complete Enums Reference](#4-complete-enums-reference)
+- [5. Common Utility Models & DTOs](#5-common-utility-models--dtos)
+- [6. Comprehensive API Endpoint Specifications](#6-comprehensive-api-endpoint-specifications)
+  - [Module 1: Auth API (`/api/Auth`)](#module-1-auth-api-apiauth)
+  - [Module 2: Workspace API (`/api/workspaces`)](#module-2-workspace-api-apiworkspaces)
+  - [Module 3: Project API (`/api/projects`)](#module-3-project-api-apiprojects)
+  - [Module 4: Project Members API (`/api/projects/{projectId}/members`)](#module-4-project-members-api-apiprojectsprojectidmembers)
+  - [Module 5: Task API (`/api/projects/{projectId}/tasks`)](#module-5-task-api-apiprojectsprojectidtasks)
+  - [Module 6: Workflow Automation API (`/api/projects/{projectId}/workflows`)](#module-6-workflow-automation-api-apiprojectsprojectidworkflows)
+  - [Module 7: Notification API (`/api/notifications`)](#module-7-notification-api-apinotifications)
+- [7. Key Best Practices for Frontend Integration](#7-key-best-practices-for-frontend-integration)
 
 ---
 
 ## 1. Core Architecture & Environment Basics
 
-- **Framework**: .NET 9 ASP.NET Core Web API (Clean Architecture with MediatR CQRS)
-- **Base HTTP URL**: `http://localhost:5000` / `https://localhost:7001`
-- **SignalR WebSockets URL**: `http://localhost:5000/notificationHub`
-- **Allowed CORS Origin**: `http://localhost:5173` (Vite / React default)
-- **Content-Type**: `application/json`
+- **Backend Framework**: .NET 9 ASP.NET Core Web API (Clean Architecture with MediatR CQRS)
+- **Base Backend HTTP URL**: `http://localhost:5000` / `https://localhost:7001`
+- **SignalR WebSocket URL**: `http://localhost:5000/notificationHub`
+- **Allowed CORS Origins**: `http://localhost:5173`, `http://localhost:5174`, `http://localhost:3000`
+- **Default Content-Type**: `application/json`
 
 ---
 
 ## 2. Global Response & Error Envelopes
 
 ### 2.1 Standard API Envelope (`ApiResponse<T>`)
-All successful HTTP responses return data wrapped inside the `ApiResponse<T>` envelope:
+All successful HTTP responses return data wrapped inside the standardized `ApiResponse<T>` envelope:
 
 ```json
 {
   "success": true,
   "message": "Operation response message",
-  "data": { ... } // Single Object, PagedResult<T>, Array, or null
+  "data": { ... } // Object, PagedResult<T>, Array, or null
 }
 ```
 
 ### 2.2 Global Exception & Error Envelopes
-When an error occurs, the API returns standardized error structures depending on the exception type:
+When an exception occurs, the server responds with standardized JSON error objects:
 
 #### 1. Validation Error (`400 Bad Request`)
-Occurs when request parameters or body fail FluentValidation rules:
+Triggered when request bodies fail FluentValidation rules:
 ```json
 {
   "message": "One or more validation errors occurred.",
@@ -45,9 +70,9 @@ Occurs when request parameters or body fail FluentValidation rules:
 ```
 
 #### 2. Domain & Business Errors (`401`, `403`, `404`, `409`)
-- `401 Unauthorized`: Missing token, expired token, or bad credentials (`UnauthorizedException`)
-- `403 Forbidden`: Insufficient role or membership permissions (`ForbiddenException`)
-- `404 Not Found`: Target entity does not exist (`NotFoundException`)
+- `401 Unauthorized`: Token missing, expired, or invalid credentials (`UnauthorizedException`)
+- `403 Forbidden`: Insufficient role or workspace/project permissions (`ForbiddenException`)
+- `404 Not Found`: Target entity (Task, Project, Workspace, User, Workflow) does not exist (`NotFoundException`)
 - `409 Conflict`: Resource state collision or duplicate member (`ConflictException`)
 
 ```json
@@ -58,99 +83,165 @@ Occurs when request parameters or body fail FluentValidation rules:
 
 ---
 
-## 3. Authentication & SignalR Setup
+## 3. Frontend Axios & SignalR WebSockets Client Setup
 
-### 3.1 Authorization Header
-All protected HTTP endpoints require the Bearer token header:
-```http
-Authorization: Bearer <JWT_ACCESS_TOKEN>
-```
+### 3.1 Axios Client with JWT Token & Auto-Refresh Interceptor
 
-### 3.2 SignalR Connection Setup (TypeScript / JavaScript)
-To receive real-time notifications, connect using `@microsoft/signalr` passing the access token:
+```javascript
+// src/api/axiosClient.js
+import axios from 'axios';
 
-```typescript
-import * as signalR from "@microsoft/signalr";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
-const connection = new signalR.HubConnectionBuilder()
-  .withUrl("http://localhost:5000/notificationHub", {
-    accessTokenFactory: () => accessToken // Returns current JWT token string
-  })
-  .withAutomaticReconnect()
-  .build();
-
-// Listen for incoming notifications
-connection.on("ReceiveNotification", (notification: NotificationRealtimeModel) => {
-  console.log("Real-time notification received:", notification);
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-await connection.start();
+// Request Interceptor: Attach Bearer JWT Access Token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => Promise.reject(error));
+
+// Response Interceptor: Handle 401 & Refresh Token Automatically
+api.interceptors.response.use(
+  (response) => response.data,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          const res = await axios.post(`${API_BASE_URL}/api/Auth/refresh`, { refreshToken });
+          if (res.data?.success) {
+            const { token, refreshToken: newRefreshToken } = res.data.data;
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', newRefreshToken);
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          }
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error.response?.data || error);
+  }
+);
+
+export default api;
+```
+
+### 3.2 SignalR WebSockets Client Hook (React)
+
+Install `@microsoft/signalr`: `npm install @microsoft/signalr`
+
+```javascript
+// src/hooks/useSignalRNotification.js
+import { useEffect } from 'react';
+import * as signalR from '@microsoft/signalr';
+
+export const useSignalRNotification = (onNotificationReceived) => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5000/notificationHub', {
+        accessTokenFactory: () => localStorage.getItem('token'),
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on('ReceiveNotification', (notification) => {
+      console.log('Real-time notification received:', notification);
+      if (onNotificationReceived) {
+        onNotificationReceived(notification);
+      }
+    });
+
+    connection.start().catch((err) => console.error('SignalR connection error:', err));
+
+    return () => {
+      connection.stop();
+    };
+  }, [onNotificationReceived]);
+};
 ```
 
 ---
 
 ## 4. Complete Enums Reference
 
-> **CRITICAL FOR FRONTEND**: Enum values should be sent as **integers** (or matching names if configured). Always use the exact integer value when creating or updating resources.
+> ⚠️ **CRITICAL FOR FRONTEND**: Always send enum values as **integers** in API requests.
 
 ### `UserRole`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `Admin` | `0` | Platform Administrator |
-| `Manager` | `1` | Manager |
+| `Manager` | `1` | Workspace/Project Manager |
 | `Member` | `2` | Standard User |
 
 ### `WorkspaceRole`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `Owner` | `0` | Workspace Owner (Full Admin Rights) |
 | `Admin` | `1` | Workspace Administrator |
 | `Member` | `2` | Workspace Member |
 
 ### `ProjectRole`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `Owner` | `0` | Project Owner |
 | `Admin` | `1` | Project Administrator |
 | `Member` | `2` | Project Member |
 
 ### `TaskPriority`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `Low` | `0` | Low Priority Task |
 | `Medium` | `1` | Normal / Medium Priority |
 | `High` | `2` | High / Urgent Priority |
 
 ### `TaskStatus`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
-| `Todo` | `0` | Backlog / Todo |
-| `InProgress` | `1` | Actively Working |
-| `Completed` | `2` | Completed / Done |
+| `Todo` | `0` | Backlog / Todo Column |
+| `InProgress` | `1` | In Progress Column |
+| `Completed` | `2` | Completed / Done Column |
 
 ### `NotificationType`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `TaskAssigned` | `0` | Task assigned to user |
 | `TaskCompleted` | `1` | Task marked completed |
 | `ProjectCreated` | `2` | Project created |
-| `MemberAdded` | `3` | Added to workspace/project |
-| `Workflow` | `4` | Triggered by automation rule |
+| `MemberAdded` | `3` | Member added to workspace/project |
+| `Workflow` | `4` | Triggered by automation engine |
 
 ### `WorkflowTrigger`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `TaskAssigned` | `0` | Event when task assignee updates |
 | `TaskCompleted` | `1` | Event when task status changes to Completed |
-| `ProjectCreated` | `2` | Event when a project is created |
+| `ProjectCreated` | `2` | Event when a new project is created |
 
 ### `WorkflowActionType`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
-| `NotifyUser` | `0` | Send persistent + SignalR notification |
+| `NotifyUser` | `0` | Send persistent DB + real-time SignalR notification |
 
 ### `WorkflowOperator`
-| Name | Value | Description |
+| Name | Integer | Description |
 | :--- | :--- | :--- |
 | `Equals` | `0` | `==` exact match |
 | `NotEquals` | `1` | `!=` not equal |
@@ -165,14 +256,13 @@ await connection.start();
 ## 5. Common Utility Models & DTOs
 
 ### `PaginationRequest` (Query Parameters)
-Used across paginated `GET` endpoints:
-- `pageNumber`: `number` (integer, default: `1`)
-- `pageSize`: `number` (integer, default: `10`)
-- `searchTerm`: `string | null` (optional search keyword)
-- `sortBy`: `string | null` (property name to sort by)
+- `pageNumber`: `number` (default: `1`)
+- `pageSize`: `number` (default: `10`)
+- `searchTerm`: `string | null` (optional search filter)
+- `sortBy`: `string | null` (property to sort by)
 - `descending`: `boolean` (default: `false`)
 
-### `PagedResult<T>` (Pagination Response Wrapper)
+### `PagedResult<T>` (Response Model)
 ```json
 {
   "items": [],
@@ -188,9 +278,9 @@ Used across paginated `GET` endpoints:
 ### `WorkflowConditionDto`
 ```json
 {
-  "field": "Priority", // Target field name (e.g. "Priority", "Status", "Title")
+  "field": "Priority", // Target property (e.g., "Priority", "Status", "Title")
   "operator": 0,      // WorkflowOperator enum (0 = Equals, 6 = Contains, etc.)
-  "value": "2"        // Comparison value string
+  "value": "2"        // Comparison target value
 }
 ```
 
@@ -208,15 +298,15 @@ Used across paginated `GET` endpoints:
 interface NotificationRealtimeModel {
   userId: number;
   message: string;
-  type: NotificationType; // enum 0-4
+  type: NotificationType; // 0-4
   referenceId: number | null;
-  createdAt: string; // ISO DateTime string
+  createdAt: string; // ISO DateTime
 }
 ```
 
 ---
 
-## 6. Comprehensive API Endpoint Specification
+## 6. Comprehensive API Endpoint Specifications
 
 ---
 
@@ -330,38 +420,22 @@ interface NotificationRealtimeModel {
     "name": "Frontend Engineering"
   }
   ```
-- **Success Response (`200 OK`)**:
-  ```json
-  {
-    "success": true,
-    "message": "Workspace Created Successfully",
-    "data": {
-      "id": 1,
-      "name": "Frontend Engineering",
-      "createdBy": 1,
-      "createdAt": "2026-07-31T18:00:00Z"
-    }
-  }
-  ```
 
 #### 2.2 Get My Workspaces (Paginated)
 - **HTTP Method**: `GET`
 - **Endpoint**: `/api/workspaces/my`
 - **Authentication**: Required (`[Authorize]`)
 - **Query Parameters**: `pageNumber`, `pageSize`, `searchTerm`, `sortBy`, `descending`
-- **Success Response (`200 OK`)**: `ApiResponse<PagedResult<GetMyWorkspacesResult>>`
 
 #### 2.3 Get Workspace By ID
 - **HTTP Method**: `GET`
 - **Endpoint**: `/api/workspaces/{workspaceId}`
 - **Authentication**: Required (`[Authorize]`)
-- **Success Response (`200 OK`)**: `ApiResponse<GetWorkspaceByIdResult>`
 
 #### 2.4 Get Workspace Members (Paginated)
 - **HTTP Method**: `GET`
 - **Endpoint**: `/api/workspaces/{workspaceId}/members`
 - **Authentication**: Required (`[Authorize]`)
-- **Success Response (`200 OK`)**: `ApiResponse<PagedResult<GetWorkspaceMembersResult>>`
 
 #### 2.5 Add Workspace Member
 - **HTTP Method**: `POST`
@@ -392,7 +466,7 @@ interface NotificationRealtimeModel {
   ```json
   {
     "name": "DevFlow Web Client",
-    "description": "React & TypeScript frontend application",
+    "description": "React & Tailwind CSS frontend application",
     "workspaceId": 1
   }
   ```
@@ -416,7 +490,7 @@ interface NotificationRealtimeModel {
   ```json
   {
     "name": "Updated Project Name",
-    "description": "Updated description"
+    "description": "Updated project description"
   }
   ```
 
@@ -440,7 +514,6 @@ interface NotificationRealtimeModel {
 - **HTTP Method**: `GET`
 - **Endpoint**: `/api/projects/{projectId}/members`
 - **Authentication**: Required (`[Authorize]`)
-- **Success Response (`200 OK`)**: `ApiResponse<List<GetProjectMembersResult>>`
 
 #### 4.3 Remove Project Member
 - **HTTP Method**: `DELETE`
@@ -450,8 +523,6 @@ interface NotificationRealtimeModel {
 ---
 
 ### MODULE 5: Task API (`/api/projects/{projectId}/tasks`)
-
-> **IMPORTANT**: All task endpoints are scoped under `/api/projects/{projectId}/tasks`.
 
 #### 5.1 Create Task
 - **HTTP Method**: `POST`
@@ -529,9 +600,7 @@ interface NotificationRealtimeModel {
 
 ---
 
-### MODULE 6: Workflow API (`/api/projects/{projectId}/workflows`)
-
-> **IMPORTANT**: Workflow management endpoints are scoped under `/api/projects/{projectId}/workflows`.
+### MODULE 6: Workflow Automation API (`/api/projects/{projectId}/workflows`)
 
 #### 6.1 Create Workflow Rule
 - **HTTP Method**: `POST`
@@ -576,12 +645,12 @@ interface NotificationRealtimeModel {
 - **Endpoint**: `/api/projects/{projectId}/workflows/{workflowId}`
 - **Authentication**: Required (`[Authorize]`)
 
-#### 6.5 Enable Workflow
+#### 6.5 Enable Workflow Rule
 - **HTTP Method**: `PATCH`
 - **Endpoint**: `/api/projects/{projectId}/workflows/{workflowId}/enable`
 - **Authentication**: Required (`[Authorize]`)
 
-#### 6.6 Disable Workflow
+#### 6.6 Disable Workflow Rule
 - **HTTP Method**: `PATCH`
 - **Endpoint**: `/api/projects/{projectId}/workflows/{workflowId}/disable`
 - **Authentication**: Required (`[Authorize]`)
@@ -594,10 +663,7 @@ interface NotificationRealtimeModel {
 - **HTTP Method**: `GET`
 - **Endpoint**: `/api/notifications`
 - **Authentication**: Required (`[Authorize]`)
-- **Query Parameters**:
-  - `pageNumber` (int, default: 1)
-  - `pageSize` (int, default: 10)
-  - `isRead` (boolean, optional filter)
+- **Query Parameters**: `pageNumber`, `pageSize`, `isRead`
 
 #### 7.2 Get Unread Notification Count
 - **HTTP Method**: `GET`
@@ -626,17 +692,9 @@ interface NotificationRealtimeModel {
 
 ---
 
-## 7. Key Best Practices for Frontend Agents & Developers
+## 7. Key Best Practices for Frontend Integration
 
-1. **JWT Storage & Auto-Refresh**:
-   - Store `token` and `refreshToken` securely in browser local storage or memory.
-   - Attach an HTTP Axios / Fetch interceptor to append `Authorization: Bearer <token>` on all API requests.
-   - When an API request returns `401 Unauthorized`, call `POST /api/Auth/refresh` using the stored `refreshToken` to obtain a fresh access token seamlessly.
-
-2. **SignalR WebSocket Lifecycle**:
-   - Initialize SignalR connection upon successful user login using `@microsoft/signalr`.
-   - Pass the token via `accessTokenFactory`.
-   - On `"ReceiveNotification"` event, update in-app notification badge counts and show toast notifications dynamically without forcing a page refresh.
-
-3. **Kanban Drag & Drop**:
-   - Use `PATCH /api/projects/{projectId}/tasks/{taskId}/status` with body `{ "status": newStatusInt }` when dragging tasks between `Todo` (0), `InProgress` (1), and `Completed` (2) columns.
+1. **Token Refresh Interceptor**: Always implement a response interceptor for `401 Unauthorized` errors that automatically calls `POST /api/Auth/refresh` using the `refreshToken`.
+2. **WebSocket Handshake Token**: Ensure the JWT access token is passed in the query string `?access_token=` during the SignalR connection initialization (`/notificationHub`).
+3. **Enum Values**: Convert dropdown values to integer representations before dispatching HTTP payloads to avoid model state validation failures.
+4. **Kanban Status Updates**: Use `PATCH /api/projects/{projectId}/tasks/{taskId}/status` when moving tasks between board columns.
